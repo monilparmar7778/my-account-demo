@@ -1,0 +1,149 @@
+<div class="givemoney-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <h1 class="main-title">Give Money Transaction</h1>
+    <p class="main-subtitle">Create money giving transactions</p>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Creating Give Money Transaction...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message-container">
+    <div class="error-box">
+      <h4>❌ Error</h4>
+      <p>{{ errorMessage }}</p>
+      <button class="close-btn" (click)="errorMessage = null">×</button>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="success-message-container">
+    <div class="success-box">
+      <h4>✅ Success</h4>
+      <p>{{ successMessage }}</p>
+      <button class="close-btn" (click)="successMessage = null">×</button>
+    </div>
+  </div>
+
+  <!-- Give Money Form -->
+  <div class="form-section give-money-section">
+    <div class="section-header">
+      <h3 class="section-title">Give Money Details</h3>
+      <p class="section-subtitle">Money Giving Information</p>
+    </div>
+    
+    <form [formGroup]="giveMoneyForm" (ngSubmit)="onSubmit()" class="give-money-form">
+      <div class="form-fields">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="giveCustomerName">Customer Name *</label>
+            <input 
+              type="text" 
+              id="giveCustomerName" 
+              formControlName="giveCustomerName" 
+              class="form-control"
+              placeholder="Enter customer name">
+            <div class="error-message" *ngIf="giveMoneyForm.get('giveCustomerName')?.invalid && giveMoneyForm.get('giveCustomerName')?.touched">
+              Customer name is required (min 3 characters)
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="giveUtiNo">UTI Number</label>
+            <input 
+              type="text" 
+              id="giveUtiNo" 
+              formControlName="giveUtiNo" 
+              class="form-control"
+              placeholder="Enter UTI number">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="givemoney">Give Money Amount (₹) *</label>
+            <input 
+              type="number" 
+              id="givemoney" 
+              formControlName="givemoney" 
+              class="form-control give-amount"
+              placeholder="Enter give amount">
+            <div class="error-message" *ngIf="giveMoneyForm.get('givemoney')?.invalid && giveMoneyForm.get('givemoney')?.touched">
+              Give money amount is required
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="giveDate">Give Money Date</label>
+            <input 
+              type="date" 
+              id="giveDate" 
+              formControlName="giveDate" 
+              class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="giveAgent">Give Money Agent</label>
+            <input 
+              type="text" 
+              id="giveAgent" 
+              formControlName="giveAgent" 
+              class="form-control"
+              placeholder="Enter give money agent name">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full-width">
+            <label for="giveRemark">Give Money Remarks</label>
+            <textarea 
+              id="giveRemark" 
+              formControlName="giveRemark" 
+              class="form-control textarea"
+              placeholder="Enter remarks for give money"
+              rows="4"></textarea>
+          </div>
+        </div>
+
+        <!-- Summary Box -->
+        <div class="summary-box">
+          <h4>Transaction Summary</h4>
+          <div class="summary-item">
+            <span>Customer Name:</span>
+            <span>{{giveMoneyForm.get('giveCustomerName')?.value || 'Not specified'}}</span>
+          </div>
+          <div class="summary-item">
+            <span>Give Money Amount:</span>
+            <span>₹{{giveMoneyForm.get('givemoney')?.value || '0'}}</span>
+          </div>
+          <div class="summary-item">
+            <span>Give Date:</span>
+            <span>{{giveMoneyForm.get('giveDate')?.value || 'Not specified'}}</span>
+          </div>
+          <div class="summary-item total">
+            <span>Total Amount:</span>
+            <span>₹{{giveMoneyForm.get('givemoney')?.value || '0'}}</span>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-reset" (click)="resetForm()">
+            <i class="icon-reset"></i>
+            Reset Form
+          </button>
+          <button type="submit" class="btn btn-submit" [disabled]="giveMoneyForm.invalid || isLoading">
+            <i class="icon-submit"></i>
+            Submit Give Money Transaction
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,6 @@
+
+<app-side-nav (toggleEvent)="onSidebarToggle($event)"></app-side-nav>
+
+<section class="home-section" [class.open]="isSidebarOpen">
+  <router-outlet></router-outlet>
+</section>

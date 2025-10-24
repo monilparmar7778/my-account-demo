@@ -1,0 +1,101 @@
+<div class="container" id="container">
+  <!-- Sign Up Form -->
+  <div class="form-container sign-up-container">
+    <form [formGroup]="signUpForm" (ngSubmit)="onSignUp()">
+      <h1>Create Account</h1>
+      
+      <!-- Name Field -->
+      <input type="text" placeholder="Name" formControlName="name" 
+             [class.error]="hasError(signUpForm, 'name', 'required')" />
+      <div *ngIf="hasError(signUpForm, 'name', 'required')" class="error-message">
+        <small>Name is required</small>
+      </div>
+      
+      <!-- Username Field -->
+      <input type="text" placeholder="Username" formControlName="username" 
+             [class.error]="hasError(signUpForm, 'username', 'required')" />
+      <div *ngIf="hasError(signUpForm, 'username', 'required')" class="error-message">
+        <small>Username is required</small>
+      </div>
+      
+      <!-- Password Field -->
+      <input type="password" placeholder="Password" formControlName="password" 
+             [class.error]="hasError(signUpForm, 'password', 'required') || hasError(signUpForm, 'password', 'minlength')" />
+      <div *ngIf="hasError(signUpForm, 'password', 'required')" class="error-message">
+        <small>Password is required</small>
+      </div>
+      <div *ngIf="hasError(signUpForm, 'password', 'minlength')" class="error-message">
+        <small>Password must be at least 6 characters</small>
+      </div>
+      
+      <!-- Email Field -->
+      <input type="email" placeholder="Email Address" formControlName="emailid" 
+             [class.error]="hasError(signUpForm, 'emailid', 'required') || hasError(signUpForm, 'emailid', 'email')" />
+      <div *ngIf="hasError(signUpForm, 'emailid', 'required')" class="error-message">
+        <small>Email is required</small>
+      </div>
+      <div *ngIf="hasError(signUpForm, 'emailid', 'email')" class="error-message">
+        <small>Please enter a valid email address</small>
+      </div>
+      
+      <!-- Submit Button -->
+      <button type="submit" [disabled]="loading">
+        <span *ngIf="!loading">Sign Up</span>
+        <span *ngIf="loading">Creating Account...</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Sign In Form -->
+  <div class="form-container sign-in-container">
+    <form [formGroup]="signInForm" (ngSubmit)="onSignIn()">
+      <h1>Sign In</h1>
+      <span>Use your username and password</span>
+      
+      <!-- Username Field -->
+      <input type="text" placeholder="Username" formControlName="username" 
+             [class.error]="hasError(signInForm, 'username', 'required')" />
+      <div *ngIf="hasError(signInForm, 'username', 'required')" class="error-message">
+        <small>Username is required</small>
+      </div>
+      
+      <!-- Password Field -->
+      <input type="password" placeholder="Password" formControlName="password" 
+             [class.error]="hasError(signInForm, 'password', 'required')" />
+      <div *ngIf="hasError(signInForm, 'password', 'required')" class="error-message">
+        <small>Password is required</small>
+      </div>
+      
+      <!-- Error Message Display -->
+      <div *ngIf="errorMessage" class="error-message alert alert-danger">
+        <strong>Error:</strong> {{ errorMessage }}
+      </div>
+      
+      <!-- Submit Button -->
+      <button type="submit" [disabled]="loading" class="sign-in-btn">
+        <span *ngIf="!loading">Sign In</span>
+        <span *ngIf="loading">
+          <span class="spinner"></span> Signing In...
+        </span>
+      </button>
+      
+      <a href="#" class="forgot-password">Forgot your password?</a>
+    </form>
+  </div>
+
+  <!-- Overlay Section -->
+  <div class="overlay-container">
+    <div class="overlay">
+      <div class="overlay-panel overlay-left">
+        <h1>Welcome Back!</h1>
+        <p>To keep connected with your accounts, please login with your personal info</p>
+        <button class="ghost" id="signIn" (click)="togglePanel(false)">Sign In</button>
+      </div>
+      <div class="overlay-panel overlay-right">
+        <h1>Hello, Friend!</h1>
+        <p>Enter your personal details and start your journey with us</p>
+        <button class="ghost" id="signUp" (click)="togglePanel(true)">Sign Up</button>
+      </div>
+    </div>
+  </div>
+</div>

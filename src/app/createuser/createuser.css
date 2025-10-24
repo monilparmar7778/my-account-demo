@@ -1,0 +1,462 @@
+/* Create User Container with Side Nav Spacing */
+.create-user-container {
+    margin-left: 30px; /* Match sidebar closed width */
+    padding: 2rem;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* When sidebar is open */
+.sidebar-open .create-user-container {
+    margin-left: 260px; /* Match sidebar open width */
+}
+
+/* Main Card Styling */
+.create-user-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: none;
+    border-radius: 20px;
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.08),
+        0 1px 3px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.create-user-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.12),
+        0 5px 15px rgba(0, 0, 0, 0.06);
+}
+
+/* Card Header */
+.card-header-custom {
+    background: linear-gradient(135deg, #27AE60 0%, #219653 100%);
+    border: none;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-header-custom::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.card-header-custom h3 {
+    color: white;
+    font-weight: 700;
+    margin: 0;
+    font-size: 2rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    letter-spacing: -0.5px;
+}
+
+.card-header-custom p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    margin: 0.5rem 0 0 0;
+    font-weight: 400;
+}
+
+/* Card Body */
+.card-body-custom {
+    padding: 3rem 2.5rem;
+    background: #ffffff;
+}
+
+/* Form Groups */
+.form-group-custom {
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.form-group-custom:last-child {
+    margin-bottom: 0;
+}
+
+/* Form Labels */
+.form-label-custom {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    display: block;
+    letter-spacing: -0.2px;
+    transition: all 0.3s ease;
+}
+
+.form-label-custom:hover {
+    color: #27AE60;
+}
+
+.required-field::after {
+    content: " *";
+    color: #e53e3e;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* Form Controls */
+.form-control-custom {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    color: #2d3748;
+    line-height: 1.5;
+}
+
+.form-control-custom:focus {
+    border-color: #27AE60;
+    box-shadow: 
+        0 0 0 4px rgba(39, 174, 96, 0.1),
+        0 4px 12px rgba(0, 0, 0, 0.05);
+    background: #ffffff;
+    transform: translateY(-2px);
+    outline: none;
+}
+
+.form-control-custom:hover:not(:focus) {
+    border-color: #cbd5e0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.form-control-custom::placeholder {
+    color: #a0aec0;
+    font-weight: 400;
+    opacity: 0.8;
+}
+
+/* Form Row for Side-by-side Layout */
+.form-row-custom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* Form Text */
+.form-text-custom {
+    font-size: 0.875rem;
+    color: #718096;
+    margin-top: 0.5rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-text-custom i {
+    color: #27AE60;
+    font-size: 0.9rem;
+}
+
+/* Button Styling */
+.btn-create-user {
+    background: linear-gradient(135deg, #27AE60 0%, #219653 100%);
+    border: none;
+    border-radius: 14px;
+    padding: 1.25rem 2.5rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: white;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 
+        0 8px 25px rgba(39, 174, 96, 0.3),
+        0 2px 6px rgba(39, 174, 96, 0.1);
+    width: 100%;
+    margin-top: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-create-user::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.6s;
+}
+
+.btn-create-user:hover:not(:disabled) {
+    transform: translateY(-4px);
+    box-shadow: 
+        0 15px 35px rgba(39, 174, 96, 0.4),
+        0 5px 15px rgba(39, 174, 96, 0.2);
+}
+
+.btn-create-user:hover::before {
+    left: 100%;
+}
+
+.btn-create-user:active:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 5px 20px rgba(39, 174, 96, 0.3),
+        0 2px 8px rgba(39, 174, 96, 0.2);
+}
+
+.btn-create-user:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Alert Messages */
+.alert-custom {
+    border: none;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border-left: 6px solid;
+    animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-success-custom {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    border-left-color: #2f855a;
+}
+
+.alert-error-custom {
+    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+    color: white;
+    border-left-color: #c53030;
+}
+
+.alert-custom .d-flex {
+    gap: 0.75rem;
+}
+
+.alert-custom i {
+    font-size: 1.2rem;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid transparent;
+    border-top: 2px solid #ffffff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 0.75rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Password Strength Indicator */
+.password-strength-container {
+    margin-top: 0.5rem;
+}
+
+.password-strength-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    transition: color 0.3s ease;
+}
+
+.password-strength {
+    height: 6px;
+    border-radius: 3px;
+    background: #e2e8f0;
+    overflow: hidden;
+    position: relative;
+}
+
+.strength-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: all 0.4s ease;
+    width: 0%;
+}
+
+.strength-weak { 
+    background: #e53e3e; 
+    width: 33%; 
+}
+.strength-medium { 
+    background: #ed8936; 
+    width: 66%; 
+}
+.strength-strong { 
+    background: #48bb78; 
+    width: 100%; 
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .create-user-container {
+        padding: 1.5rem;
+    }
+    
+    .card-body-custom {
+        padding: 2.5rem 2rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .form-row-custom {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .create-user-container {
+        margin-left: 0;
+        padding: 1rem;
+    }
+    
+    .sidebar-open .create-user-container {
+        margin-left: 0;
+    }
+    
+    .card-body-custom {
+        padding: 2rem 1.5rem;
+    }
+    
+    .card-header-custom {
+        padding: 2rem 1.5rem;
+    }
+    
+    .card-header-custom h3 {
+        font-size: 1.75rem;
+    }
+    
+    .form-control-custom {
+        padding: 0.875rem 1rem;
+    }
+    
+    .btn-create-user {
+        padding: 1.125rem 2rem;
+        font-size: 1.05rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .create-user-container {
+        padding: 0.75rem;
+    }
+    
+    .card-body-custom {
+        padding: 1.5rem 1rem;
+    }
+    
+    .card-header-custom {
+        padding: 1.5rem 1rem;
+    }
+    
+    .card-header-custom h3 {
+        font-size: 1.5rem;
+    }
+    
+    .form-control-custom {
+        padding: 0.75rem 0.875rem;
+        font-size: 0.95rem;
+    }
+    
+    .btn-create-user {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+/* Custom Scrollbar */
+.create-user-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.create-user-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.create-user-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #27AE60 0%, #219653 100%);
+    border-radius: 10px;
+}
+
+.create-user-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #219653 0%, #1e8749 100%);
+}
+
+/* Focus states for accessibility */
+.form-control-custom:focus-visible {
+    outline: 2px solid #27AE60;
+    outline-offset: 2px;
+}
+
+.btn-create-user:focus-visible {
+    outline: 3px solid rgba(39, 174, 96, 0.4);
+    outline-offset: 2px;
+}
+
+/* Success Animation */
+@keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+.success-pulse {
+    animation: successPulse 0.6s ease;
+}
+
+/* Icon Styling */
+.form-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+
+.form-control-custom:focus + .form-icon {
+    color: #27AE60;
+}

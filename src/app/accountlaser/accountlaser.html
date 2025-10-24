@@ -1,0 +1,189 @@
+<!-- accountlaser.component.html -->
+<div class="account-laser-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <h1 class="main-title">Account Laser Report</h1>
+    <p class="main-subtitle">View detailed account transactions and summaries</p>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="filter-section">
+    <div class="filter-card">
+      <h3>Filter Criteria</h3>
+      
+      <div class="filter-row">
+        <div class="filter-group">
+          <kendo-label [for]="userDropdown">Select User</kendo-label>
+          <kendo-dropdownlist
+            #userDropdown
+            [(ngModel)]="username"
+            [data]="users"
+            textField="username"
+            valueField="username"
+            [filterable]="true"
+            placeholder="Select username..."
+            style="width: 300px">
+          </kendo-dropdownlist>
+        </div>
+
+        <div class="filter-group">
+          <kendo-label [for]="fromDate">From Date</kendo-label>
+          <kendo-dateinput
+            #fromDate
+            [(ngModel)]="fromDate"  
+            format="yyyy-MM-dd"
+            placeholder="From date...">
+          </kendo-dateinput>
+        </div>
+
+        <div class="filter-group">
+          <kendo-label [for]="toDate">To Date</kendo-label>
+          <kendo-dateinput
+            #toDate
+            [(ngModel)]="toDate"    
+            format="yyyy-MM-dd"
+            placeholder="To date...">
+          </kendo-dateinput>
+        </div>
+
+        <div class="filter-actions">
+          <button kendoButton 
+                  themeColor="primary" 
+                  (click)="searchAccounts()"
+                  [disabled]="loading">
+            <span class="k-icon k-i-search"></span>
+            {{ loading ? 'Searching...' : 'Search' }}
+          </button>
+          
+          <button kendoButton 
+                  themeColor="secondary"
+                  (click)="resetFilters()">
+            <span class="k-icon k-i-reset"></span>
+            Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Info Section -->
+  <div *ngIf="getUserInfo()" class="user-info-section">
+    <div class="user-info-card">
+      <h4>User Information</h4>
+      <div class="user-details">
+        <div class="user-detail">
+          <strong>Full Name:</strong> {{ getUserInfo().full_name }}
+        </div>
+        <div class="user-detail">
+          <strong>Mobile:</strong> {{ getUserInfo().mobile_no }}
+        </div>
+        <div class="user-detail">
+          <strong>Email:</strong> {{ getUserInfo().email }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Section -->
+  <div *ngIf="gridData.data.length > 0" class="summary-section">
+    <div class="summary-card">
+      <h4>Transaction Summary</h4>
+      <div class="summary-grid">
+        <div class="summary-item get-money">
+          <div class="summary-label">Total Get Money</div>
+          <div class="summary-value">{{ summary.total_get_money | number:'1.2-2' }}</div>
+        </div>
+        <div class="summary-item give-money">
+          <div class="summary-label">Total Give Money</div>
+          <div class="summary-value">{{ summary.total_give_money | number:'1.2-2' }}</div>
+        </div>
+        <div class="summary-item interest">
+          <div class="summary-label">Total Interest</div>
+          <div class="summary-value">{{ summary.total_interest | number:'1.2-2' }}</div>
+        </div>
+        <div class="summary-item net-balance">
+          <div class="summary-label">Net Balance</div>
+          <div class="summary-value">{{ summary.net_balance | number:'1.2-2' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Buttons -->
+  <div *ngIf="gridData.data.length > 0" class="export-section">
+    <button kendoButton 
+            themeColor="primary"
+            (click)="exportPDF()">
+      <span class="k-icon k-i-file-pdf"></span>
+      Export to PDF
+    </button>
+    
+    <button kendoButton 
+            themeColor="success"
+            (click)="exportExcel()">
+      <span class="k-icon k-i-file-excel"></span>
+      Export to Excel
+    </button>
+  </div>
+
+  <!-- Data Grid -->
+  <div class="grid-section">
+    <kendo-grid
+      [data]="gridData"
+      [pageSize]="pageSize"
+      [skip]="skip"
+      [pageable]="true"
+      [sortable]="true"
+      [filterable]="true"
+      [height]="600"
+      (pageChange)="pageChange($event)"
+      kendoExcelExport
+      kendoPDFExport>
+
+      <!-- FIXED: Remove width attribute or use [width] binding with numbers -->
+      <kendo-grid-column field="transaction_date" title="Date" [width]="120" format="{0:yyyy-MM-dd}">
+      </kendo-grid-column>
+      
+      <kendo-grid-column field="transaction_type" title="Type" [width]="100">
+        <ng-template kendoGridCellTemplate let-dataItem>
+          <span [class]="'type-badge ' + dataItem.transaction_type?.toLowerCase()">
+            {{ dataItem.transaction_type }}
+          </span>
+        </ng-template>
+      </kendo-grid-column>
+      
+      <kendo-grid-column field="amount" title="Amount" [width]="120" format="{0:n2}">
+        <ng-template kendoGridCellTemplate let-dataItem>
+          <span [class]="dataItem.transaction_type === 'GET' ? 'get-amount' : 'give-amount'">
+            {{ dataItem.amount | number:'1.2-2' }}
+          </span>
+        </ng-template>
+      </kendo-grid-column>
+      
+      <kendo-grid-column field="interest" title="Interest" [width]="120" format="{0:n2}">
+      </kendo-grid-column>
+      
+      <kendo-grid-column field="net_amount" title="Net Amount" [width]="120" format="{0:n2}">
+      </kendo-grid-column>
+      
+      <kendo-grid-column field="agent" title="Agent" [width]="150">
+      </kendo-grid-column>
+      
+      <kendo-grid-column field="remark" title="Remark" [width]="200">
+      </kendo-grid-column>
+      
+      <kendo-grid-column field="utino" title="UTI No" [width]="120">
+      </kendo-grid-column>
+      
+      <kendo-grid-column field="party_name" title="Party Name" [width]="150">
+      </kendo-grid-column>
+
+    </kendo-grid>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Loading account records...</p>
+  </div>
+</div>

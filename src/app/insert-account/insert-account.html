@@ -1,0 +1,191 @@
+<div class="getmoney-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <h1 class="main-title">Get Money Transaction</h1>
+    <p class="main-subtitle">Create money receiving transactions</p>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Creating Get Money Transaction...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message-container">
+    <div class="error-box">
+      <h4>❌ Error</h4>
+      <p>{{ errorMessage }}</p>
+      <button class="close-btn" (click)="clearMessages()">×</button>
+    </div>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="success-message-container">
+    <div class="success-box">
+      <h4>✅ Success</h4>
+      <p>{{ successMessage }}</p>
+      <button class="close-btn" (click)="clearMessages()">×</button>
+    </div>
+  </div>
+
+  <!-- API Response Display -->
+  <!-- <div *ngIf="apiResponse" class="api-response-container">
+    <div class="api-response-box">
+      <h4>📡 API Response</h4>
+      <div class="response-header">
+        <span class="response-status" [class.success]="apiResponse.success" [class.error]="!apiResponse.success">
+          Status: {{ apiResponse.success ? 'SUCCESS' : 'ERROR' }}
+        </span>
+        <button class="close-btn" (click)="clearMessages()">×</button>
+      </div>
+      <pre class="response-json">{{ formatJson(apiResponse) }}</pre>
+    </div>
+  </div> -->
+
+  <!-- Get Money Form -->
+  <div class="form-section get-money-section">
+    <div class="section-header">
+      <h3 class="section-title">Get Money Details</h3>
+      <p class="section-subtitle">Money Receiving Information</p>
+    </div>
+    
+    <form [formGroup]="getMoneyForm" (ngSubmit)="onSubmit()" class="get-money-form">
+      <div class="form-fields">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Customer Name *</label>
+            <input 
+              type="text" 
+              id="name" 
+              formControlName="name" 
+              class="form-control"
+              placeholder="Enter customer name">
+            <div class="error-message" *ngIf="getMoneyForm.get('name')?.invalid && getMoneyForm.get('name')?.touched">
+              Name is required (min 3 characters)
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="getmoney">Get Money Amount (₹) *</label>
+            <input 
+              type="number" 
+              id="getmoney" 
+              formControlName="getmoney" 
+              class="form-control"
+              placeholder="Enter amount">
+            <div class="error-message" *ngIf="getMoneyForm.get('getmoney')?.invalid && getMoneyForm.get('getmoney')?.touched">
+              Valid amount is required
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="intrest">Interest Rate (%) *</label>
+            <input 
+              type="number" 
+              id="intrest" 
+              formControlName="intrest" 
+              class="form-control"
+              placeholder="Enter interest rate"
+              step="0.01">
+            <div class="error-message" *ngIf="getMoneyForm.get('intrest')?.invalid && getMoneyForm.get('intrest')?.touched">
+              Interest rate must be between 0-100%
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="netamount">Net Amount (₹)</label>
+            <input 
+              type="text" 
+              id="netamount" 
+              class="form-control net-amount"
+              [value]="'₹' + netAmount.toFixed(2)"
+              readonly
+              placeholder="Auto calculated">
+            <div class="calculation-note">
+              Calculated: ₹{{netAmount.toFixed(2)}}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="utiNo">UTI Number</label>
+            <input 
+              type="text" 
+              id="utiNo" 
+              formControlName="utiNo" 
+              class="form-control"
+              placeholder="Enter UTI number">
+          </div>
+
+          <div class="form-group">
+            <label for="getAgent">Get Money Agent</label>
+            <input 
+              type="text" 
+              id="getAgent" 
+              formControlName="getAgent" 
+              class="form-control"
+              placeholder="Enter agent name">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="getDate">Get Money Date</label>
+            <input 
+              type="date" 
+              id="getDate" 
+              formControlName="getDate" 
+              class="form-control">
+          </div>
+
+          <div class="form-group full-width">
+            <label for="getRemark">Get Money Remarks</label>
+            <textarea 
+              id="getRemark" 
+              formControlName="getRemark" 
+              class="form-control textarea"
+              placeholder="Enter remarks for get money"
+              rows="3"></textarea>
+          </div>
+        </div>
+
+        <!-- Summary Box -->
+        <div class="summary-box">
+          <h4>Transaction Summary</h4>
+          <div class="summary-item">
+            <span>Get Money Amount:</span>
+            <span>₹{{getMoneyForm.get('getmoney')?.value || '0'}}</span>
+          </div>
+          <div class="summary-item">
+            <span>Interest Rate:</span>
+            <span>{{getMoneyForm.get('intrest')?.value || '0'}}%</span>
+          </div>
+          <div class="summary-item">
+            <span>Interest Deduction:</span>
+            <span>-₹{{((getMoneyForm.get('getmoney')?.value || 0) * (getMoneyForm.get('intrest')?.value || 0) / 100).toFixed(2)}}</span>
+          </div>
+          <div class="summary-item total">
+            <span>Net Amount:</span>
+            <span>₹{{netAmount.toFixed(2)}}</span>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-reset" (click)="resetForm()">
+            <i class="icon-reset"></i>
+            Reset Form
+          </button>
+          <button type="submit" class="btn btn-submit" [disabled]="getMoneyForm.invalid || isLoading">
+            <i class="icon-submit"></i>
+            Submit Get Money Transaction
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

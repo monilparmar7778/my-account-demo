@@ -1,0 +1,92 @@
+<div class="sidebar" [class.open]="isOpen">
+    <div class="logo_details">
+        <div class="logo_icon">📊</div>
+        <div class="logo_name">Code Effect</div>
+        <span class="toggle_icon" id="btn" (click)="toggleSidebar()">
+            {{ isOpen ? '✕' : '☰' }}
+        </span>
+    </div>
+    
+    <ul class="nav-list">
+        <!-- Account Ledger with Submenu -->
+        <li [class.active]="showAccountSubmenu">
+            <a class="nav-link" (click)="toggleAccountSubmenu()">
+                <span class="nav-icon">📒</span>
+                <span class="link_name">Account Ledger</span>
+                <span class="arrow" *ngIf="isOpen">{{ showAccountSubmenu ? '▼' : '▶' }}</span>
+            </a>
+            <div class="tooltip">Account Ledger</div>
+            
+            <!-- Submenu for Account Ledger - Only show when sidebar is open AND submenu is open -->
+            <ul class="sub-menu" *ngIf="isOpen && showAccountSubmenu">
+                <li>
+                    <a class="sub-nav-link" (click)="navigateToAccount()">
+                        <span class="sub-nav-icon">👥</span>
+                        <span class="sub-link_name">Account Users</span>
+                    </a>
+                    <div class="sub-tooltip">Account Users</div>
+                </li>
+                <li>
+                    <a class="sub-nav-link" (click)="navigateToInsertAccount()">
+                        <span class="sub-nav-icon">➕</span>
+                        <span class="sub-link_name">Insert Account</span>
+                    </a>
+                    <div class="sub-tooltip">Insert Account</div>
+                </li>
+                <li>
+                    <a class="sub-nav-link" (click)="navigateToCreateUser()">
+                        <span class="sub-nav-icon">👤</span>
+                        <span class="sub-link_name">Create User</span>
+                    </a>
+                    <div class="sub-tooltip">Create User</div>
+                </li>
+                <li>
+                    <a class="sub-nav-link" (click)="navigateToLaserAccount()">
+                        <span class="sub-nav-icon">📈</span>
+                        <span class="sub-link_name">Laser Account</span>
+                    </a>
+                    <div class="sub-tooltip">Laser Account</div>
+                </li>
+                <li>
+                    <a class="sub-nav-link" (click)="navigateToAccountLaser()">
+                        <span class="sub-nav-icon">📊</span>
+                        <span class="sub-link_name">Account Laser</span>
+                    </a>
+                    <div class="sub-tooltip">Account Laser</div>
+                </li>
+                <!-- ADDED: Give Money Option -->
+                <li>
+                    <a class="sub-nav-link" (click)="navigateToGiveMoney()">
+                        <span class="sub-nav-icon">💰</span>
+                        <span class="sub-link_name">Give Money</span>
+                    </a>
+                    <div class="sub-tooltip">Give Money</div>
+                </li>
+            </ul>
+        </li>
+
+        <!-- Employee Salary -->
+        <li>
+            <a class="nav-link">
+                <span class="nav-icon">💰</span>
+                <span class="link_name">Employee Salary</span>
+            </a>
+            <div class="tooltip">Employee Salary</div>
+        </li>
+
+        <!-- Profile Section - Fixed at bottom -->
+        <li class="profile">
+            <div class="profile_details">
+                <img src="assets/profile.jpeg" alt="profile image" class="profile-img" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiMyN0FFNjAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNiIgcj0iNiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTI4IDI4QzI4IDI0LjY4NjMgMjQuNDE4MyAyMiAyMCAyMkMxNS41ODE3IDIyIDEyIDI0LjY4NjMgMTIgMjhWMzBIMjhWMjhaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K'">
+                <div class="profile_content" *ngIf="isOpen">
+                    <div class="name">Anna John</div>
+                    <div class="designation">Admin</div>
+                </div>
+            </div>
+            <span class="logout_icon" id="log_out" (click)="onLogout()" title="Logout">
+                🚪
+                <span class="tooltip">Logout</span>
+            </span>
+        </li>
+    </ul>
+</div>

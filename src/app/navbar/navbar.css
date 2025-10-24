@@ -1,0 +1,41 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #3FC380;
+    padding: 10px 20px;
+    height: 60px; /* Adjust the height as needed */
+    width: 100%;
+  }
+  
+  .navbar-logo img {
+    height: 40px; /* Adjust the logo size as needed */
+  }
+  
+  .navbar-search input {
+    padding: 5px;
+    border: none;
+    border-radius: 5px;
+    width: 300px; /* Adjust the width as needed */
+  }
+  
+  .navbar-signup .btn-signup {
+    background-color: #FFFFFF; /* Adjust the button background color as needed */
+    color: #3FC380; /* Adjust the button text color as needed */
+    border: 2px solid #3FC380; /* Adjust the button border color as needed */
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* .navbar-signup .btn-signup:hover {
+    background-color: #3FC380;
+    color: #FFFFFF;
+  } */
+  

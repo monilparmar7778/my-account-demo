@@ -1,0 +1,344 @@
+<!-- laseraccount.component.html -->
+<div class="account-laser-wrapper">
+  <div class="main-content-area">
+    <div class="laser-container">
+      
+      <!-- Control Panel -->
+      <div class="control-panel">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <span class="k-icon k-i-filter"></span>
+            Filter Criteria
+          </h2>
+        </div>
+
+        <!-- Quick Date Presets - NEW -->
+        <div class="preset-buttons">
+          <button type="button" class="preset-btn" (click)="applyDatePreset('today')">Today</button>
+          <button type="button" class="preset-btn" (click)="applyDatePreset('yesterday')">Yesterday</button>
+          <button type="button" class="preset-btn" (click)="applyDatePreset('thisWeek')">This Week</button>
+          <button type="button" class="preset-btn" (click)="applyDatePreset('thisMonth')">This Month</button>
+          <button type="button" class="preset-btn" (click)="applyDatePreset('lastMonth')">Last Month</button>
+        </div>
+
+        <div class="filter-grid">
+          <!-- User Input -->
+          <div class="filter-group">
+            <label class="filter-label">
+              <span class="k-icon k-i-user"></span>
+              Enter Username
+            </label>
+            <input 
+              kendoTextBox
+              [(ngModel)]="username"
+              placeholder="Type username..."
+              style="width: 100%"
+            />
+          </div>
+
+          <!-- From Date -->
+          <div class="filter-group">
+            <label class="filter-label">
+              <span class="k-icon k-i-calendar"></span>
+              From Date
+            </label>
+            <kendo-datepicker
+              [(value)]="fromDate"
+              [format]="'yyyy-MM-dd'"
+              [placeholder]="'Start date...'"
+              style="width: 100%">
+            </kendo-datepicker>
+          </div>
+
+          <!-- To Date -->
+          <div class="filter-group">
+            <label class="filter-label">
+              <span class="k-icon k-i-calendar"></span>
+              To Date
+            </label>
+            <kendo-datepicker
+              [(value)]="toDate"
+              [format]="'yyyy-MM-dd'"
+              [placeholder]="'End date...'"
+              style="width: 100%">
+            </kendo-datepicker>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button kendoButton 
+                  themeColor="primary"
+                  (click)="enhancedSearchAccounts()"
+                  [disabled]="loading"
+                  class="search-btn">
+            <span class="k-icon k-i-search"></span>
+            {{ loading ? 'Searching...' : 'Generate Report' }}
+          </button>
+          
+          <button kendoButton 
+                  themeColor="base"
+                  (click)="enhancedResetFilters()"
+                  class="reset-btn">
+            <span class="k-icon k-i-reset"></span>
+            Clear Filters
+          </button>
+        </div>
+      </div>
+
+      <!-- Single Summary Cards Section -->
+      <div *ngIf="gridData.data.length > 0" class="summary-section">
+        <div class="section-title">
+          <span class="k-icon k-i-chart-line-markers"></span>
+          Financial Summary
+          
+          <!-- Additional Actions - NEW -->
+          <div class="additional-actions">
+            <button kendoButton 
+                    themeColor="info"
+                    (click)="copySummaryToClipboard()"
+                    class="action-btn copy">
+              <span class="k-icon k-i-copy"></span>
+              Copy Summary
+            </button>
+            
+            <button kendoButton 
+                    themeColor="warning"
+                    (click)="printReport()"
+                    class="action-btn print">
+              <span class="k-icon k-i-print"></span>
+              Print Report
+            </button>
+          </div>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-card get-money">
+            <div class="summary-icon">💰</div>
+            <div class="summary-content">
+              <div class="summary-label">Total Get Money</div>
+              <div class="summary-value">₹{{ summary.total_get_money | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          <div class="summary-card give-money">
+            <div class="summary-icon">💸</div>
+            <div class="summary-content">
+              <div class="summary-label">Total Give Money</div>
+              <div class="summary-value">₹{{ summary.total_give_money | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          <div class="summary-card interest">
+            <div class="summary-icon">📈</div>
+            <div class="summary-content">
+              <div class="summary-label">Total Interest Amount</div>
+              <div class="summary-value">₹{{ summary.total_interest_amount | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          <div class="summary-card net-balance">
+            <div class="summary-icon">⚖️</div>
+            <div class="summary-content">
+              <div class="summary-label">Net Balance</div>
+              <div class="summary-value">₹{{ summary.net_balance | number:'1.2-2' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Toolbar -->
+      <!-- <div *ngIf="gridData.data.length > 0" class="export-toolbar">
+        <div class="export-header">
+          <h3 class="export-title">
+            <span class="k-icon k-i-download"></span>
+            Export Reports
+          </h3>
+          <div class="export-info">
+            Total Records: {{ gridData.total }} | Generated on: {{ currentDate | date:'medium' }}
+          </div>
+        </div>
+        <div class="export-buttons">
+          <button kendoButton 
+                  themeColor="primary"
+                  (click)="exportWithProgress('pdf')"
+                  class="export-btn pdf-btn">
+            <span class="k-icon k-i-file-pdf"></span>
+            Download PDF Report
+          </button>
+          
+          <button kendoButton 
+                  themeColor="success"
+                  (click)="exportWithProgress('excel')"
+                  class="export-btn excel-btn">
+            <span class="k-icon k-i-file-excel"></span>
+            Download Excel Report
+          </button>
+        </div>
+      </div>
+ -->
+      <!-- PDF Export Component - CUSTOM DESIGN EXACT FORMAT -->
+      <kendo-pdf-export #pdfExport paperSize="A4" [margin]="'2cm'">
+        <div class="pdf-custom-report">
+          
+          <!-- PDF Header -->
+          <div class="pdf-header-section">
+            <h1 class="pdf-main-title">Account Laser Report</h1>
+            
+            <table class="pdf-info-table">
+              <tr>
+                <td class="info-label">Username:</td>
+                <td class="info-value">{{ username || 'All Users' }}</td>
+              </tr>
+              <tr>
+                <td class="info-label">Period:</td>
+                <td class="info-value">
+                  {{ fromDate ? (fromDate | date:'yyyy-MM-dd') : 'All Dates' }} 
+                  to 
+                  {{ toDate ? (toDate | date:'yyyy-MM-dd') : 'All Dates' }}
+                </td>
+              </tr>
+              <tr>
+                <td class="info-label">Generated on:</td>
+                <td class="info-value">{{ currentDate | date:'yyyy-MM-dd HH:mm' }}</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Summary Overview Section -->
+          <div class="pdf-summary-overview">
+            <h2 class="pdf-section-title">Summary Overview</h2>
+            
+            <div class="pdf-summary-grid">
+              <div class="pdf-summary-item">
+                <div class="pdf-summary-item-label">Total Get Money</div>
+                <div class="pdf-summary-item-value get-money">₹{{ summary.total_get_money | number:'1.2-2' }}</div>
+              </div>
+              
+              <div class="pdf-summary-item">
+                <div class="pdf-summary-item-label">Total Give Money</div>
+                <div class="pdf-summary-item-value give-money">₹{{ summary.total_give_money | number:'1.2-2' }}</div>
+              </div>
+              
+              <div class="pdf-summary-item">
+                <div class="pdf-summary-item-label">Total Interest Amount</div>
+                <div class="pdf-summary-item-value interest-amount">₹{{ summary.total_interest_amount | number:'1.2-2' }}</div>
+              </div>
+              
+              <div class="pdf-summary-item">
+                <div class="pdf-summary-item-label">Net Balance</div>
+                <div class="pdf-summary-item-value net-balance">₹{{ summary.net_balance | number:'1.2-2' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transaction Details Section -->
+          <div class="pdf-transaction-details">
+            <h2 class="pdf-section-title">Transaction Details</h2>
+            
+            <table class="pdf-transaction-table">
+              <thead>
+                <tr class="table-header">
+                  <th class="col-type">Type</th>
+                  <th class="col-date">Get Date</th>
+                  <th class="col-date">Give Date</th>
+                  <th class="col-amount">Get Money</th>
+                  <th class="col-amount">Give Money</th>
+                  <th class="col-interest">Interest %</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of pdfData; let i = index" [class]="i % 2 === 0 ? 'even-row' : 'odd-row'">
+                  <td class="col-type">
+                    <span class="transaction-type" [class]="item.transaction_type === 'GET' ? 'get-type' : 'give-type'">
+                      {{ item.transaction_type }}
+                    </span>
+                  </td>
+                  <td class="col-date">{{ item.get_date ? (item.get_date | date:'yyyy-MM-dd') : '-' }}</td>
+                  <td class="col-date">{{ item.give_date ? (item.give_date | date:'yyyy-MM-dd') : '-' }}</td>
+                  <td class="col-amount get-amount">₹{{ getGetMoney(item) | number:'1.2-2' }}</td>
+                  <td class="col-amount give-amount">₹{{ getGiveMoney(item) | number:'1.2-2' }}</td>
+                  <td class="col-interest">{{ item.interest_percentage | number:'1.2-2' }}%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- PDF Footer -->
+          <div class="pdf-footer-section">
+            <div class="pdf-footer-content">
+              <p class="footer-text">Report generated by Account Management System</p>
+            </div>
+          </div>
+
+        </div>
+      </kendo-pdf-export>
+
+      <!-- Data Display Section - SIMPLIFIED WITHOUT KENDO GRID -->
+      <div *ngIf="gridData.data.length > 0" class="data-display-section">
+        <div class="grid-header">
+          <h3 class="grid-title">
+            <span class="k-icon k-i-grid"></span>
+            Transaction Details
+            <span class="record-count">({{ gridData.total }} records)</span>
+          </h3>
+        </div>
+        
+        <!-- Simple Table Display -->
+        <div class="simple-table-container">
+          <table class="simple-data-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Get Date</th>
+                <th>Give Date</th>
+                <th>Get Money</th>
+                <th>Give Money</th>
+                <th>Interest %</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of gridData.data; let i = index">
+                <td>
+                  <span [class]="'simple-type-badge ' + (item.transaction_type?.toLowerCase() || '')">
+                    {{ item.transaction_type }}
+                  </span>
+                </td>
+                <td>{{ item.get_date ? (item.get_date | date:'yyyy-MM-dd') : '-' }}</td>
+                <td>{{ item.give_date ? (item.give_date | date:'yyyy-MM-dd') : '-' }}</td>
+                <td class="simple-get-amount">₹{{ getGetMoney(item) | number:'1.2-2' }}</td>
+                <td class="simple-give-amount">₹{{ getGiveMoney(item) | number:'1.2-2' }}</td>
+                <td class="simple-interest">{{ item.interest_percentage | number:'1.2-2' }}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Empty States -->
+      <div *ngIf="!loading && gridData.data.length === 0 && username" class="empty-state">
+        <div class="empty-icon">📊</div>
+        <h3 class="empty-title">No Transactions Found</h3>
+        <p class="empty-description">
+          No account records were found for "{{ username }}" in the selected date range.
+        </p>
+        <button kendoButton 
+                themeColor="primary"
+                (click)="enhancedResetFilters()">
+          Try Different Search
+        </button>
+      </div>
+
+      <div *ngIf="!loading && gridData.data.length === 0 && !username" class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3 class="empty-title">Ready to Explore</h3>
+        <p class="empty-description">
+          Enter a username to view detailed account transactions and generate comprehensive reports.
+        </p>
+      </div>
+
+      <!-- Loading Overlay -->
+      <div *ngIf="loading" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Processing your request...</div>
+      </div>
+
+    </div>
+  </div>
+</div>

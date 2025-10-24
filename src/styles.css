@@ -1,1 +1,56 @@
-/* You can add global styles to this file, and also import other style files */
+/* SAFE KENDO TRIAL WATERMARK REMOVAL - WON'T AFFECT OTHER COMPONENTS */
+body {
+    background-image: none !important;
+    background: transparent !important;
+}
+
+html {
+    background-image: none !important;
+    background: transparent !important;
+}
+
+/* Target only Kendo-specific watermark elements */
+.k-watermark,
+[class*="watermark"],
+[class*="trial"],
+.k-grid-watermark,
+.k-widget-watermark {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    background-image: none !important;
+}
+
+/* Remove background images only from Kendo elements */
+.k-grid,
+.k-widget,
+.k-grid-content,
+.k-grid-header,
+.k-pivotgrid,
+.k-scheduler,
+.k-chart,
+.k-gauge,
+.k-map,
+.k-diagram {
+    background-image: none !important;
+}
+
+/* Remove from viewport/body level for Kendo only */
+.k-body,
+.k-content,
+.k-window,
+.k-popup {
+    background-image: none !important;
+}
+
+/* Remove pseudo-elements that might contain watermark */
+.k-grid::before,
+.k-grid::after,
+.k-widget::before,
+.k-widget::after,
+.k-body::before,
+.k-body::after {
+    display: none !important;
+    background-image: none !important;
+    content: none !important;
+}

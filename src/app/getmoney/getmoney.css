@@ -1,0 +1,277 @@
+.get-money-container {
+  padding: 20px;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.get-money-form {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-section {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.get-money-section {
+  border-top: 4px solid #3FC380;
+}
+
+.section-header {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #ecf0f1;
+  text-align: center;
+}
+
+.section-title {
+  color: #2c3e50;
+  font-size: 24px;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.section-subtitle {
+  color: #7f8c8d;
+  font-size: 14px;
+  margin: 0;
+  font-weight: 500;
+}
+
+.form-fields {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 20px;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  flex: 2;
+}
+
+label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.form-control {
+  padding: 12px 15px;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: white;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #3FC380;
+  box-shadow: 0 0 0 3px rgba(63, 195, 128, 0.1);
+}
+
+.form-control.net-amount {
+  background-color: #f0f9f4;
+  border-color: #27ae60;
+  color: #27ae60;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.calculation-note {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #27ae60;
+  font-weight: 500;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+/* Summary Box */
+.summary-box {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.summary-box h4 {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-item.total {
+  background: rgba(255,255,255,0.1);
+  margin: 10px -20px -20px -20px;
+  padding: 12px 20px;
+  border-radius: 0 0 8px 8px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #ecf0f1;
+}
+
+.btn {
+  padding: 14px 35px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 200px;
+  justify-content: center;
+}
+
+.btn-next {
+  background: linear-gradient(135deg, #3FC380, #2ecc71);
+  color: white;
+  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+}
+
+.btn-next:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+}
+
+.btn-next:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-reset {
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+  color: white;
+  box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+}
+
+.btn-reset:hover {
+  background: linear-gradient(135deg, #7f8c8d, #6c7b7d);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(149, 165, 166, 0.4);
+}
+
+/* Icons */
+.icon-reset::before {
+  content: "↺";
+  font-size: 16px;
+}
+
+.icon-next::before {
+  content: "→";
+  font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .get-money-container {
+    padding: 15px;
+  }
+  
+  .form-section {
+    padding: 20px;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* Animation */
+.form-section {
+  animation: slideIn 0.6s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Required field indicator */
+label:after {
+  content: " *";
+  color: #e74c3c;
+}
+
+label:not([for*="name"]):not([for*="getmoney"]):not([for*="intrest"]):after {
+  content: "";
+}
