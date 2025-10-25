@@ -4,24 +4,23 @@ import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { parseJwt, isTokenExpired, getUserFromToken } from './jwt-util';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Authservice {
-  private signupUrl = 'http://localhost:5095/api/Login/adduser';
-  private validateOtpUrl = 'http://localhost:5095/api/Login/validate-otp';
-  private checkUserUrl = 'http://localhost:5095/api/Login/check-user';
-  private baseUrl = 'http://localhost:5095/api/Login';
+  // Use environment variables for all URLs
+  private signupUrl = `${environment.loginUrl}/adduser`;
+  private validateOtpUrl = `${environment.loginUrl}/validate-otp`;
+  private checkUserUrl = `${environment.loginUrl}/check-user`;
+  private baseUrl = environment.loginUrl;
   
-  // ✅ ACCOUNT API URL
-  private accountsUrl = 'http://localhost:5221/api/Account';
-  
-  // ✅ USER API URL
-  private usersUrl = 'http://localhost:5221/api/User';
-
-  // ✅ AUTH API URL (NEW)
-  private authUrl = 'http://localhost:5221/api/Auth';
+  // API URLs from environment
+  private accountsUrl = environment.accountUrl;
+  private usersUrl = environment.userUrl;
+  private authUrl = environment.authUrl;
+  private accountRecordUrl = environment.accountRecordUrl;
 
   // JWT Authentication Properties
   private tokenKey = 'authToken';
@@ -32,48 +31,53 @@ export class Authservice {
   constructor(
     private http: HttpClient,
     private router: Router
-  ) { }
+  ) { 
+    // Start token expiration check when service is initialized
+    this.startTokenExpirationCheck();
+  }
 
   // ============ JWT AUTHENTICATION METHODS ============
 
-  // Login with JWT
-// In your authservice.ts
-login(loginData: { username: string; password: string }): Observable<any> {
-  const httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json'
-    })
-  };
+  /**
+   * Login with JWT authentication
+   */
+  login(loginData: { username: string; password: string }): Observable<any> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    };
 
-  // Updated request payload with all required fields
-  const loginRequest = {
-    username: loginData.username,
-    password: loginData.password,
-    token: "", // Add empty string for required fields
-    Issuer: "MyAccountAPI", // Add default value
-    Secret: "YourSuperSecretKey", // Add default value
-    message: "", // Add empty string
-    Audience: "MyAccountApp", // Add default value
-    success: false, // Add default
-    user_id: 0, // Add default
-    expires_at: null // Add default
-  };
+    const loginRequest = {
+      username: loginData.username,
+      password: loginData.password,
+      token: "",
+      Issuer: "MyAccountAPI",
+      Secret: "YourSuperSecretKey",
+      message: "",
+      Audience: "MyAccountApp",
+      success: false,
+      user_id: 0,
+      expires_at: null
+    };
 
-  console.log('Sending login request to JWT API:', loginRequest);
+    console.log('Sending login request to JWT API:', loginRequest);
 
-  return this.http.post<any>(`${this.authUrl}/login`, loginRequest, httpOptions)
-    .pipe(
-      tap(response => {
-        if (response.success && response.token) {
-          this.setSession(response);
-          this.isAuthenticatedSubject.next(true);
-        }
-      }),
-      catchError(this.handleError)
-    );
-}
+    return this.http.post<any>(`${this.authUrl}/login`, loginRequest, httpOptions)
+      .pipe(
+        tap(response => {
+          if (response.success && response.token) {
+            this.setSession(response);
+            this.isAuthenticatedSubject.next(true);
+          }
+        }),
+        catchError(this.handleError)
+      );
+  }
 
-  // Set session after successful login
+  /**
+   * Set session after successful login
+   */
   private setSession(authResult: any): void {
     localStorage.setItem(this.tokenKey, authResult.token);
     
@@ -86,7 +90,9 @@ login(loginData: { username: string; password: string }): Observable<any> {
     localStorage.setItem(this.userKey, JSON.stringify(userData));
   }
 
-  // Logout method
+  /**
+   * Logout user and clear session
+   */
   logout(): void {
     localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(this.userKey);
@@ -94,12 +100,16 @@ login(loginData: { username: string; password: string }): Observable<any> {
     this.router.navigate(['/login']);
   }
 
-  // Get token from localStorage
+  /**
+   * Get token from localStorage
+   */
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
   }
 
-  // Get user data
+  /**
+   * Get user data from token or localStorage
+   */
   getUser(): any {
     const token = this.getToken();
     if (token) {
@@ -113,19 +123,25 @@ login(loginData: { username: string; password: string }): Observable<any> {
     return userData ? JSON.parse(userData) : null;
   }
 
-  // Check if user is logged in
+  /**
+   * Check if user is logged in and token is valid
+   */
   isLoggedIn(): boolean {
     const token = this.getToken();
     if (!token) return false;
     return !isTokenExpired(token);
   }
 
-  // Check if token exists and is valid
+  /**
+   * Check if token exists and is valid
+   */
   private hasToken(): boolean {
     return this.isLoggedIn();
   }
 
-  // Get authorization headers for authenticated requests
+  /**
+   * Get authorization headers for authenticated requests
+   */
   getAuthHeaders(): HttpHeaders {
     const token = this.getToken();
     if (token && this.isLoggedIn()) {
@@ -140,21 +156,41 @@ login(loginData: { username: string; password: string }): Observable<any> {
     });
   }
 
-  // Get user ID from token
+  /**
+   * Get user ID from token
+   */
   getUserId(): number | null {
     const user = this.getUser();
     return user ? user.user_id : null;
   }
 
-  // Get username from token
+  /**
+   * Get username from token
+   */
   getUsername(): string | null {
     const user = this.getUser();
     return user ? user.username : null;
   }
 
-  // ============ UPDATED ACCOUNT METHODS WITH AUTH HEADERS ============
+  // ============ ACCOUNT RECORD METHODS ============
 
-  // Create only Get Money transaction (UPDATED)
+  /**
+   * Get account records with filtering and pagination
+   */
+  getAccountRecords(request: any): Observable<any> {
+    const httpOptions = {
+      headers: this.getAuthHeaders()
+    };
+    
+    return this.http.post<any>(`${this.accountRecordUrl}/records`, request, httpOptions)
+      .pipe(catchError(this.handleError));
+  }
+
+  // ============ ACCOUNT TRANSACTION METHODS ============
+
+  /**
+   * Create only Get Money transaction
+   */
   createGetMoneyTransaction(account: any): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -176,7 +212,9 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
-  // Create only Give Money transaction (UPDATED)
+  /**
+   * Create only Give Money transaction
+   */
   createGiveMoneyTransaction(account: any): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -197,7 +235,9 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
-  // Create complete transaction (both get and give) (UPDATED)
+  /**
+   * Create complete transaction (both get and give)
+   */
   createCompleteTransaction(account: any): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -225,7 +265,11 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
-  // ============ UPDATED USER METHODS WITH AUTH HEADERS ============
+  // ============ USER MANAGEMENT METHODS ============
+
+  /**
+   * Create new user
+   */
   createUser(userData: any): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -236,7 +280,7 @@ login(loginData: { username: string; password: string }): Observable<any> {
       email: userData.email,
       mobile_no: userData.mobile_no,
       full_name: userData.full_name,
-      password: null  // Always pass null
+      password: null
     };
 
     console.log('Creating user:', user);
@@ -245,6 +289,9 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
+  /**
+   * Get all users
+   */
   getUsers(): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -253,6 +300,9 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
+  /**
+   * Get user by ID
+   */
   getUserById(user_id: number): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -261,6 +311,9 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
+  /**
+   * Update user
+   */
   updateUser(user_id: number, user: any): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -269,6 +322,9 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
+  /**
+   * Delete user
+   */
   deleteUser(user_id: number): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -277,7 +333,11 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
-  // ============ UPDATED ACCOUNT METHODS WITH AUTH HEADERS ============
+  // ============ ACCOUNT MANAGEMENT METHODS ============
+
+  /**
+   * Get all accounts
+   */
   getAccounts(): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -286,6 +346,9 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
+  /**
+   * Get account by ID
+   */
   getAccountById(acid: number): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -294,6 +357,9 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
+  /**
+   * Create new account
+   */
   createAccount(account: any): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -321,6 +387,9 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
+  /**
+   * Update account
+   */
   updateAccount(acid: number, account: any): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -329,6 +398,9 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
+  /**
+   * Delete account
+   */
   deleteAccount(acid: number): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -337,7 +409,11 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
-  // ============ EXISTING METHODS (NO CHANGES NEEDED) ============
+  // ============ LEGACY AUTH METHODS ============
+
+  /**
+   * Signup user (legacy method)
+   */
   signupUser(userData: any): Observable<any> {
     const httpOptions = {
       headers: new HttpHeaders({
@@ -350,12 +426,15 @@ login(loginData: { username: string; password: string }): Observable<any> {
       password: userData.password,
       emailid: userData.emailid
     };
-    console.log(body);
+    console.log('Signup body:', body);
 
     return this.http.post<any>(this.signupUrl, body, httpOptions)
       .pipe(catchError(this.handleError));
   }
 
+  /**
+   * Get user counts by district
+   */
   getUserCountsByDistrict(): Observable<any> {
     const url = `${this.baseUrl}/getUserCountsByDistrict`;
     return this.http.get<any>(url).pipe(
@@ -363,10 +442,16 @@ login(loginData: { username: string; password: string }): Observable<any> {
     );
   }
 
+  /**
+   * Get Gujarat data from assets
+   */
   getGujaratData(): Observable<any> {
     return this.http.get('assets/gujrat.json');
   }
 
+  /**
+   * Check user credentials (legacy method)
+   */
   checkUser(emailid: string, password: string): Observable<any> {
     const httpOptions = {
       headers: new HttpHeaders({
@@ -380,7 +465,11 @@ login(loginData: { username: string; password: string }): Observable<any> {
       );
   }
 
-  // Auto logout when token is expired
+  // ============ UTILITY METHODS ============
+
+  /**
+   * Auto logout when token is expired
+   */
   startTokenExpirationCheck(): void {
     setInterval(() => {
       if (!this.isLoggedIn()) {
@@ -389,15 +478,57 @@ login(loginData: { username: string; password: string }): Observable<any> {
     }, 60000); // Check every minute
   }
 
+  /**
+   * Handle HTTP errors
+   */
   private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'Something bad happened; please try again later.';
+    
     if (error.error instanceof ErrorEvent) {
-      console.error('An error occurred:', error.error.message);
+      // Client-side error
+      errorMessage = `An error occurred: ${error.error.message}`;
     } else {
-      console.error(
-        `Backend returned code ${error.status}, ` +
-        `body was: ${error.error}`
-      );
+      // Server-side error
+      errorMessage = `Backend returned code ${error.status}, body was: ${JSON.stringify(error.error)}`;
     }
-    return throwError('Something bad happened; please try again later.');
+    
+    console.error('AuthService Error:', errorMessage);
+    return throwError(errorMessage);
+  }
+
+  /**
+   * Validate OTP (if needed)
+   */
+  validateOtp(otpData: any): Observable<any> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    };
+    return this.http.post<any>(this.validateOtpUrl, otpData, httpOptions)
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Refresh token (if implemented in backend)
+   */
+  refreshToken(): Observable<any> {
+    const httpOptions = {
+      headers: this.getAuthHeaders()
+    };
+    const refreshData = {
+      token: this.getToken(),
+      user_id: this.getUserId()
+    };
+    
+    return this.http.post<any>(`${this.authUrl}/refresh`, refreshData, httpOptions)
+      .pipe(
+        tap(response => {
+          if (response.success && response.token) {
+            this.setSession(response);
+          }
+        }),
+        catchError(this.handleError)
+      );
   }
 }
