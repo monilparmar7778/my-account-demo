@@ -36,6 +36,29 @@ export class Authservice {
     this.startTokenExpirationCheck();
   }
 
+  // ============ LASER REPORT METHOD ADDED ============
+
+  /**
+   * Generate laser report with one-time API call
+   */
+  generateLaserReport(request: any): Observable<any> {
+    const httpOptions = {
+      headers: this.getAuthHeaders()
+    };
+    
+    console.log('Generating laser report with request:', request);
+    
+    return this.http.post<any>(`${this.accountRecordUrl}/generate-report`, request, httpOptions)
+      .pipe(
+        tap(response => {
+          if (response.success) {
+            console.log('Laser report generated successfully');
+          }
+        }),
+        catchError(this.handleError)
+      );
+  }
+
   // ============ JWT AUTHENTICATION METHODS ============
 
   /**
