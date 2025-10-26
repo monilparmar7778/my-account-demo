@@ -1,11 +1,11 @@
 export const environment = {
-  production: false,
+  production: true,
   
   // API URLs - Development
-  apiUrl: 'http://localhost:5221/api',
-  authUrl: 'http://localhost:5221/api/Auth',
-  accountUrl: 'http://localhost:5221/api/Account',
-  userUrl: 'http://localhost:5221/api/User',
-  accountRecordUrl: 'http://localhost:5221/api/AccountRecord',
-  loginUrl: 'http://localhost:5095/api/Login'
+  apiUrl: 'http://80.209.239.112/api',
+  authUrl: 'http://80.209.239.112/api/Auth',
+  accountUrl: 'http://80.209.239.112/api/Account',
+  userUrl: 'http://80.209.239.112/api/User',
+  accountRecordUrl: 'http://80.209.239.112/api/AccountRecord',
+  loginUrl: 'http://80.209.239.112/api/Login'
 };
