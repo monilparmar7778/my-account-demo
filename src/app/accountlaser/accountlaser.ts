@@ -2,10 +2,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { Authservice } from '../authservice';
 
-// Kendo UI imports - CORRECT NAMES
+// Kendo UI imports
 import { GridModule, GridDataResult, PageChangeEvent } from '@progress/kendo-angular-grid';
 import { PDFExportModule } from '@progress/kendo-angular-pdf-export';
 import { ExcelExportModule } from '@progress/kendo-angular-excel-export';
@@ -21,8 +20,8 @@ import { DropDownsModule } from '@progress/kendo-angular-dropdowns';
     CommonModule,
     FormsModule,
     GridModule,
-    PDFExportModule,    // CORRECT: PDFExportModule (not PDFModule)
-    ExcelExportModule,  // CORRECT: ExcelExportModule (not ExcelModule)
+    PDFExportModule,
+    ExcelExportModule,
     ButtonModule,
     DateInputsModule,
     InputsModule,
@@ -30,7 +29,7 @@ import { DropDownsModule } from '@progress/kendo-angular-dropdowns';
     DropDownsModule
   ],
   templateUrl: './accountlaser.html',
-   styleUrls: ['./accountlaser.css']
+  styleUrls: ['./accountlaser.css']
 })
 export class Accountlaser implements OnInit {
   // Grid data
@@ -57,30 +56,30 @@ export class Accountlaser implements OnInit {
   // User list for dropdown
   public users: any[] = [];
 
-  constructor(
-    private authService: Authservice,
-    private http: HttpClient
-  ) {}
+  constructor(private authService: Authservice) {}
 
   ngOnInit() {
     this.loadUsers();
   }
 
-  // Load users for dropdown
+  // Load users for dropdown using AuthService
   loadUsers() {
     this.authService.getUsers().subscribe({
       next: (response: any) => {
         if (response.success && response.data) {
           this.users = response.data;
+        } else {
+          console.error('Failed to load users:', response.message);
         }
       },
       error: (error: any) => {
         console.error('Error loading users:', error);
+        alert('Error loading users list');
       }
     });
   }
 
-  // Search accounts
+  // Search accounts using AuthService
   searchAccounts() {
     if (!this.username) {
       alert('Please select a username');
@@ -98,31 +97,31 @@ export class Accountlaser implements OnInit {
       sort: [{ field: 'transaction_date', dir: 'desc' }]
     };
 
-    this.http.post<any>('http://localhost:5221/api/AccountRecord/records', request)
-      .subscribe({
-        next: (response: any) => {
-          if (response.success) {
-            this.gridData = {
-              data: response.data,
-              total: response.total
-            };
-            this.summary = {
-              total_get_money: response.total_get_money,
-              total_give_money: response.total_give_money,
-              total_interest: response.total_interest,
-              net_balance: response.net_balance
-            };
-          } else {
-            alert(response.message || 'Error loading data');
-          }
-          this.loading = false;
-        },
-        error: (error: any) => {
-          console.error('Error:', error);
-          alert('Error loading account records');
-          this.loading = false;
+    // Use AuthService instead of direct HTTP call
+    this.authService.getAccountRecords(request).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.gridData = {
+            data: response.data,
+            total: response.total
+          };
+          this.summary = {
+            total_get_money: response.total_get_money,
+            total_give_money: response.total_give_money,
+            total_interest: response.total_interest,
+            net_balance: response.net_balance
+          };
+        } else {
+          alert(response.message || 'Error loading data');
         }
-      });
+        this.loading = false;
+      },
+      error: (error: any) => {
+        console.error('Error:', error);
+        alert('Error loading account records');
+        this.loading = false;
+      }
+    });
   }
 
   // Page change event

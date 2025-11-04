@@ -2,7 +2,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { Authservice } from '../authservice';
 
 // Kendo UI imports
@@ -53,39 +52,39 @@ export class Laseraccount implements OnInit {
   public pdfData: any[] = [];
 
   constructor(
-    private authService: Authservice,
-    private http: HttpClient
+    private authService: Authservice
   ) {}
 
   ngOnInit() {}
 
-  // Search accounts - FIXED: Include ALL required fields
+  // Search accounts using AuthService
   searchAccounts() {
     if (!this.username || this.username.trim() === '') {
-      alert('Please enter a username');
+      this.showNotification('Please enter a username', 'warning');
       return;
     }
 
     if (this.fromDate && this.toDate && this.fromDate > this.toDate) {
-      alert('From date cannot be greater than To date');
+      this.showNotification('From date cannot be greater than To date', 'error');
       return;
     }
 
     this.loading = true;
 
-    // FIXED: Include ALL required fields that API expects
+    // Prepare request using AuthService format
     const request = {
       username: this.username.trim(),
       from_date: this.fromDate ? this.formatDate(this.fromDate) : null,
       to_date: this.toDate ? this.formatDate(this.toDate) : null,
-      skip: 0, // Add if API requires pagination
-      take: 1000, // Add if API requires pagination (get all records)
-      sort: [{ field: 'get_date', dir: 'desc' }] // Required by API
+      skip: 0,
+      take: 1000,
+      sort: [{ field: 'get_date', dir: 'desc' }]
     };
 
-    console.log('Sending request:', request);
+    console.log('Searching accounts with request:', request);
 
-    this.http.post<any>('http://localhost:5221/api/AccountRecord/records', request)
+    // Use AuthService to get account records
+    this.authService.getAccountRecords(request)
       .subscribe({
         next: (response: any) => {
           if (response.success) {
@@ -102,20 +101,24 @@ export class Laseraccount implements OnInit {
             };
             
             console.log('Data loaded successfully:', this.gridData.data.length, 'records');
+            this.showNotification(`Found ${this.gridData.data.length} records`, 'success');
           } else {
-            alert(response.message || 'Error loading data');
+            this.showNotification(response.message || 'Error loading data', 'error');
           }
           this.loading = false;
         },
         error: (error: any) => {
-          console.error('Error:', error);
+          console.error('Error loading account records:', error);
           
-          // Enhanced error handling with detailed info
           let errorMessage = 'Error loading account records';
           
-          if (error.status === 400) {
+          if (error.status === 401) {
+            errorMessage = 'Authentication failed. Please login again.';
+            this.authService.logout();
+          } else if (error.status === 403) {
+            errorMessage = 'Access denied. You do not have permission to view these records.';
+          } else if (error.status === 400) {
             if (error.error && error.error.errors) {
-              // Show specific validation errors from API
               const validationErrors = error.error.errors;
               errorMessage = 'Validation errors:\n';
               for (const key in validationErrors) {
@@ -129,13 +132,44 @@ export class Laseraccount implements OnInit {
           } else if (error.status === 0) {
             errorMessage = 'Cannot connect to server. Please check if the server is running.';
           } else if (error.status === 404) {
-            errorMessage = 'API endpoint not found. Please check the server URL.';
+            errorMessage = 'API endpoint not found. Please check the server configuration.';
           }
           
-          alert(errorMessage);
+          this.showNotification(errorMessage, 'error');
           this.loading = false;
         }
       });
+  }
+
+  // Enhanced search with validation
+  enhancedSearchAccounts(): void {
+    // Validate username
+    if (!this.username || this.username.trim() === '') {
+      this.showNotification('Please enter a username', 'warning');
+      return;
+    }
+
+    // Validate date range
+    const dateValidation = this.validateDateRange();
+    if (!dateValidation.isValid) {
+      this.showNotification(dateValidation.message, 'error');
+      return;
+    }
+
+    // Show warning message if exists
+    if (dateValidation.message) {
+      this.showNotification(dateValidation.message, 'warning');
+    }
+
+    // Check authentication before proceeding
+    if (!this.authService.isLoggedIn()) {
+      this.showNotification('Your session has expired. Please login again.', 'error');
+      this.authService.logout();
+      return;
+    }
+
+    // Proceed with search
+    this.searchAccounts();
   }
 
   // Export to PDF
@@ -145,9 +179,10 @@ export class Laseraccount implements OnInit {
         const fileName = `Account-Laser-Report-${this.username}-${new Date().getTime()}.pdf`;
         this.pdfExport.saveAs(fileName);
         console.log('PDF export initiated:', fileName);
+        this.showNotification('PDF export started', 'success');
       }, 100);
     } else {
-      alert('No data available to export as PDF');
+      this.showNotification('No data available to export as PDF', 'warning');
     }
   }
 
@@ -156,7 +191,7 @@ export class Laseraccount implements OnInit {
     if (this.gridData.data.length > 0) {
       this.createCustomExcel();
     } else {
-      alert('No data available to export as Excel');
+      this.showNotification('No data available to export as Excel', 'warning');
     }
   }
 
@@ -168,6 +203,7 @@ export class Laseraccount implements OnInit {
     
     this.downloadCSV(csvContent, fileName);
     console.log('Excel export completed:', fileName);
+    this.showNotification('Excel file downloaded successfully', 'success');
   }
 
   // Prepare data for Excel export
@@ -181,6 +217,7 @@ export class Laseraccount implements OnInit {
     excelData.push(['Period:', 
       `${this.fromDate ? this.formatDate(this.fromDate) : 'All Dates'} to ${this.toDate ? this.formatDate(this.toDate) : 'All Dates'}`]);
     excelData.push(['Generated on:', new Date().toLocaleString()]);
+    excelData.push(['Generated by:', this.authService.getUsername() || 'Unknown User']);
     excelData.push(['']);
     excelData.push(['']);
     
@@ -270,6 +307,7 @@ export class Laseraccount implements OnInit {
     };
     
     console.log('Filters reset');
+    this.showNotification('All filters have been reset', 'info');
   }
 
   // Format date for API
@@ -277,23 +315,19 @@ export class Laseraccount implements OnInit {
     return date.toISOString().split('T')[0];
   }
 
-  // FIXED: Helper method to get Get Money amount - correctly handles getmoney field from API
+  // Helper method to get Get Money amount
   getGetMoney(item: any): number {
-    // For GET transactions, use getmoney field or amount
     if (item.transaction_type === 'GET') {
       return item.getmoney || item.amount || 0;
     }
-    // For non-GET transactions, still try to get getmoney if available
     return item.getmoney || 0;
   }
 
-  // FIXED: Helper method to get Give Money amount - correctly handles givemoney field from API
+  // Helper method to get Give Money amount
   getGiveMoney(item: any): number {
-    // For GIVE transactions, use givemoney field or amount
     if (item.transaction_type === 'GIVE') {
       return item.givemoney || item.amount || 0;
     }
-    // For non-GIVE transactions, still try to get givemoney if available
     return item.givemoney || 0;
   }
 
@@ -303,7 +337,7 @@ export class Laseraccount implements OnInit {
     return getMoney * (item.interest_percentage || 0) / 100;
   }
 
-  // ========== NEW FUNCTIONALITY ADDED BELOW ==========
+  // ========== ENHANCED FUNCTIONALITY ==========
 
   /**
    * Validate date range with enhanced error messages
@@ -352,39 +386,12 @@ export class Laseraccount implements OnInit {
   }
 
   /**
-   * Enhanced search with validation
-   */
-  enhancedSearchAccounts(): void {
-    // Validate username
-    if (!this.username || this.username.trim() === '') {
-      this.showNotification('Please enter a username', 'warning');
-      return;
-    }
-
-    // Validate date range
-    const dateValidation = this.validateDateRange();
-    if (!dateValidation.isValid) {
-      this.showNotification(dateValidation.message, 'error');
-      return;
-    }
-
-    // Show warning message if exists
-    if (dateValidation.message) {
-      this.showNotification(dateValidation.message, 'warning');
-    }
-
-    // Proceed with original search
-    this.searchAccounts();
-  }
-
-  /**
    * Show notification message
    */
   showNotification(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info'): void {
     // Create temporary notification
     const notification = document.createElement('div');
     
-    // FIXED: Type-safe color mapping
     const colors: { [key: string]: string } = {
       success: '#48bb78',
       error: '#f56565',
@@ -407,7 +414,6 @@ export class Laseraccount implements OnInit {
       animation: slideIn 0.3s ease;
     `;
     
-    // FIXED: Type-safe icon mapping
     const icons: { [key: string]: string } = {
       success: '✅',
       error: '❌',
@@ -571,7 +577,6 @@ export class Laseraccount implements OnInit {
     }
     
     this.resetFilters();
-    this.showNotification('All filters have been reset', 'success');
   }
 
   /**
@@ -586,6 +591,7 @@ Total Give Money: ₹${this.summary.total_give_money.toFixed(2)}
 Total Interest: ₹${this.summary.total_interest_amount.toFixed(2)}
 Net Balance: ₹${this.summary.net_balance.toFixed(2)}
 Generated: ${this.currentDate.toLocaleString()}
+Generated by: ${this.authService.getUsername() || 'Unknown User'}
     `.trim();
 
     navigator.clipboard.writeText(summaryText).then(() => {
@@ -632,6 +638,7 @@ Generated: ${this.currentDate.toLocaleString()}
           <p><strong>Username:</strong> ${this.username}</p>
           <p><strong>Period:</strong> ${this.fromDate ? this.formatDate(this.fromDate) : 'All Dates'} to ${this.toDate ? this.formatDate(this.toDate) : 'All Dates'}</p>
           <p><strong>Generated:</strong> ${this.currentDate.toLocaleString()}</p>
+          <p><strong>Generated by:</strong> ${this.authService.getUsername() || 'Unknown User'}</p>
         </div>
         
         <div class="summary">
@@ -676,5 +683,24 @@ Generated: ${this.currentDate.toLocaleString()}
 
     printWindow.document.write(printContent);
     printWindow.document.close();
+  }
+
+  /**
+   * Check authentication status
+   */
+  checkAuthentication(): boolean {
+    if (!this.authService.isLoggedIn()) {
+      this.showNotification('Your session has expired. Please login again.', 'error');
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Get current user info
+   */
+  getCurrentUserInfo(): string {
+    const user = this.authService.getUser();
+    return user ? `${user.username} (ID: ${user.user_id})` : 'Not logged in';
   }
 }
