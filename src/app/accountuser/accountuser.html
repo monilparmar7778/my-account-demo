@@ -66,7 +66,7 @@
     <div class="toolbar-left">
       <button 
         kendoButton 
-        (click)="addHandler()" 
+        (click)="openAddModal()" 
         [disabled]="isLoading"
         class="k-button k-button-solid k-button-solid-primary"
         title="Add New Account"
@@ -115,25 +115,6 @@
     </div>
   </div>
 
-  <!-- Editing Mode Indicator -->
-  <div *ngIf="formGroup" class="edit-mode-indicator">
-    <div class="indicator-content">
-      <span class="k-icon k-i-edit"></span>
-      <span class="indicator-text">
-        <strong>Editing Mode:</strong>
-        <span *ngIf="canEditGetFields && !canEditGiveFields" class="mode-tag get-mode">
-          Get Money Details Only (ismoney: true)
-        </span>
-        <span *ngIf="!canEditGetFields && canEditGiveFields" class="mode-tag give-mode">
-          Give Money Details Only (ismoney: false)
-        </span>
-        <span *ngIf="canEditGetFields && canEditGiveFields" class="mode-tag full-mode">
-          Full Edit Access
-        </span>
-      </span>
-    </div>
-  </div>
-
   <!-- Accounts Grid -->
   <kendo-grid
     #grid
@@ -146,61 +127,9 @@
     [skip]="state.skip"
     (pageChange)="pageChange($event)"
     [rowClass]="rowCallback.bind(this)"
-    (cellClick)="cellClickHandler($event)"
-    (add)="addHandler()"
     class="custom-grid"
     [loading]="isLoading"
     style="font-size: 14px;">
-
-    <!-- Toolbar Template -->
-    <ng-template kendoGridToolbarTemplate>
-      <div class="grid-toolbar">
-        @if (!formGroup) {
-          <div class="toolbar-left">
-            <button 
-              kendoGridAddCommand 
-              class="k-button k-button-solid k-button-solid-primary"
-              [disabled]="isLoading"
-              title="Add New Account"
-            >
-              <span class="k-icon k-i-plus"></span>
-              Add New Account
-            </button>
-            <span class="grid-title">Account Records</span>
-          </div>
-        }
-        @if (formGroup) {
-          <div class="edit-toolbar">
-            <span class="edit-mode-label">
-              <span class="k-icon k-i-edit"></span>
-              {{ isNew ? 'Adding New Account' : 'Editing: ' + (selectedAccount?.name || selectedAccount?.givename || 'Account') }}
-            </span>
-            <div class="edit-actions">
-              <button 
-                kendoButton 
-                [disabled]="!formGroup.valid || isSaving" 
-                (click)="saveRow()"
-                class="k-button k-button-solid k-button-solid-success"
-                title="Save Changes"
-              >
-                <span class="k-icon k-i-check"></span>
-                {{ isSaving ? 'Saving...' : (isNew ? 'Create Account' : 'Update Account') }}
-              </button>
-              <button 
-                kendoButton 
-                (click)="cancelHandler()"
-                [disabled]="isSaving"
-                class="k-button k-button-solid k-button-solid-base"
-                title="Cancel Editing"
-              >
-                <span class="k-icon k-i-cancel"></span>
-                Cancel
-              </button>
-            </div>
-          </div>
-        }
-      </div>
-    </ng-template>
 
     <!-- Column Definitions -->
     
@@ -210,178 +139,95 @@
       title="Account ID" 
       [width]="120" 
       [filterable]="false"
-      [headerStyle]="{'text-align': 'center'}"
-      [style]="{'text-align': 'center'}">
+      [headerStyle]="{'text-align': 'center', 'border-right': '1px solid #dee2e6'}"
+      [style]="{'text-align': 'center', 'border-right': '1px solid #dee2e6'}">
     </kendo-grid-column>
     
-    <!-- Get Information Section - Editable when ismoney = true -->
+    <!-- Get Information Section -->
     <kendo-grid-column 
       field="name" 
       title="Customer Name" 
       [width]="180"
-      editor="text"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <input 
-          kendoTextBox 
-          [formControl]="formGroup.get('name')" 
-          class="full-width" 
-          placeholder="Enter customer name"
-          [class.readonly-field]="formGroup.get('name')?.disabled"
-        />
-        <div *ngIf="formGroup.get('name')?.invalid && formGroup.get('name')?.touched" class="field-error">
-          Name is required
-        </div>
+      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+      [style]="{'border-right': '1px solid #dee2e6'}">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        {{ getCustomerName(dataItem.name) }}
       </ng-template>
     </kendo-grid-column>
     
-    <kendo-grid-column 
-      field="getmoney" 
-      title="Get Amount" 
-      [width]="150"
-      format="{0:c}"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <kendo-numerictextbox 
-          [formControl]="formGroup.get('getmoney')"
-          [decimals]="2"
-          [min]="0"
-          [format]="'n2'"
-          [spinners]="false"
-          class="full-width money-input"
-          [class.readonly-field]="formGroup.get('getmoney')?.disabled">
-        </kendo-numerictextbox>
-        <div *ngIf="formGroup.get('getmoney')?.invalid && formGroup.get('getmoney')?.touched" class="field-error">
-          Valid amount required
-        </div>
-      </ng-template>
-    </kendo-grid-column>
+   <kendo-grid-column 
+  field="getmoney" 
+  title="Get Amount" 
+  [width]="150"
+  [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+  [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'right'}">
+  <ng-template kendoGridCellTemplate let-dataItem>
+    ₹{{ dataItem.getmoney | number:'1.2-2' }}
+  </ng-template>
+</kendo-grid-column>
     
     <kendo-grid-column 
       field="intrest" 
       title="Interest %" 
       [width]="130"
       format="{0:n2}%"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <kendo-numerictextbox 
-          [formControl]="formGroup.get('intrest')"
-          [decimals]="2"
-          [min]="0"
-          [max]="100"
-          [format]="'n2'"
-          [spinners]="false"
-          class="full-width"
-          [class.readonly-field]="formGroup.get('intrest')?.disabled">
-        </kendo-numerictextbox>
-        <div *ngIf="formGroup.get('intrest')?.invalid && formGroup.get('intrest')?.touched" class="field-error">
-          Interest must be 0-100%
-        </div>
-      </ng-template>
+      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+      [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'right'}">
     </kendo-grid-column>
     
     <kendo-grid-column 
-      field="givemoney" 
-      title="Give Amount" 
-      [width]="150"
-      format="{0:c}"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <kendo-numerictextbox 
-          [formControl]="formGroup.get('givemoney')"
-          [decimals]="2"
-          [min]="0"
-          [format]="'n2'"
-          [spinners]="false"
-          class="full-width money-input"
-          [class.readonly-field]="formGroup.get('givemoney')?.disabled">
-        </kendo-numerictextbox>
-        <div *ngIf="formGroup.get('givemoney')?.invalid && formGroup.get('givemoney')?.touched" class="field-error">
-          Valid amount required
-        </div>
-      </ng-template>
-    </kendo-grid-column>
+  field="givemoney" 
+  title="Give Amount" 
+  [width]="150"
+  [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+  [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'right'}">
+  <ng-template kendoGridCellTemplate let-dataItem>
+    ₹{{ dataItem.givemoney | number:'1.2-2' }}
+  </ng-template>
+  </kendo-grid-column>
     
     <kendo-grid-column 
       field="date" 
       title="Get Date" 
       [width]="150"
       format="{0:dd/MM/yyyy}"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <kendo-datepicker 
-          [formControl]="formGroup.get('date')" 
-          [format]="'dd/MM/yyyy'"
-          class="full-width"
-          [class.readonly-field]="formGroup.get('date')?.disabled">
-        </kendo-datepicker>
-      </ng-template>
+      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+      [style]="{'border-right': '1px solid #dee2e6'}">
     </kendo-grid-column>
     
     <kendo-grid-column 
       field="agent" 
       title="Agent" 
       [width]="150"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <input 
-          kendoTextBox 
-          [formControl]="formGroup.get('agent')" 
-          class="full-width" 
-          placeholder="Agent name"
-          [class.readonly-field]="formGroup.get('agent')?.disabled"
-        />
-      </ng-template>
+      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+      [style]="{'border-right': '1px solid #dee2e6'}">
     </kendo-grid-column>
 
     <kendo-grid-column 
       field="remark" 
       title="Remarks" 
       [width]="200"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <input 
-          kendoTextBox 
-          [formControl]="formGroup.get('remark')" 
-          class="full-width" 
-          placeholder="Additional remarks"
-          [class.readonly-field]="formGroup.get('remark')?.disabled"
-        />
-      </ng-template>
+      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+      [style]="{'border-right': '1px solid #dee2e6'}">
     </kendo-grid-column>
 
     <kendo-grid-column 
       field="utino" 
       title="UTI No" 
       [width]="120"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <kendo-numerictextbox 
-          [formControl]="formGroup.get('utino')"
-          [decimals]="0"
-          [min]="0"
-          [format]="'n0'"
-          [spinners]="false"
-          class="full-width"
-          [class.readonly-field]="formGroup.get('utino')?.disabled">
-        </kendo-numerictextbox>
-      </ng-template>
+      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+      [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'center'}">
     </kendo-grid-column>
 
-    <!-- Give Information Section - Editable when ismoney = false -->
+    <!-- Give Information Section -->
     <kendo-grid-column 
       field="givename" 
       title="Give To" 
       [width]="180"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <input 
-          kendoTextBox 
-          [formControl]="formGroup.get('givename')" 
-          class="full-width" 
-          placeholder="Recipient name"
-          [class.readonly-field]="formGroup.get('givename')?.disabled"
-        />
+      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+      [style]="{'border-right': '1px solid #dee2e6'}">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        {{ getCustomerName(dataItem.givename) }}
       </ng-template>
     </kendo-grid-column>
 
@@ -390,65 +236,32 @@
       title="Give Date" 
       [width]="150"
       format="{0:dd/MM/yyyy}"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <kendo-datepicker 
-          [formControl]="formGroup.get('givedate')" 
-          [format]="'dd/MM/yyyy'"
-          class="full-width"
-          [class.readonly-field]="formGroup.get('givedate')?.disabled">
-        </kendo-datepicker>
-      </ng-template>
+      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+      [style]="{'border-right': '1px solid #dee2e6'}">
     </kendo-grid-column>
 
     <kendo-grid-column 
       field="giveagent" 
       title="Give Agent" 
       [width]="150"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <input 
-          kendoTextBox 
-          [formControl]="formGroup.get('giveagent')" 
-          class="full-width" 
-          placeholder="Give agent name"
-          [class.readonly-field]="formGroup.get('giveagent')?.disabled"
-        />
-      </ng-template>
+      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+      [style]="{'border-right': '1px solid #dee2e6'}">
     </kendo-grid-column>
 
     <kendo-grid-column 
       field="giveremark" 
       title="Give Remarks" 
       [width]="200"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <input 
-          kendoTextBox 
-          [formControl]="formGroup.get('giveremark')" 
-          class="full-width" 
-          placeholder="Give remarks"
-          [class.readonly-field]="formGroup.get('giveremark')?.disabled"
-        />
-      </ng-template>
+      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+      [style]="{'border-right': '1px solid #dee2e6'}">
     </kendo-grid-column>
 
     <kendo-grid-column 
       field="giveutino" 
       title="Give UTI No" 
       [width]="120"
-    >
-      <ng-template kendoGridEditTemplate let-dataItem="dataItem" let-formGroup="formGroup">
-        <kendo-numerictextbox 
-          [formControl]="formGroup.get('giveutino')"
-          [decimals]="0"
-          [min]="0"
-          [format]="'n0'"
-          [spinners]="false"
-          class="full-width"
-          [class.readonly-field]="formGroup.get('giveutino')?.disabled">
-        </kendo-numerictextbox>
-      </ng-template>
+      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+      [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'center'}">
     </kendo-grid-column>
 
     <!-- Status Column -->
@@ -456,7 +269,8 @@
       field="status" 
       title="Status" 
       [width]="120"
-    >
+      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+      [style]="{'border-right': '1px solid #dee2e6'}">
       <ng-template kendoGridCellTemplate let-dataItem>
         <span class="status-badge" [class.completed]="dataItem.givemoney > 0">
           {{ dataItem.givemoney > 0 ? 'Completed' : 'Pending' }}
@@ -467,20 +281,30 @@
     <!-- Action Column -->
     <kendo-grid-command-column 
       title="Actions" 
-      [width]="160"
+      [width]="180"
       [headerStyle]="{'text-align': 'center'}"
     >
       <ng-template kendoGridCellTemplate let-dataItem>
         <div class="action-buttons">
           <button 
             kendoButton 
-            (click)="editAccount(dataItem)" 
+            (click)="openEditModal(dataItem)" 
             class="k-button k-button-solid k-button-solid-primary btn-edit"
             [disabled]="isLoading"
             title="Edit Account"
           >
             <span class="k-icon k-i-edit"></span>
             Edit
+          </button>
+          <button 
+            kendoButton 
+            (click)="deleteAccount(dataItem)" 
+            class="k-button k-button-solid k-button-solid-error btn-delete"
+            [disabled]="isLoading"
+            title="Delete Account"
+          >
+            <span class="k-icon k-i-delete"></span>
+            Delete
           </button>
         </div>
       </ng-template>
@@ -497,11 +321,263 @@
     <p *ngIf="!searchTerm">No accounts available. Click "Add New Account" to get started.</p>
     <button 
       kendoButton 
-      (click)="addHandler()" 
+      (click)="openAddModal()" 
       class="k-button k-button-solid k-button-solid-primary"
     >
       <span class="k-icon k-i-plus"></span>
       Add Your First Account
     </button>
   </div>
+
+  <!-- Edit/Add Modal -->
+  <kendo-dialog 
+    *ngIf="showModal"
+    [title]="isNew ? 'Add New Account' : 'Edit Account'"
+    (close)="closeModal()"
+    [minWidth]="800"
+    [width]="850">
+    
+    <div class="modal-content">
+      <!-- Editing Mode Indicator -->
+      <div *ngIf="formGroup" class="edit-mode-indicator">
+        <div class="indicator-content">
+          <span class="k-icon k-i-edit"></span>
+          <span class="indicator-text">
+            <strong>Editing Mode:</strong>
+            <span *ngIf="canEditGetFields && !canEditGiveFields" class="mode-tag get-mode">
+              Get Money Details Only (ismoney: true)
+            </span>
+            <span *ngIf="!canEditGetFields && canEditGiveFields" class="mode-tag give-mode">
+              Give Money Details Only (ismoney: false)
+            </span>
+            <span *ngIf="canEditGetFields && canEditGiveFields" class="mode-tag full-mode">
+              Full Edit Access
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <form [formGroup]="formGroup" class="account-form">
+        <div class="form-sections">
+          <!-- Get Money Section -->
+          <div class="form-section" [class.disabled-section]="!canEditGetFields">
+            <h3 class="section-title">
+              <span class="k-icon k-i-money"></span>
+              Get Money Details
+            </h3>
+            
+            <div class="form-row">
+              <div class="form-field">
+                <label class="k-label">Customer Name *</label>
+                <kendo-dropdownlist
+                  formControlName="name"
+                  [data]="usersList"
+                  textField="username"
+                  valueField="user_id"
+                  [valuePrimitive]="true"
+                  [filterable]="true"
+                  placeholder="Select customer"
+                  class="full-width customer-dropdown"
+                  [disabled]="!canEditGetFields">
+                </kendo-dropdownlist>
+                <div *ngIf="formGroup.get('name')?.invalid && formGroup.get('name')?.touched" class="field-error">
+                  Please select a customer
+                </div>
+              </div>
+              
+              <div class="form-field">
+                <label class="k-label">Get Amount *</label>
+                <kendo-numerictextbox 
+                  formControlName="getmoney"
+                  [decimals]="2"
+                  [min]="0"
+                  [format]="'n2'"
+                  [spinners]="false"
+                  class="full-width money-input"
+                  [disabled]="!canEditGetFields">
+                </kendo-numerictextbox>
+                <div *ngIf="formGroup.get('getmoney')?.invalid && formGroup.get('getmoney')?.touched" class="field-error">
+                  Valid amount required
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="k-label">Interest % *</label>
+                <kendo-numerictextbox 
+                  formControlName="intrest"
+                  [decimals]="2"
+                  [min]="0"
+                  [max]="100"
+                  [format]="'n2'"
+                  [spinners]="false"
+                  class="full-width"
+                  [disabled]="!canEditGetFields">
+                </kendo-numerictextbox>
+                <div *ngIf="formGroup.get('intrest')?.invalid && formGroup.get('intrest')?.touched" class="field-error">
+                  Interest must be 0-100%
+                </div>
+              </div>
+              
+              <div class="form-field">
+                <label class="k-label">Get Date</label>
+                <kendo-datepicker 
+                  formControlName="date" 
+                  [format]="'dd/MM/yyyy'"
+                  class="full-width"
+                  [disabled]="!canEditGetFields">
+                </kendo-datepicker>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="k-label">Agent</label>
+                <input 
+                  kendoTextBox 
+                  formControlName="agent" 
+                  class="full-width" 
+                  placeholder="Agent name"
+                  [disabled]="!canEditGetFields"
+                />
+              </div>
+              
+              <div class="form-field">
+                <label class="k-label">UTI No</label>
+                <kendo-numerictextbox 
+                  formControlName="utino"
+                  [decimals]="0"
+                  [min]="0"
+                  [format]="'n0'"
+                  [spinners]="false"
+                  class="full-width"
+                  [disabled]="!canEditGetFields">
+                </kendo-numerictextbox>
+              </div>
+            </div>
+
+            <div class="form-field full-width-field">
+              <label class="k-label">Remarks</label>
+              <input 
+                kendoTextBox 
+                formControlName="remark" 
+                class="full-width" 
+                placeholder="Additional remarks"
+                [disabled]="!canEditGetFields"
+              />
+            </div>
+          </div>
+
+          <!-- Give Money Section -->
+          <div class="form-section" [class.disabled-section]="!canEditGiveFields">
+            <h3 class="section-title">
+              <span class="k-icon k-i-dollar"></span>
+              Give Money Details
+            </h3>
+            
+            <div class="form-row">
+              <div class="form-field">
+                <label class="k-label">Give To *</label>
+                <kendo-dropdownlist
+                  formControlName="givename"
+                  [data]="usersList"
+                  textField="username"
+                  valueField="user_id"
+                  [valuePrimitive]="true"
+                  [filterable]="true"
+                  placeholder="Select recipient"
+                  class="full-width customer-dropdown"
+                  [disabled]="!canEditGiveFields">
+                </kendo-dropdownlist>
+                <div *ngIf="formGroup.get('givename')?.invalid && formGroup.get('givename')?.touched" class="field-error">
+                  Please select a recipient
+                </div>
+              </div>
+              
+              <div class="form-field">
+                <label class="k-label">Give Amount</label>
+                <kendo-numerictextbox 
+                  formControlName="givemoney"
+                  [decimals]="2"
+                  [min]="0"
+                  [format]="'n2'"
+                  [spinners]="false"
+                  class="full-width money-input"
+                  [disabled]="!canEditGiveFields">
+                </kendo-numerictextbox>
+                <div *ngIf="formGroup.get('givemoney')?.invalid && formGroup.get('givemoney')?.touched" class="field-error">
+                  Valid amount required
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="k-label">Give Date</label>
+                <kendo-datepicker 
+                  formControlName="givedate" 
+                  [format]="'dd/MM/yyyy'"
+                  class="full-width"
+                  [disabled]="!canEditGiveFields">
+                </kendo-datepicker>
+              </div>
+              
+              <div class="form-field">
+                <label class="k-label">Give Agent</label>
+                <input 
+                  kendoTextBox 
+                  formControlName="giveagent" 
+                  class="full-width" 
+                  placeholder="Give agent name"
+                  [disabled]="!canEditGiveFields"
+                />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label class="k-label">Give UTI No</label>
+                <kendo-numerictextbox 
+                  formControlName="giveutino"
+                  [decimals]="0"
+                  [min]="0"
+                  [format]="'n0'"
+                  [spinners]="false"
+                  class="full-width"
+                  [disabled]="!canEditGiveFields">
+                </kendo-numerictextbox>
+              </div>
+            </div>
+
+            <div class="form-field full-width-field">
+              <label class="k-label">Give Remarks</label>
+              <input 
+                kendoTextBox 
+                formControlName="giveremark" 
+                class="full-width" 
+                placeholder="Give remarks"
+                [disabled]="!canEditGiveFields"
+              />
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <kendo-dialog-actions>
+      <button kendoButton (click)="closeModal()" [disabled]="isSaving">
+        Cancel
+      </button>
+      <button 
+        kendoButton 
+        [disabled]="!formGroup.valid || isSaving" 
+        (click)="saveAccount()"
+        themeColor="primary"
+      >
+        <span class="k-icon k-i-check"></span>
+        {{ isSaving ? 'Saving...' : (isNew ? 'Create Account' : 'Update Account') }}
+      </button>
+    </kendo-dialog-actions>
+  </kendo-dialog>
 </div>

@@ -442,3 +442,131 @@ label:not([for*="giveCustomerName"]):not([for*="givemoney"]):after {
     transform: translateY(0);
   }
 }
+/* Kendo Dropdown Styles */
+.kendo-dropdown {
+  width: 100%;
+}
+
+.kendo-dropdown .k-dropdown-wrap {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.kendo-dropdown .k-dropdown-wrap.k-state-focused {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+}
+
+.selected-customer-info {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Charter Description Styles */
+.charter-textarea {
+  border: 2px solid #e0e0e0;
+  background-color: #f8f9fa;
+  font-style: italic;
+  min-height: 80px;
+  resize: vertical;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.charter-textarea.auto-generated {
+  border: 2px solid #4caf50;
+  background-color: #e8f5e8;
+  cursor: pointer;
+}
+
+.charter-textarea.manual-edit {
+  border: 2px solid #2196f3;
+  background-color: #e3f2fd;
+  cursor: text;
+}
+
+.charter-textarea:focus {
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+  background-color: white;
+}
+
+.charter-textarea.auto-generated:hover {
+  border-color: #45a049;
+  background-color: #e1f5e1;
+}
+
+.auto-generated-badge {
+  background: #4caf50;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.manual-edit-badge {
+  background: #2196f3;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.auto-generate-indicator {
+  color: #4caf50;
+  font-weight: 600;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.manual-edit-indicator {
+  color: #2196f3;
+  font-weight: 600;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.empty-state {
+  color: #ff9800;
+  font-style: italic;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.character-count {
+  color: #666;
+  font-size: 11px;
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+/* Enhanced charter highlight in summary */
+.charter-highlight {
+  color: #7b1fa2;
+  font-weight: 600;
+  background: rgba(156, 39, 176, 0.1);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-style: italic;
+  border-left: 4px solid #9c27b0;
+  font-size: 13px;
+  line-height: 1.4;
+  display: block;
+  margin-top: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .charter-textarea {
+    min-height: 100px;
+  }
+}

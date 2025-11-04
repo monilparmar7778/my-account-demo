@@ -438,3 +438,204 @@ label:not([for*="name"]):not([for*="getmoney"]):not([for*="intrest"]):after {
     transform: translateY(0);
   }
 }
+/* Kendo Dropdown Styles */
+.kendo-dropdown {
+  width: 100%;
+}
+
+.kendo-dropdown .k-dropdown-wrap {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.kendo-dropdown .k-dropdown-wrap.k-state-focused {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.selected-customer-info {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Loading state for dropdown */
+.k-dropdown .k-loading {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" stroke="%23007bff" stroke-width="8" fill="none" stroke-dasharray="60 35"></circle></svg>');
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 16px 16px;
+}
+/* Compact Charter Input Styles */
+.charter-input {
+  border: 2px solid #9c27b0;
+  background-color: #f3e5f5;
+  font-style: italic;
+  height: 45px; /* Fixed height to match other inputs */
+}
+
+.charter-input:focus {
+  border-color: #9c27b0;
+  box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.1);
+  background-color: #f3e5f5;
+}
+
+.charter-input::placeholder {
+  color: #7b1fa2;
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+.charter-note {
+  margin-top: 5px;
+  font-size: 11px;
+  color: #7b1fa2;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.3;
+}
+
+.charter-highlight {
+  color: #7b1fa2;
+  font-weight: 600;
+  background: rgba(156, 39, 176, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-style: italic;
+  border-left: 3px solid #9c27b0;
+  font-size: 13px;
+}
+
+/* Make sure form rows have consistent spacing */
+.form-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.form-row:last-child {
+  margin-bottom: 0;
+}
+
+/* Compact form group for charter */
+.form-group.full-width .charter-input {
+  margin-bottom: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .charter-input {
+    height: 50px; /* Slightly taller on mobile for better touch */
+  }
+  
+  .charter-note {
+    font-size: 10px;
+  }
+}
+/* Charter Description Styles */
+.charter-textarea {
+  border: 2px solid #e0e0e0;
+  background-color: #f8f9fa;
+  font-style: italic;
+  min-height: 80px;
+  resize: vertical;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.charter-textarea.auto-generated {
+  border: 2px solid #4caf50;
+  background-color: #e8f5e8;
+  cursor: pointer;
+}
+
+.charter-textarea.manual-edit {
+  border: 2px solid #2196f3;
+  background-color: #e3f2fd;
+  cursor: text;
+}
+
+.charter-textarea:focus {
+  border-color: #2196f3;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+  background-color: white;
+}
+
+.charter-textarea.auto-generated:hover {
+  border-color: #45a049;
+  background-color: #e1f5e1;
+}
+
+.auto-generated-badge {
+  background: #4caf50;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.manual-edit-badge {
+  background: #2196f3;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.auto-generate-indicator {
+  color: #4caf50;
+  font-weight: 600;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.manual-edit-indicator {
+  color: #2196f3;
+  font-weight: 600;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.empty-state {
+  color: #ff9800;
+  font-style: italic;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.character-count {
+  color: #666;
+  font-size: 11px;
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+/* Enhanced charter highlight in summary */
+.charter-highlight {
+  color: #7b1fa2;
+  font-weight: 600;
+  background: rgba(156, 39, 176, 0.1);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-style: italic;
+  border-left: 4px solid #9c27b0;
+  font-size: 13px;
+  line-height: 1.4;
+  display: block;
+  margin-top: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .charter-textarea {
+    min-height: 100px;
+  }
+}

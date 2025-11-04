@@ -1,0 +1,348 @@
+<div class="employee-container">
+  <!-- FIX: Added Kendo Dialog Container -->
+  <div kendoDialogContainer></div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="loading-spinner">
+      <span class="k-icon k-i-loading"></span>
+      Loading...
+    </div>
+  </div>
+
+  <div class="page-header">
+    <h1 class="page-title">
+      <span class="k-icon k-i-group"></span>
+      Employee Management
+    </h1>
+    <p class="page-subtitle">Manage all employee records and information</p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-cards">
+    <div class="summary-card total-employees">
+      <div class="card-icon">
+        <span class="k-icon k-i-user"></span>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ totalEmployees }}</div>
+        <div class="card-label">Total Employees</div>
+      </div>
+    </div>
+    
+    <div class="summary-card total-amount">
+      <div class="card-icon">
+        <span class="k-icon k-i-money"></span>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ totalAmount | currency:'INR':'symbol':'1.0-0' }}</div>
+        <div class="card-label">Total Salary</div>
+      </div>
+    </div>
+    
+    <div class="summary-card average-salary">
+      <div class="card-icon">
+        <span class="k-icon k-i-calculator"></span>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ averageAmount | currency:'INR':'symbol':'1.0-0' }}</div>
+        <div class="card-label">Average Salary</div>
+      </div>
+    </div>
+    
+    <div class="summary-card recent-added">
+      <div class="card-icon">
+        <span class="k-icon k-i-clock"></span>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ view.length > 0 ? (view[view.length - 1]?.insert_date | date:'dd/MM/yyyy') : 'N/A' }}</div>
+        <div class="card-label">Last Added</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Toolbar -->
+  <div class="action-toolbar">
+    <div class="toolbar-left">
+      <button 
+        kendoButton 
+        [routerLink]="['/insertemployee']" 
+        [disabled]="isLoading"
+        class="k-button k-button-solid k-button-solid-primary"
+        title="Add New Employee"
+      >
+        <span class="k-icon k-i-plus"></span>
+        Add New Employee
+      </button>
+      
+      <button 
+        kendoButton 
+        (click)="refreshTable()" 
+        [disabled]="isLoading"
+        class="k-button k-button-solid k-button-solid-base"
+        title="Refresh Data"
+      >
+        <span class="k-icon k-i-refresh"></span>
+        Refresh
+      </button>
+      
+      <div class="search-container">
+        <span class="k-icon k-i-search"></span>
+        <input 
+          type="text" 
+          class="search-input" 
+          placeholder="Search by name, description, ID..." 
+          [value]="searchTerm"
+          (input)="onSearchInput($event)"
+        />
+        <button 
+          *ngIf="searchTerm" 
+          kendoButton 
+          (click)="clearSearch()"
+          class="k-button k-button-solid k-button-solid-base clear-search-btn"
+          title="Clear Search"
+        >
+          <span class="k-icon k-i-close"></span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="toolbar-right">
+      <div class="table-info">
+        <span class="k-icon k-i-grid"></span>
+        Showing <strong>{{ filteredView.length }}</strong> of <strong>{{ view.length }}</strong> employees
+      </div>
+    </div>
+  </div>
+
+  <!-- Employees Grid -->
+  <kendo-grid
+    #grid
+    [data]="filteredView"
+    id="employeesGrid"
+    [pageable]="true"
+    [pageSize]="state.pageSize"
+    [sortable]="true"
+    [filterable]="true"
+    [skip]="state.skip"
+    (pageChange)="pageChange($event)"
+    [rowClass]="rowCallback.bind(this)"
+    class="custom-grid"
+    [loading]="isLoading"
+    style="font-size: 14px;">
+
+    <!-- Toolbar Template -->
+    <ng-template kendoGridToolbarTemplate>
+      <div class="grid-toolbar">
+        <div class="toolbar-left">
+          <button 
+            kendoButton 
+            [routerLink]="['/insertemployee']" 
+            [disabled]="isLoading"
+            class="k-button k-button-solid k-button-solid-primary"
+            title="Add New Employee"
+          >
+            <span class="k-icon k-i-plus"></span>
+            Add New Employee
+          </button>
+          <span class="grid-title">Employee Records</span>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Column Definitions -->
+    
+    <!-- Employee ID Column -->
+    <kendo-grid-column 
+      field="emp_details_id" 
+      title="Employee ID" 
+      [width]="120" 
+      [filterable]="false"
+      [headerStyle]="{'text-align': 'center'}"
+      [style]="{'text-align': 'center'}">
+    </kendo-grid-column>
+    
+    <!-- Employee Name -->
+    <kendo-grid-column 
+      field="employee_name" 
+      title="Employee Name" 
+      [width]="200"
+      [filterable]="true">
+    </kendo-grid-column>
+    
+    <!-- Employee Amount -->
+    <kendo-grid-column 
+      field="employee_amount" 
+      title="Salary" 
+      [width]="150"
+      format="{0:c}"
+      [headerStyle]="{'text-align': 'right'}"
+      [style]="{'text-align': 'right', 'font-weight': '600'}">
+    </kendo-grid-column>
+    
+    <!-- Employee Description -->
+    <kendo-grid-column 
+      field="employee_descripation" 
+      title="Description" 
+      [width]="250"
+      [filterable]="true">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span class="description-text" [title]="dataItem.employee_descripation">
+          {{ dataItem.employee_descripation || 'No description' }}
+        </span>
+      </ng-template>
+    </kendo-grid-column>
+    
+    <!-- Insert Date -->
+    <kendo-grid-column 
+      field="insert_date" 
+      title="Insert Date" 
+      [width]="150"
+      format="{0:dd/MM/yyyy}"
+      [headerStyle]="{'text-align': 'center'}"
+      [style]="{'text-align': 'center'}">
+    </kendo-grid-column>
+
+    <!-- Salary Category -->
+    <kendo-grid-column 
+      title="Salary Category" 
+      [width]="140"
+      [headerStyle]="{'text-align': 'center'}"
+      [style]="{'text-align': 'center'}">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span class="salary-category" 
+              [class.high-salary]="dataItem.employee_amount > 50000"
+              [class.medium-salary]="dataItem.employee_amount >= 25000 && dataItem.employee_amount <= 50000"
+              [class.low-salary]="dataItem.employee_amount < 25000">
+          {{ dataItem.employee_amount > 50000 ? 'High' : 
+             dataItem.employee_amount >= 25000 ? 'Medium' : 'Low' }}
+        </span>
+      </ng-template>
+    </kendo-grid-column>
+
+    <!-- Action Column -->
+    <kendo-grid-command-column 
+      title="Actions" 
+      [width]="200"
+      [headerStyle]="{'text-align': 'center'}"
+    >
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <div class="action-buttons">
+          <button 
+            kendoButton 
+            (click)="editEmployee(dataItem)" 
+            class="k-button k-button-solid k-button-solid-primary btn-edit"
+            [disabled]="isLoading"
+            title="Edit Employee"
+          >
+            <span class="k-icon k-i-edit"></span>
+            Edit
+          </button>
+          <button 
+            kendoButton 
+            (click)="deleteEmployee(dataItem)" 
+            class="k-button k-button-solid k-button-solid-error btn-delete"
+            [disabled]="isLoading"
+            title="Delete Employee"
+          >
+            <span class="k-icon k-i-delete"></span>
+            Delete
+          </button>
+        </div>
+      </ng-template>
+    </kendo-grid-command-column>
+  </kendo-grid>
+
+  <!-- Empty State -->
+  <div *ngIf="filteredView.length === 0 && !isLoading" class="empty-state">
+    <div class="empty-icon">
+      <span class="k-icon k-i-group"></span>
+    </div>
+    <h3>No Employees Found</h3>
+    <p *ngIf="searchTerm">No employees match your search criteria. Try adjusting your search terms.</p>
+    <p *ngIf="!searchTerm">No employees available. Click "Add New Employee" to get started.</p>
+    <button 
+      kendoButton 
+      [routerLink]="['/insertemployee']" 
+      class="k-button k-button-solid k-button-solid-primary"
+    >
+      <span class="k-icon k-i-plus"></span>
+      Add Your First Employee
+    </button>
+  </div>
+</div>
+
+<!-- Edit Employee Modal Template -->
+<ng-template #editModalTemplate>
+  <div class="modal-content" *ngIf="editForm">
+    <form [formGroup]="editForm" class="employee-form">
+      
+      <!-- Employee Name -->
+      <div class="form-group">
+        <kendo-label [for]="'employee_name'" text="Employee Name *" class="form-label"></kendo-label>
+        <input 
+          kendoTextBox 
+          id="employee_name"
+          formControlName="employee_name" 
+          class="full-width" 
+          placeholder="Enter employee name"
+        />
+        <div *ngIf="editForm.get('employee_name')?.invalid && editForm.get('employee_name')?.touched" class="field-error">
+          <span *ngIf="editForm.get('employee_name')?.errors?.['required']">Employee name is required</span>
+          <span *ngIf="editForm.get('employee_name')?.errors?.['minlength']">Name must be at least 2 characters</span>
+        </div>
+      </div>
+
+      <!-- Employee Amount -->
+      <div class="form-group">
+        <kendo-label [for]="'employee_amount'" text="Salary Amount *" class="form-label"></kendo-label>
+        <kendo-numerictextbox 
+          id="employee_amount"
+          formControlName="employee_amount"
+          [decimals]="2"
+          [min]="0.01"
+          [format]="'n2'"
+          [spinners]="false"
+          class="full-width money-input">
+        </kendo-numerictextbox>
+        <div *ngIf="editForm.get('employee_amount')?.invalid && editForm.get('employee_amount')?.touched" class="field-error">
+          <span *ngIf="editForm.get('employee_amount')?.errors?.['required']">Salary amount is required</span>
+          <span *ngIf="editForm.get('employee_amount')?.errors?.['min']">Salary must be greater than 0</span>
+        </div>
+      </div>
+
+      <!-- Employee Description -->
+      <div class="form-group">
+        <kendo-label [for]="'employee_descripation'" text="Description" class="form-label"></kendo-label>
+        <textarea 
+          kendoTextArea 
+          id="employee_descripation"
+          formControlName="employee_descripation" 
+          class="full-width" 
+          rows="3"
+          placeholder="Enter employee description or notes..."
+        ></textarea>
+      </div>
+
+      <!-- Insert Date -->
+      <div class="form-group">
+        <kendo-label [for]="'insert_date'" text="Insert Date" class="form-label"></kendo-label>
+        <kendo-datepicker 
+          id="insert_date"
+          formControlName="insert_date" 
+          [format]="'dd/MM/yyyy'"
+          class="full-width">
+        </kendo-datepicker>
+      </div>
+
+      <!-- Form Status -->
+      <div class="form-status" *ngIf="isSaving">
+        <div class="saving-indicator">
+          <span class="k-icon k-i-loading"></span>
+          {{ isEditMode ? 'Updating employee...' : 'Creating employee...' }}
+        </div>
+      </div>
+
+    </form>
+  </div>
+</ng-template>

@@ -8,6 +8,8 @@ import { Accountlaser } from './accountlaser/accountlaser';
 import { Laseraccount } from './laseraccount/laseraccount';
 import { Givemoney } from './givemoney/givemoney';
 import { authGuard } from './auth-guard'; // ✅ Correct import path
+import { Insertemployee } from './insertemployee/insertemployee';
+import { Getemployee } from './getemployee/getemployee';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -24,7 +26,9 @@ export const routes: Routes = [
       { path: 'create-user', component: Createuser, canActivate: [authGuard] },
       { path: 'laseraccount', component: Laseraccount, canActivate: [authGuard] },
       { path: 'accountlasert', component: Accountlaser, canActivate: [authGuard] },
-      { path: 'givemoney', component: Givemoney, canActivate: [authGuard] }
+      { path: 'givemoney', component: Givemoney, canActivate: [authGuard] },
+      { path: 'insertemployee',component:Insertemployee,canActivate:[authGuard]},
+      { path:'getemployee',component:Getemployee,canActivate:[authGuard]}
     ]
   },
   

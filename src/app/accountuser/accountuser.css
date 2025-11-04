@@ -729,3 +729,249 @@
     justify-content: center;
   }
 }
+/* Modal Styles */
+.modal-content {
+  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.account-form {
+  padding: 20px;
+}
+
+.form-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-section {
+  padding: 20px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.form-section.disabled-section {
+  opacity: 0.7;
+  background: #f1f3f4;
+}
+
+.section-title {
+  color: #2c3e50;
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.full-width-field {
+  grid-column: 1 / -1;
+}
+
+.k-label {
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+}
+
+/* Grid Border Styles */
+::ng-deep .custom-grid .k-grid-header .k-header {
+  border-right: 1px solid #dee2e6 !important;
+}
+
+::ng-deep .custom-grid .k-grid-content td {
+  border-right: 1px solid #dee2e6 !important;
+}
+
+::ng-deep .custom-grid .k-grid-content tr {
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+::ng-deep .custom-grid .k-grid-header tr {
+  border-bottom: 2px solid #dee2e6 !important;
+}
+
+/* Edit Mode Indicator in Modal */
+.edit-mode-indicator {
+  background: #e3f2fd;
+  padding: 12px 20px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  border-left: 4px solid #2196f3;
+}
+
+.indicator-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.indicator-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mode-tag {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mode-tag.get-mode {
+  background: #d4edda;
+  color: #155724;
+}
+
+.mode-tag.give-mode {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.mode-tag.full-mode {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+/* Responsive Modal */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-section {
+    padding: 16px;
+  }
+}
+/* Ensure dropdowns display selected values properly */
+.customer-dropdown .k-dropdown-wrap {
+  background-color: white;
+}
+
+.customer-dropdown .k-input {
+  color: #495057;
+}
+
+/* Disabled dropdown styling */
+.customer-dropdown:disabled .k-dropdown-wrap {
+  background-color: #f8f9fa;
+  opacity: 0.7;
+}
+
+/* Date picker fixes */
+.k-datepicker .k-input {
+  color: #495057;
+}
+
+.k-datepicker:disabled .k-input {
+  background-color: #f8f9fa;
+  opacity: 0.7;
+}
+/* Grid Row Border Fixes */
+::ng-deep .custom-grid .k-grid-table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+::ng-deep .custom-grid .k-grid-content tr {
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+::ng-deep .custom-grid .k-grid-content td {
+  border-right: 1px solid #dee2e6 !important;
+  border-bottom: 1px solid #dee2e6 !important;
+  padding: 12px !important;
+}
+
+::ng-deep .custom-grid .k-grid-header .k-header {
+  border-right: 1px solid #dee2e6 !important;
+  border-bottom: 2px solid #dee2e6 !important;
+  padding: 16px 12px !important;
+}
+
+::ng-deep .custom-grid .k-grid-header {
+  border-bottom: 2px solid #dee2e6 !important;
+}
+
+/* Remove any conflicting borders */
+::ng-deep .custom-grid .k-grid-content .k-alt {
+  background-color: #f8f9fa !important;
+}
+
+::ng-deep .custom-grid .k-grid-content .k-master-row {
+  background-color: white !important;
+}
+
+::ng-deep .custom-grid .k-grid-content .k-master-row:hover {
+  background-color: #f8f9fa !important;
+}
+
+/* Ensure grid has proper borders */
+::ng-deep .custom-grid {
+  border: 1px solid #dee2e6 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+::ng-deep .custom-grid .k-grid-header-wrap {
+  border: none !important;
+}
+
+::ng-deep .custom-grid .k-grid-content {
+  border: none !important;
+}
+
+/* Fix for alternating row colors with borders */
+::ng-deep .custom-grid .k-grid-content tr.k-alt td {
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+::ng-deep .custom-grid .k-grid-content tr.k-master-row td {
+  background-color: white !important;
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+/* Last row border fix */
+::ng-deep .custom-grid .k-grid-content tr:last-child td {
+  border-bottom: 1px solid #dee2e6 !important;
+}
+
+/* Remove any default Kendo borders that might conflict */
+::ng-deep .custom-grid .k-grid td,
+::ng-deep .custom-grid .k-grid th {
+  border-width: 0 !important;
+  border-style: none !important;
+}
+
+/* Specific border application */
+::ng-deep .custom-grid .k-grid-header th {
+  border-right: 1px solid #dee2e6 !important;
+  border-bottom: 2px solid #dee2e6 !important;
+}
+
+::ng-deep .custom-grid .k-grid-content td {
+  border-right: 1px solid #dee2e6 !important;
+  border-bottom: 1px solid #dee2e6 !important;
+}

@@ -14,12 +14,12 @@ import {
 import { ButtonsModule } from "@progress/kendo-angular-buttons";
 import { DropDownsModule } from "@progress/kendo-angular-dropdowns";
 import {
-  CellClickEvent,
   GridComponent,
   GridModule,
   RowClassArgs,
   PageChangeEvent,
 } from "@progress/kendo-angular-grid";
+import { DialogModule } from "@progress/kendo-angular-dialog";
 import { Subscription } from "rxjs";
 import { Authservice } from '../authservice';
 import { CommonModule } from "@angular/common";
@@ -29,7 +29,11 @@ import { DateInputsModule } from "@progress/kendo-angular-dateinputs";
 import { NotificationService } from "@progress/kendo-angular-notification";
 import { FormsModule } from "@angular/forms";
 
-// Complete interface for account data
+interface User {
+  user_id: number;
+  username: string;
+}
+
 interface Account {
   acid: number;
   name: string;
@@ -50,17 +54,15 @@ interface Account {
   start_date?: Date;
   end_date?: Date;
   status?: string;
-  ismoney?: boolean; // true for Get Money, false for Give Money
+  ismoney?: boolean;
+  charterDescription?: string;
+  giveCharterDescription?: string;
 }
 
-// Simple grid state interface without SortDescriptor
 interface GridState {
   skip: number;
   pageSize: number;
 }
-
-const matches = (el: any, selector: string) =>
-  (el.matches || el.msMatchesSelector).call(el, selector);
 
 @Component({
   selector: 'app-accountuser',
@@ -74,7 +76,8 @@ const matches = (el: any, selector: string) =>
     InputsModule,
     LabelModule,
     DateInputsModule,
-    FormsModule
+    FormsModule,
+    DialogModule
   ],
   templateUrl: './accountuser.html',
   styleUrl: './accountuser.css'
@@ -86,8 +89,6 @@ export class Accountuser implements OnInit, OnDestroy {
   public view: Account[] = [];
   public filteredView: Account[] = [];
   public formGroup!: FormGroup;
-  private editedRowIndex!: number;
-  private docClickSubscription: Subscription = new Subscription();
   public isNew: boolean = false;
   public isLoading: boolean = false;
   public isSaving: boolean = false;
@@ -96,12 +97,14 @@ export class Accountuser implements OnInit, OnDestroy {
   public totalAccounts: number = 0;
   public totalGetMoney: number = 0;
   public totalGiveMoney: number = 0;
+  public showModal: boolean = false;
 
-  // Track editing permissions
+  public usersList: User[] = [];
+  public isUsersLoading: boolean = false;
+
   public canEditGetFields: boolean = false;
   public canEditGiveFields: boolean = false;
 
-  // Grid state management
   public state: GridState = {
     skip: 0,
     pageSize: 10
@@ -114,17 +117,40 @@ export class Accountuser implements OnInit, OnDestroy {
   ) {}
 
   public ngOnInit(): void {
+    this.loadUsers();
     this.loadAccounts();
-    this.docClickSubscription.add(
-      this.renderer.listen("document", "click", this.onDocumentClick.bind(this))
-    );
   }
 
-  public ngOnDestroy(): void {
-    this.docClickSubscription.unsubscribe();
+  public ngOnDestroy(): void {}
+
+  private loadUsers(): void {
+    this.isUsersLoading = true;
+    this.accountService.getUsersBasicInfo().subscribe({
+      next: (response: any) => {
+        this.isUsersLoading = false;
+        if (response.success && response.data) {
+          this.usersList = response.data;
+          console.log('Users loaded:', this.usersList);
+        } else {
+          console.error('Failed to load users:', response.message);
+          this.showNotification('Failed to load customer list', 'error');
+        }
+      },
+      error: (error) => {
+        this.isUsersLoading = false;
+        console.error('Error loading users:', error);
+        this.showNotification('Error loading customer list', 'error');
+      }
+    });
   }
 
-  // Load all accounts with proper data extraction
+  public getCustomerName(userId: string): string {
+    if (!userId || userId === '') return 'N/A';
+    const userIdNum = typeof userId === 'string' ? parseInt(userId) : userId;
+    const user = this.usersList.find(u => u.user_id === userIdNum);
+    return user ? user.username : `User ${userId}`;
+  }
+
   private loadAccounts(): void {
     this.isLoading = true;
     this.accountService.getAccounts().subscribe({
@@ -133,20 +159,24 @@ export class Accountuser implements OnInit, OnDestroy {
         console.log('API Response:', response);
         
         if (response.success && response.data && Array.isArray(response.data)) {
-          this.view = response.data.map((account: any) => ({
-            ...account,
-            date: account.date ? new Date(account.date) : undefined,
-            givedate: account.givedate ? new Date(account.givedate) : undefined,
-            created_at: account.created_at ? new Date(account.created_at) : undefined,
-            modified_at: account.modified_at ? new Date(account.modified_at) : undefined,
-            start_date: account.start_date ? new Date(account.start_date) : undefined,
-            end_date: account.end_date ? new Date(account.end_date) : undefined,
-            status: account.givemoney > 0 ? 'Completed' : 'Pending',
-            ismoney: account.ismoney // Include ismoney field
-          }));
+          this.view = response.data.map((account: any) => {
+            const getDate = account.date ? this.parseDateWithoutTimezone(account.date) : new Date();
+            const giveDate = account.givedate ? this.parseDateWithoutTimezone(account.givedate) : new Date();
+            
+            return {
+              ...account,
+              date: getDate,
+              givedate: giveDate,
+              created_at: account.created_at ? new Date(account.created_at) : undefined,
+              modified_at: account.modified_at ? new Date(account.modified_at) : undefined,
+              start_date: account.start_date ? new Date(account.start_date) : undefined,
+              end_date: account.end_date ? new Date(account.end_date) : undefined,
+              status: account.givemoney > 0 ? 'Completed' : 'Pending',
+              ismoney: account.ismoney
+            };
+          });
           this.applyFilter();
           this.calculateTotals();
-          this.showNotification(`Successfully loaded ${this.view.length} accounts`, 'success');
         } else {
           this.view = [];
           this.filteredView = [];
@@ -162,23 +192,51 @@ export class Accountuser implements OnInit, OnDestroy {
     });
   }
 
-  // Calculate totals for display
+  private parseDateWithoutTimezone(dateString: any): Date {
+    if (!dateString) return new Date();
+    
+    try {
+      if (typeof dateString === 'string') {
+        const date = new Date(dateString);
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      } else if (dateString instanceof Date) {
+        return new Date(dateString.getFullYear(), dateString.getMonth(), dateString.getDate());
+      }
+      return new Date();
+    } catch (e) {
+      console.error('Error parsing date:', e);
+      return new Date();
+    }
+  }
+
+  private formatDateForDisplay(date: Date): Date {
+    if (!date) return new Date();
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
+  private formatDateForAPI(date: Date): string {
+    if (!date) return new Date().toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   private calculateTotals(): void {
     this.totalAccounts = this.filteredView.length;
     this.totalGetMoney = this.filteredView.reduce((sum, account) => sum + (account.getmoney || 0), 0);
     this.totalGiveMoney = this.filteredView.reduce((sum, account) => sum + (account.givemoney || 0), 0);
   }
 
-  // Apply search filter
   public applyFilter(): void {
     if (!this.searchTerm.trim()) {
       this.filteredView = [...this.view];
     } else {
       const term = this.searchTerm.toLowerCase();
       this.filteredView = this.view.filter(account =>
-        account.name?.toLowerCase().includes(term) ||
+        this.getCustomerName(account.name).toLowerCase().includes(term) ||
+        this.getCustomerName(account.givename || '').toLowerCase().includes(term) ||
         account.agent?.toLowerCase().includes(term) ||
-        account.givename?.toLowerCase().includes(term) ||
         account.giveagent?.toLowerCase().includes(term) ||
         account.remark?.toLowerCase().includes(term) ||
         account.giveremark?.toLowerCase().includes(term) ||
@@ -186,90 +244,79 @@ export class Accountuser implements OnInit, OnDestroy {
       );
     }
     this.calculateTotals();
-    this.state.skip = 0; // Reset to first page when filtering
+    this.state.skip = 0;
   }
 
-  // Clear search method
   public clearSearch(): void {
     this.searchTerm = '';
     this.applyFilter();
   }
 
-  // Search input handler
   public onSearchInput(event: any): void {
     this.searchTerm = event.target.value;
     this.applyFilter();
   }
 
-  // Grid pagination
   public pageChange(event: PageChangeEvent): void {
     this.state.skip = event.skip;
   }
 
-  // Calculate Give Money automatically
-  private calculateGiveMoney(getMoney: number, interest: number): number {
-    if (!getMoney || !interest) return 0;
-    
-    const interestAmount = (getMoney * interest) / 100;
-    const giveMoney = getMoney - interestAmount;
-    
-    return Math.round(giveMoney * 100) / 100;
-  }
+  // REMOVED: No auto-calculation of give money
 
-  // Update Give Money calculation when Get Money or Interest changes
-  private updateGiveMoneyCalculation(formGroup: FormGroup): void {
-    // Only calculate if get fields are editable (ismoney = true)
-    if (this.canEditGetFields) {
-      const getMoney = formGroup.get('getmoney')?.value || 0;
-      const interest = formGroup.get('intrest')?.value || 0;
-      
-      if (getMoney > 0 && interest > 0) {
-        const giveMoney = this.calculateGiveMoney(getMoney, interest);
-        formGroup.patchValue({ givemoney: giveMoney }, { emitEvent: false });
-      }
-    }
-    // If ismoney = false, givemoney is manually entered and not calculated
-  }
-
-  // Determine editing permissions based on ismoney field
+  // SIMPLIFIED: Editing permissions logic
   private setEditingPermissions(dataItem: Account): void {
+    console.log('Setting permissions for:', {
+      acid: dataItem.acid,
+      ismoney: dataItem.ismoney,
+      isNew: this.isNew
+    });
+
     if (this.isNew) {
       // New record - can edit everything
       this.canEditGetFields = true;
       this.canEditGiveFields = true;
-    } else if (dataItem.ismoney === true) {
-      // Get Money transaction - can only edit get fields
-      this.canEditGetFields = true;
-      this.canEditGiveFields = false;
-    } else if (dataItem.ismoney === false) {
-      // Give Money transaction - can only edit give fields
-      this.canEditGetFields = false;
-      this.canEditGiveFields = true;
     } else {
-      // Fallback - can edit everything
-      this.canEditGetFields = true;
-      this.canEditGiveFields = true;
+      // Existing record - strict permissions based on ismoney
+      if (dataItem.ismoney === true) {
+        // Get Money transaction - ONLY edit get fields
+        this.canEditGetFields = true;
+        this.canEditGiveFields = false;
+      } else if (dataItem.ismoney === false) {
+        // Give Money transaction - ONLY edit give fields
+        this.canEditGetFields = false;
+        this.canEditGiveFields = true;
+      } else {
+        // Fallback - allow editing both
+        this.canEditGetFields = true;
+        this.canEditGiveFields = true;
+        console.warn('No ismoney flag found, allowing full edit');
+      }
     }
 
-    console.log('Editing permissions based on ismoney:', {
-      acid: dataItem.acid,
-      ismoney: dataItem.ismoney,
+    console.log('Final permissions:', {
       canEditGetFields: this.canEditGetFields,
       canEditGiveFields: this.canEditGiveFields
     });
   }
 
-  // Create form group with conditional validation
   private createFormGroup(dataItem: Account): FormGroup {
     this.setEditingPermissions(dataItem);
+
+    // Convert string IDs to numbers for dropdowns
+    const nameValue = dataItem.name ? (typeof dataItem.name === 'string' ? parseInt(dataItem.name) : dataItem.name) : null;
+    const givenameValue = dataItem.givename ? (typeof dataItem.givename === 'string' ? parseInt(dataItem.givename) : dataItem.givename) : null;
+
+    // Use formatted dates for display
+    const displayDate = dataItem.date ? this.formatDateForDisplay(dataItem.date) : new Date();
+    const displayGiveDate = dataItem.givedate ? this.formatDateForDisplay(dataItem.givedate) : new Date();
 
     const formGroup = new FormGroup({
       acid: new FormControl(dataItem.acid),
       
-      // Get Money Fields - editable only when ismoney = true
+      // Get Money Fields
       name: new FormControl(
-        { value: dataItem.name || '', disabled: !this.canEditGetFields }, 
-        this.canEditGetFields ? [Validators.required, Validators.minLength(2)] : []
+        { value: nameValue, disabled: !this.canEditGetFields }, 
+        this.canEditGetFields ? [Validators.required] : []
       ),
       getmoney: new FormControl(
         { value: dataItem.getmoney || 0, disabled: !this.canEditGetFields }, 
@@ -280,7 +327,7 @@ export class Accountuser implements OnInit, OnDestroy {
         this.canEditGetFields ? [Validators.required, Validators.min(0), Validators.max(100)] : []
       ),
       date: new FormControl(
-        { value: dataItem.date || new Date(), disabled: !this.canEditGetFields }
+        { value: displayDate, disabled: !this.canEditGetFields }
       ),
       agent: new FormControl(
         { value: dataItem.agent || '', disabled: !this.canEditGetFields }
@@ -291,10 +338,14 @@ export class Accountuser implements OnInit, OnDestroy {
       utino: new FormControl(
         { value: dataItem.utino || 0, disabled: !this.canEditGetFields }
       ),
+      charterDescription: new FormControl(
+        { value: dataItem.charterDescription || '', disabled: !this.canEditGetFields }
+      ),
       
-      // Give Money Fields - editable only when ismoney = false
+      // Give Money Fields
       givename: new FormControl(
-        { value: dataItem.givename || '', disabled: !this.canEditGiveFields }
+        { value: givenameValue, disabled: !this.canEditGiveFields },
+        this.canEditGiveFields ? [Validators.required] : []
       ),
       giveremark: new FormControl(
         { value: dataItem.giveremark || '', disabled: !this.canEditGiveFields }
@@ -303,39 +354,39 @@ export class Accountuser implements OnInit, OnDestroy {
         { value: dataItem.giveutino || 0, disabled: !this.canEditGiveFields }
       ),
       givedate: new FormControl(
-        { value: dataItem.givedate || new Date(), disabled: !this.canEditGiveFields }
+        { value: displayGiveDate, disabled: !this.canEditGiveFields }
       ),
       giveagent: new FormControl(
         { value: dataItem.giveagent || '', disabled: !this.canEditGiveFields }
       ),
+      giveCharterDescription: new FormControl(
+        { value: dataItem.giveCharterDescription || '', disabled: !this.canEditGiveFields }
+      ),
       
-      // GIVEMONEY FIELD - Make it conditionally editable
+      // Give Money is always manually entered - NO AUTO-CALCULATION
       givemoney: new FormControl(
         { value: dataItem.givemoney || 0, disabled: !this.canEditGiveFields }
       ),
+
+      // Include ismoney in form data
+      ismoney: new FormControl(dataItem.ismoney !== undefined ? dataItem.ismoney : true)
     });
 
-    // Add value changes listeners only if get fields are editable
-    if (this.canEditGetFields) {
-      formGroup.get('getmoney')?.valueChanges.subscribe(() => {
-        this.updateGiveMoneyCalculation(formGroup);
-      });
+    // REMOVED: No value change listeners for auto-calculation
 
-      formGroup.get('intrest')?.valueChanges.subscribe(() => {
-        this.updateGiveMoneyCalculation(formGroup);
-      });
-
-      // Initial calculation
-      this.updateGiveMoneyCalculation(formGroup);
-    }
+    console.log('Form group created with permissions:', {
+      canEditGetFields: this.canEditGetFields,
+      canEditGiveFields: this.canEditGiveFields,
+      ismoney: formGroup.get('ismoney')?.value
+    });
 
     return formGroup;
   }
 
-  // Add new account handler
-  public addHandler(): void {
-    this.closeEditor();
-
+  public openAddModal(): void {
+    this.isNew = true;
+    this.selectedAccount = null;
+    
     this.formGroup = this.createFormGroup({
       acid: 0,
       name: '',
@@ -351,128 +402,64 @@ export class Accountuser implements OnInit, OnDestroy {
       giveutino: 0,
       givedate: new Date(),
       giveagent: '',
-      ismoney: true // Default to Get Money for new records
+      charterDescription: '',
+      giveCharterDescription: '',
+      ismoney: true
     });
-    this.isNew = true;
-
-    this.grid.addRow(this.formGroup);
-    this.showNotification('Creating new account...', 'info');
+    
+    this.showModal = true;
   }
 
-  // Edit specific account
-  public editAccount(dataItem: Account): void {
-    this.closeEditor();
+  public openEditModal(dataItem: Account): void {
+    this.isNew = false;
     this.selectedAccount = dataItem;
     
-    const rowIndex = this.filteredView.findIndex(account => account.acid === dataItem.acid);
+    console.log('Editing account:', {
+      acid: dataItem.acid,
+      ismoney: dataItem.ismoney,
+      originalDate: dataItem.date,
+      originalGiveDate: dataItem.givedate,
+      getmoney: dataItem.getmoney,
+      givemoney: dataItem.givemoney
+    });
     
-    if (rowIndex !== -1) {
-      this.formGroup = this.createFormGroup(dataItem);
-      this.editedRowIndex = rowIndex;
-      this.isNew = false;
-      
-      // DEBUG: Check the actual disabled state
-      console.log('🔍 DEBUG - Field States:', {
-        acid: dataItem.acid,
-        ismoney: dataItem.ismoney,
-        canEditGetFields: this.canEditGetFields,
-        canEditGiveFields: this.canEditGiveFields,
-        givemoneyDisabled: this.formGroup.get('givemoney')?.disabled,
-        getmoneyDisabled: this.formGroup.get('getmoney')?.disabled,
-        givenameDisabled: this.formGroup.get('givename')?.disabled
-      });
-      
-      this.grid.editRow(rowIndex, this.formGroup);
-      
-      // Show appropriate message based on permissions
-      if (this.canEditGetFields && !this.canEditGiveFields) {
-        this.showNotification(`Editing Get Money details for: ${dataItem.name}`, 'info');
-      } else if (!this.canEditGetFields && this.canEditGiveFields) {
-        this.showNotification(`Editing Give Money details for: ${dataItem.givename}`, 'info');
-      } else {
-        this.showNotification(`Editing account: ${dataItem.name || dataItem.givename}`, 'info');
-      }
-    }
-  }
-
-  public saveRow(): void {
-    if (this.formGroup && this.formGroup.valid) {
-      this.saveCurrent();
-    } else {
-      this.showNotification('Please fill all required fields correctly', 'warning');
-      // Mark all fields as touched to show validation errors
-      Object.keys(this.formGroup.controls).forEach(key => {
-        this.formGroup.get(key)?.markAsTouched();
-      });
-    }
-  }
-
-  public cellClickHandler({ isEdited, dataItem, rowIndex }: CellClickEvent): void {
-    if (isEdited || (this.formGroup && !this.formGroup.valid)) {
-      return;
-    }
-
-    this.saveCurrent();
-
     this.formGroup = this.createFormGroup(dataItem);
-    this.editedRowIndex = rowIndex;
-    this.isNew = false;
-
-    this.grid.editRow(rowIndex, this.formGroup);
+    this.showModal = true;
   }
 
-  // Cancel editing
-  public cancelHandler(): void {
-    this.closeEditor();
-    this.showNotification('Edit cancelled', 'info');
-  }
-
-  // Close editor and reset states
-  private closeEditor(): void {
-    this.grid.closeRow(this.editedRowIndex);
-    this.isNew = false;
-    this.editedRowIndex = undefined!;
+  public closeModal(): void {
+    this.showModal = false;
     this.formGroup = undefined!;
     this.selectedAccount = null;
-    this.isSaving = false;
+    this.isNew = false;
     this.canEditGetFields = false;
     this.canEditGiveFields = false;
   }
 
-  // Document click handler
-  private onDocumentClick(e: Event): void {
-    if (
-      this.formGroup &&
-      this.formGroup.valid &&
-      !matches(
-        e.target,
-        "#accountsGrid tbody *, #accountsGrid .k-grid-toolbar .k-button"
-      )
-    ) {
-      this.saveCurrent();
-    }
-  }
-
-  // Save current form data
-  private saveCurrent(): void {
+  // SIMPLIFIED: No calculation logic in save
+  public saveAccount(): void {
     if (this.formGroup && this.formGroup.valid && !this.isSaving) {
-      const formData = this.formGroup.getRawValue(); // Get all values including disabled fields
+      const formData = this.formGroup.getRawValue();
       
-      const accountData: Account = {
+      // Prepare data for API - NO CALCULATION, use entered values directly
+      const accountData: any = {
         ...formData,
-        // Only calculate givemoney automatically if get fields are editable
-        // Otherwise, use the manually entered givemoney value
-        givemoney: this.canEditGetFields ? 
-          this.calculateGiveMoney(formData.getmoney || 0, formData.intrest || 0) : 
-          formData.givemoney
+        // Ensure string values for name fields
+        name: formData.name ? formData.name.toString() : '',
+        givename: formData.givename ? formData.givename.toString() : '',
+        // Use proper date formatting for API
+        date: this.formatDateForAPI(formData.date),
+        givedate: this.formatDateForAPI(formData.givedate),
+        charterDescription: formData.charterDescription || '',
+        giveCharterDescription: formData.giveCharterDescription || '',
+        // Use the manually entered give money value - NO CALCULATION
+        givemoney: formData.givemoney || 0,
+        // Always include ismoney field
+        ismoney: formData.ismoney !== undefined ? formData.ismoney : true
       };
 
       console.log('Saving account data:', accountData);
-      console.log('Editing permissions:', {
-        canEditGetFields: this.canEditGetFields,
-        canEditGiveFields: this.canEditGiveFields,
-        calculatedGiveMoney: this.canEditGetFields ? this.calculateGiveMoney(formData.getmoney || 0, formData.intrest || 0) : 'manual'
-      });
+      console.log('Using manually entered give money:', accountData.givemoney);
 
       if (this.isNew) {
         this.createAccount(accountData);
@@ -481,75 +468,69 @@ export class Accountuser implements OnInit, OnDestroy {
       }
     } else if (this.formGroup && this.formGroup.invalid) {
       this.showNotification('Please fix validation errors before saving', 'warning');
+      Object.keys(this.formGroup.controls).forEach(key => {
+        this.formGroup.get(key)?.markAsTouched();
+      });
     }
   }
 
-  // Create new account
-  private createAccount(accountData: Account): void {
+  private createAccount(accountData: any): void {
     this.isSaving = true;
     this.accountService.createAccount(accountData).subscribe({
       next: (response: any) => {
         this.isSaving = false;
-        console.log('Create response:', response);
-        
         if (response.success) {
           this.showNotification('Account created successfully!', 'success');
-          this.loadAccounts(); // Reload all data
+          this.closeModal();
+          this.loadAccounts();
         } else {
           this.showNotification(response.message || 'Error creating account', 'error');
         }
-        this.closeEditor();
       },
       error: (error) => {
         this.isSaving = false;
         console.error('Error creating account:', error);
         this.showNotification('Error creating account: ' + error.message, 'error');
-        this.closeEditor();
       }
     });
   }
 
-  // Update specific account
-  private updateAccount(accountData: Account): void {
+  private updateAccount(accountData: any): void {
     this.isSaving = true;
     this.accountService.updateAccount(accountData.acid, accountData).subscribe({
       next: (response: any) => {
         this.isSaving = false;
-        console.log('Update response:', response);
-        
         if (response.success) {
           this.showNotification('Account updated successfully!', 'success');
-          this.loadAccounts(); // Reload all data to reflect changes
+          this.closeModal();
+          this.loadAccounts();
         } else {
           this.showNotification(response.message || 'Error updating account', 'error');
         }
-        this.closeEditor();
       },
       error: (error) => {
         this.isSaving = false;
         console.error('Error updating account:', error);
         this.showNotification('Error updating account: ' + error.message, 'error');
-        this.closeEditor();
       }
     });
   }
 
-  // Refresh entire table
   public refreshTable(): void {
     this.loadAccounts();
     this.showNotification('Data refreshed successfully', 'info');
   }
 
-  // Delete account with confirmation
   public deleteAccount(account: Account): void {
-    if (confirm(`Are you sure you want to delete account: ${account.name || account.givename} (ID: ${account.acid})? This action cannot be undone.`)) {
+    const accountName = this.getCustomerName(account.name) || this.getCustomerName(account.givename || '');
+    if (confirm(`Are you sure you want to delete account: ${accountName} (ID: ${account.acid})? This action cannot be undone.`)) {
       this.isLoading = true;
       this.accountService.deleteAccount(account.acid).subscribe({
         next: (response: any) => {
           this.isLoading = false;
           if (response.success) {
             this.showNotification('Account deleted successfully!', 'success');
-            this.loadAccounts(); // Reload all data
+            this.loadAccounts();
           } else {
             this.showNotification(response.message || 'Error deleting account', 'error');
           }
@@ -563,7 +544,6 @@ export class Accountuser implements OnInit, OnDestroy {
     }
   }
 
-  // Show notification
   private showNotification(message: string, type: 'success' | 'error' | 'info' | 'warning'): void {
     this.notificationService.show({
       content: message,
@@ -575,11 +555,9 @@ export class Accountuser implements OnInit, OnDestroy {
     });
   }
 
-  // Row class for styling
   public rowCallback(context: RowClassArgs): any {
     return {
       'edited-row': context.dataItem === this.selectedAccount,
-      'new-row': this.isNew && context.index === this.editedRowIndex,
       'completed-row': context.dataItem.givemoney > 0,
       'get-money-row': context.dataItem.ismoney === true,
       'give-money-row': context.dataItem.ismoney === false

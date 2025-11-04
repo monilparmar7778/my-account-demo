@@ -23,6 +23,9 @@ export class Authservice {
   // ✅ AUTH API URL (NEW)
   private authUrl = 'http://localhost:5221/api/Auth';
 
+  // ✅ EMPLOYEE API URL (NEW)
+  private employeesUrl = 'http://localhost:5221/api/Employee';
+
   // JWT Authentication Properties
   private tokenKey = 'authToken';
   private userKey = 'userData';
@@ -37,41 +40,40 @@ export class Authservice {
   // ============ JWT AUTHENTICATION METHODS ============
 
   // Login with JWT
-// In your authservice.ts
-login(loginData: { username: string; password: string }): Observable<any> {
-  const httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json'
-    })
-  };
+  login(loginData: { username: string; password: string }): Observable<any> {
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    };
 
-  // Updated request payload with all required fields
-  const loginRequest = {
-    username: loginData.username,
-    password: loginData.password,
-    token: "", // Add empty string for required fields
-    Issuer: "MyAccountAPI", // Add default value
-    Secret: "YourSuperSecretKey", // Add default value
-    message: "", // Add empty string
-    Audience: "MyAccountApp", // Add default value
-    success: false, // Add default
-    user_id: 0, // Add default
-    expires_at: null // Add default
-  };
+    // Updated request payload with all required fields
+    const loginRequest = {
+      username: loginData.username,
+      password: loginData.password,
+      token: "", // Add empty string for required fields
+      Issuer: "MyAccountAPI", // Add default value
+      Secret: "YourSuperSecretKey", // Add default value
+      message: "", // Add empty string
+      Audience: "MyAccountApp", // Add default value
+      success: false, // Add default
+      user_id: 0, // Add default
+      expires_at: null // Add default
+    };
 
-  console.log('Sending login request to JWT API:', loginRequest);
+    console.log('Sending login request to JWT API:', loginRequest);
 
-  return this.http.post<any>(`${this.authUrl}/login`, loginRequest, httpOptions)
-    .pipe(
-      tap(response => {
-        if (response.success && response.token) {
-          this.setSession(response);
-          this.isAuthenticatedSubject.next(true);
-        }
-      }),
-      catchError(this.handleError)
-    );
-}
+    return this.http.post<any>(`${this.authUrl}/login`, loginRequest, httpOptions)
+      .pipe(
+        tap(response => {
+          if (response.success && response.token) {
+            this.setSession(response);
+            this.isAuthenticatedSubject.next(true);
+          }
+        }),
+        catchError(this.handleError)
+      );
+  }
 
   // Set session after successful login
   private setSession(authResult: any): void {
@@ -152,22 +154,97 @@ login(loginData: { username: string; password: string }): Observable<any> {
     return user ? user.username : null;
   }
 
-  // ============ UPDATED ACCOUNT METHODS WITH AUTH HEADERS ============
+  // ============ NEW METHOD: Get Users Basic Info (user_id and username only) ============
+  getUsersBasicInfo(): Observable<any> {
+    const httpOptions = {
+      headers: this.getAuthHeaders()
+    };
+    return this.http.get<any>(`${this.usersUrl}/basic`, httpOptions)
+      .pipe(catchError(this.handleError));
+  }
 
-  // Create only Get Money transaction (UPDATED)
+  // ============ EMPLOYEE METHODS WITH AUTH HEADERS ============
+
+  // Create new employee
+  createEmployee(employeeData: any): Observable<any> {
+    const httpOptions = {
+      headers: this.getAuthHeaders()
+    };
+    
+    const employee = {
+      employee_name: employeeData.employee_name,
+      employee_amount: employeeData.employee_amount,
+      employee_descripation: employeeData.employee_descripation,
+      insert_date: employeeData.insert_date // This will come from Kendo DatePicker
+    };
+
+    console.log('Creating employee:', employee);
+    
+    return this.http.post<any>(this.employeesUrl, employee, httpOptions)
+      .pipe(catchError(this.handleError));
+  }
+
+  // Get all employees
+  getEmployees(): Observable<any> {
+    const httpOptions = {
+      headers: this.getAuthHeaders()
+    };
+    return this.http.get<any>(this.employeesUrl, httpOptions)
+      .pipe(catchError(this.handleError));
+  }
+
+  // Get employee by ID
+  getEmployeeById(emp_details_id: number): Observable<any> {
+    const httpOptions = {
+      headers: this.getAuthHeaders()
+    };
+    return this.http.get<any>(`${this.employeesUrl}/${emp_details_id}`, httpOptions)
+      .pipe(catchError(this.handleError));
+  }
+
+  // Update employee
+  updateEmployee(emp_details_id: number, employee: any): Observable<any> {
+    const httpOptions = {
+      headers: this.getAuthHeaders()
+    };
+    
+    const employeeData = {
+      employee_name: employee.employee_name,
+      employee_amount: employee.employee_amount,
+      employee_descripation: employee.employee_descripation,
+      insert_date: employee.insert_date // Include insert_date in update
+    };
+    
+    return this.http.put<any>(`${this.employeesUrl}/${emp_details_id}`, employeeData, httpOptions)
+      .pipe(catchError(this.handleError));
+  }
+
+  // Delete employee
+  deleteEmployee(emp_details_id: number): Observable<any> {
+    const httpOptions = {
+      headers: this.getAuthHeaders()
+    };
+    return this.http.delete<any>(`${this.employeesUrl}/${emp_details_id}`, httpOptions)
+      .pipe(catchError(this.handleError));
+  }
+
+  // ============ UPDATED ACCOUNT METHODS WITH CHARTER DESCRIPTION ============
+
+  // Create only Get Money transaction (UPDATED with charterDescription)
   createGetMoneyTransaction(account: any): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
     };
     
     const getMoneyData = {
-      name: account.name,
+      name: account.name, // This is now user_id as string
       getmoney: account.getmoney,
       intrest: account.intrest,
       date: account.date,
       agent: account.agent,
       remark: account.remark,
-      utino: account.utino
+      utino: account.utino,
+      charterDescription: account.charterDescription // NEW: Add charter description
     };
 
     console.log('Sending Get Money data:', getMoneyData);
@@ -176,19 +253,20 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
-  // Create only Give Money transaction (UPDATED)
+  // Create only Give Money transaction (UPDATED with giveCharterDescription)
   createGiveMoneyTransaction(account: any): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
     };
     
     const giveMoneyData = {
-      givename: account.givename,
+      givename: account.givename, // This is now user_id as string
       givemoney: account.givemoney,
       givedate: account.givedate,
       giveagent: account.giveagent,
       giveremark: account.giveremark,
-      giveutino: account.giveutino
+      giveutino: account.giveutino,
+      giveCharterDescription: account.giveCharterDescription // NEW: Add give charter description
     };
 
     console.log('Sending Give Money data:', giveMoneyData);
@@ -197,14 +275,14 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
-  // Create complete transaction (both get and give) (UPDATED)
+  // Create complete transaction (both get and give) (UPDATED with charter descriptions)
   createCompleteTransaction(account: any): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
     };
     
     const completeData = {
-      name: account.name,
+      name: account.name, // This is now user_id as string
       getmoney: account.getmoney,
       intrest: account.intrest,
       givemoney: account.givemoney,
@@ -212,11 +290,13 @@ login(loginData: { username: string; password: string }): Observable<any> {
       agent: account.agent,
       remark: account.remark,
       utino: account.utino,
-      givename: account.givename,
+      givename: account.givename, // This is now user_id as string
       giveremark: account.giveremark,
       giveutino: account.giveutino,
       givedate: account.givedate,
-      giveagent: account.giveagent
+      giveagent: account.giveagent,
+      charterDescription: account.charterDescription, // NEW: Add charter description
+      giveCharterDescription: account.giveCharterDescription // NEW: Add give charter description
     };
 
     console.log('Sending complete transaction data:', completeData);
@@ -294,13 +374,14 @@ login(loginData: { username: string; password: string }): Observable<any> {
       .pipe(catchError(this.handleError));
   }
 
+  // Create Account (UPDATED with charter descriptions)
   createAccount(account: any): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
     };
     
     const accountData = {
-      name: account.name,
+      name: account.name, // This is now user_id as string
       getmoney: account.getmoney,
       intrest: account.intrest,
       givemoney: account.givemoney,
@@ -308,11 +389,13 @@ login(loginData: { username: string; password: string }): Observable<any> {
       agent: account.agent,
       remark: account.remark,
       utino: account.utino,
-      givename: account.givename,
+      givename: account.givename, // This is now user_id as string
       giveremark: account.giveremark,
       giveutino: account.giveutino,
       givedate: account.givedate,
-      giveagent: account.giveagent
+      giveagent: account.giveagent,
+      charterDescription: account.charterDescription, // NEW: Add charter description
+      giveCharterDescription: account.giveCharterDescription // NEW: Add give charter description
     };
 
     console.log('Sending account data:', accountData);
@@ -325,7 +408,26 @@ login(loginData: { username: string; password: string }): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
     };
-    return this.http.put<any>(`${this.accountsUrl}/${acid}`, account, httpOptions)
+    
+    const accountData = {
+      name: account.name, // This is now user_id as string
+      getmoney: account.getmoney,
+      intrest: account.intrest,
+      givemoney: account.givemoney,
+      date: account.date,
+      agent: account.agent,
+      remark: account.remark,
+      utino: account.utino,
+      givename: account.givename, // This is now user_id as string
+      giveremark: account.giveremark,
+      giveutino: account.giveutino,
+      givedate: account.givedate,
+      giveagent: account.giveagent,
+      charterDescription: account.charterDescription, // NEW: Add charter description
+      giveCharterDescription: account.giveCharterDescription // NEW: Add give charter description
+    };
+    
+    return this.http.put<any>(`${this.accountsUrl}/${acid}`, accountData, httpOptions)
       .pipe(catchError(this.handleError));
   }
 
