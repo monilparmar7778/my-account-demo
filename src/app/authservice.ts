@@ -562,6 +562,14 @@ export class Authservice {
       catchError(this.handleError)
     );
   }
+    getAccountRecords(request: any): Observable<any> {
+    const httpOptions = {
+      headers: this.getAuthHeaders()
+    };
+    
+    return this.http.post<any>(`${this.accountRecordUrl}/records`, request, httpOptions)
+      .pipe(catchError(this.handleError));
+  }
 
   /**
    * Get Gujarat data from assets
