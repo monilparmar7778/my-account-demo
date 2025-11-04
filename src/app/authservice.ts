@@ -562,14 +562,7 @@ export class Authservice {
       catchError(this.handleError)
     );
   }
-    getAccountRecords(request: any): Observable<any> {
-    const httpOptions = {
-      headers: this.getAuthHeaders()
-    };
-    
-    return this.http.post<any>(`${this.accountRecordUrl}/records`, request, httpOptions)
-      .pipe(catchError(this.handleError));
-  }
+
 
   /**
    * Get Gujarat data from assets
@@ -610,6 +603,14 @@ export class Authservice {
   /**
    * Handle HTTP errors
    */
+      getAccountRecords(request: any): Observable<any> {
+    const httpOptions = {
+      headers: this.getAuthHeaders()
+    };
+    
+    return this.http.post<any>(`${this.accountRecordUrl}/records`, request, httpOptions)
+      .pipe(catchError(this.handleError));
+  }
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Something bad happened; please try again later.';
     
