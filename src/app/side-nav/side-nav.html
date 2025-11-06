@@ -65,13 +65,39 @@
             </ul>
         </li>
 
-        <!-- Employee Salary -->
-        <li>
-            <a class="nav-link">
+        <!-- Employee Salary with Submenu -->
+        <li [class.active]="showEmployeeSubmenu">
+            <a class="nav-link" (click)="toggleEmployeeSubmenu()">
                 <span class="nav-icon">💰</span>
                 <span class="link_name">Employee Salary</span>
+                <span class="arrow" *ngIf="isOpen">{{ showEmployeeSubmenu ? '▼' : '▶' }}</span>
             </a>
             <div class="tooltip">Employee Salary</div>
+            
+            <!-- Submenu for Employee Salary - Only show when sidebar is open AND submenu is open -->
+            <ul class="sub-menu" *ngIf="isOpen && showEmployeeSubmenu">
+                <li>
+                    <a class="sub-nav-link" (click)="navigateToInsertEmployee()">
+                        <span class="sub-nav-icon">➕</span>
+                        <span class="sub-link_name">Insert Employee</span>
+                    </a>
+                    <div class="sub-tooltip">Insert Employee</div>
+                </li>
+                <li>
+                    <a class="sub-nav-link" (click)="navigateToGetEmployee()">
+                        <span class="sub-nav-icon">👥</span>
+                        <span class="sub-link_name">Get Employee</span>
+                    </a>
+                    <div class="sub-tooltip">Get Employee</div>
+                </li>
+                <li>
+                    <a class="sub-nav-link" (click)="navigateToBankDetails()">
+                        <span class="sub-nav-icon">🏦</span>
+                        <span class="sub-link_name">Bank Details</span>
+                    </a>
+                    <div class="sub-tooltip">Bank Details</div>
+                </li>
+            </ul>
         </li>
 
         <!-- Profile Section - Fixed at bottom -->

@@ -10,6 +10,12 @@ import { ButtonModule } from '@progress/kendo-angular-buttons';
 import { DateInputsModule } from '@progress/kendo-angular-dateinputs';
 import { InputsModule } from '@progress/kendo-angular-inputs';
 import { LabelModule } from '@progress/kendo-angular-label';
+import { DropDownsModule } from '@progress/kendo-angular-dropdowns';
+
+interface User {
+  user_id: number;
+  username: string;
+}
 
 @Component({
   selector: 'app-laseraccount',
@@ -21,6 +27,7 @@ import { LabelModule } from '@progress/kendo-angular-label';
     DateInputsModule,
     InputsModule,
     LabelModule,
+    DropDownsModule,
   ],
   templateUrl: './laseraccount.html',
   styleUrl: './laseraccount.css'
@@ -31,8 +38,9 @@ export class Laseraccount implements OnInit {
   // Simple data structure
   public gridData: { data: any[], total: number } = { data: [], total: 0 };
 
-  // Filter criteria
-  public username: string = '';
+  // Filter criteria - CHANGED: Now using user_id instead of username string
+  public selectedUserId: number | null = null;
+  public usersList: User[] = [];
   public fromDate: Date | null = null;
   public toDate: Date | null = null;
 
@@ -46,6 +54,7 @@ export class Laseraccount implements OnInit {
 
   // Loading state
   public loading: boolean = false;
+  public isUsersLoading: boolean = false;
   public currentDate: Date = new Date();
 
   // PDF data
@@ -55,12 +64,44 @@ export class Laseraccount implements OnInit {
     private authService: Authservice
   ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.loadUsers();
+  }
 
-  // Search accounts using AuthService
+  // Load users for dropdown
+  loadUsers() {
+    this.isUsersLoading = true;
+    this.authService.getUsersBasicInfo().subscribe({
+      next: (response: any) => {
+        this.isUsersLoading = false;
+        if (response.success && response.data) {
+          this.usersList = response.data;
+          console.log('Loaded users for dropdown:', this.usersList);
+        } else {
+          this.showNotification('Failed to load users list.', 'error');
+        }
+      },
+      error: (error: any) => {
+        this.isUsersLoading = false;
+        console.error('Error loading users:', error);
+        this.showNotification('Error loading users list. Please try again.', 'error');
+      }
+    });
+  }
+
+  // Get selected username for display
+  getSelectedUsername(): string {
+    if (this.selectedUserId) {
+      const user = this.usersList.find(u => u.user_id === this.selectedUserId);
+      return user ? user.username : '';
+    }
+    return '';
+  }
+
+  // Search accounts using AuthService - UPDATED to use user_id
   searchAccounts() {
-    if (!this.username || this.username.trim() === '') {
-      this.showNotification('Please enter a username', 'warning');
+    if (!this.selectedUserId) {
+      this.showNotification('Please select a user', 'warning');
       return;
     }
 
@@ -71,17 +112,27 @@ export class Laseraccount implements OnInit {
 
     this.loading = true;
 
-    // Prepare request using AuthService format
+    // Get username for the selected user_id
+    const selectedUser = this.usersList.find(u => u.user_id === this.selectedUserId);
+    if (!selectedUser) {
+      this.showNotification('Selected user not found', 'error');
+      this.loading = false;
+      return;
+    }
+
+    // Prepare request using AuthService format - FIXED DATE PASSING
     const request = {
-      username: this.username.trim(),
-      from_date: this.fromDate ? this.formatDate(this.fromDate) : null,
-      to_date: this.toDate ? this.formatDate(this.toDate) : null,
+      username: selectedUser.username, // Pass username to backend function
+      from_date: this.fromDate ? this.formatDateForAPI(this.fromDate) : null,
+      to_date: this.toDate ? this.formatDateForAPI(this.toDate) : null,
       skip: 0,
       take: 1000,
       sort: [{ field: 'get_date', dir: 'desc' }]
     };
 
     console.log('Searching accounts with request:', request);
+    console.log('Selected User ID:', this.selectedUserId);
+    console.log('Selected Username:', selectedUser.username);
 
     // Use AuthService to get account records
     this.authService.getAccountRecords(request)
@@ -101,7 +152,7 @@ export class Laseraccount implements OnInit {
             };
             
             console.log('Data loaded successfully:', this.gridData.data.length, 'records');
-            this.showNotification(`Found ${this.gridData.data.length} records`, 'success');
+            this.showNotification(`Found ${this.gridData.data.length} records for ${selectedUser.username}`, 'success');
           } else {
             this.showNotification(response.message || 'Error loading data', 'error');
           }
@@ -141,11 +192,11 @@ export class Laseraccount implements OnInit {
       });
   }
 
-  // Enhanced search with validation
+  // Enhanced search with validation - UPDATED
   enhancedSearchAccounts(): void {
-    // Validate username
-    if (!this.username || this.username.trim() === '') {
-      this.showNotification('Please enter a username', 'warning');
+    // Validate user selection
+    if (!this.selectedUserId) {
+      this.showNotification('Please select a user', 'warning');
       return;
     }
 
@@ -172,11 +223,43 @@ export class Laseraccount implements OnInit {
     this.searchAccounts();
   }
 
+  // FIXED: Format date for API - ensure proper date passing
+  private formatDateForAPI(date: Date): string {
+    // Create a new date to avoid timezone issues
+    const localDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+    return localDate.toISOString().split('T')[0];
+  }
+
+  // Format date for display (keep existing)
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  // Reset filters - UPDATED
+  resetFilters() {
+    this.selectedUserId = null;
+    this.fromDate = null;
+    this.toDate = null;
+    this.gridData = { data: [], total: 0 };
+    this.pdfData = [];
+    this.summary = {
+      total_get_money: 0,
+      total_give_money: 0,
+      total_interest_amount: 0,
+      net_balance: 0
+    };
+    
+    console.log('Filters reset');
+    this.showNotification('All filters have been reset', 'info');
+  }
+
   // Export to PDF
   public exportPDF(): void {
     if (this.pdfExport && this.pdfData.length > 0) {
       setTimeout(() => {
-        const fileName = `Account-Laser-Report-${this.username}-${new Date().getTime()}.pdf`;
+        const selectedUser = this.usersList.find(u => u.user_id === this.selectedUserId);
+        const userName = selectedUser ? selectedUser.username : 'Unknown';
+        const fileName = `Account-Laser-Report-${userName}-${new Date().getTime()}.pdf`;
         this.pdfExport.saveAs(fileName);
         console.log('PDF export initiated:', fileName);
         this.showNotification('PDF export started', 'success');
@@ -199,7 +282,9 @@ export class Laseraccount implements OnInit {
   private createCustomExcel(): void {
     const data = this.prepareExcelData();
     const csvContent = this.convertToCSV(data);
-    const fileName = `Account-Laser-Report-${this.username}-${new Date().getTime()}.csv`;
+    const selectedUser = this.usersList.find(u => u.user_id === this.selectedUserId);
+    const userName = selectedUser ? selectedUser.username : 'Unknown';
+    const fileName = `Account-Laser-Report-${userName}-${new Date().getTime()}.csv`;
     
     this.downloadCSV(csvContent, fileName);
     console.log('Excel export completed:', fileName);
@@ -208,12 +293,15 @@ export class Laseraccount implements OnInit {
 
   // Prepare data for Excel export
   private prepareExcelData(): any[] {
+    const selectedUser = this.usersList.find(u => u.user_id === this.selectedUserId);
+    const userName = selectedUser ? selectedUser.username : 'Unknown';
+    
     const excelData = [];
     
     // Header Section
     excelData.push(['Account Laser Report']);
     excelData.push(['']);
-    excelData.push(['Username:', this.username]);
+    excelData.push(['Username:', userName]);
     excelData.push(['Period:', 
       `${this.fromDate ? this.formatDate(this.fromDate) : 'All Dates'} to ${this.toDate ? this.formatDate(this.toDate) : 'All Dates'}`]);
     excelData.push(['Generated on:', new Date().toLocaleString()]);
@@ -292,29 +380,6 @@ export class Laseraccount implements OnInit {
     URL.revokeObjectURL(url);
   }
 
-  // Reset filters
-  resetFilters() {
-    this.username = '';
-    this.fromDate = null;
-    this.toDate = null;
-    this.gridData = { data: [], total: 0 };
-    this.pdfData = [];
-    this.summary = {
-      total_get_money: 0,
-      total_give_money: 0,
-      total_interest_amount: 0,
-      net_balance: 0
-    };
-    
-    console.log('Filters reset');
-    this.showNotification('All filters have been reset', 'info');
-  }
-
-  // Format date for API
-  private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
-  }
-
   // Helper method to get Get Money amount
   getGetMoney(item: any): number {
     if (item.transaction_type === 'GET') {
@@ -340,38 +405,65 @@ export class Laseraccount implements OnInit {
   // ========== ENHANCED FUNCTIONALITY ==========
 
   /**
-   * Validate date range with enhanced error messages
+   * Validate date range with enhanced error messages - FIXED DATE COMPARISON
    */
   validateDateRange(): { isValid: boolean; message: string } {
     const currentDate = new Date();
+    currentDate.setHours(23, 59, 59, 999); // Set to end of day for comparison
     
     // Check if fromDate is in future
-    if (this.fromDate && this.fromDate > currentDate) {
-      return {
-        isValid: false,
-        message: 'From date cannot be in the future'
-      };
+    if (this.fromDate) {
+      const fromDateCopy = new Date(this.fromDate);
+      fromDateCopy.setHours(0, 0, 0, 0);
+      const currentDateStart = new Date();
+      currentDateStart.setHours(0, 0, 0, 0);
+      
+      if (fromDateCopy > currentDateStart) {
+        return {
+          isValid: false,
+          message: 'From date cannot be in the future'
+        };
+      }
     }
     
     // Check if toDate is in future
-    if (this.toDate && this.toDate > currentDate) {
-      return {
-        isValid: false,
-        message: 'To date cannot be in the future'
-      };
+    if (this.toDate) {
+      const toDateCopy = new Date(this.toDate);
+      toDateCopy.setHours(0, 0, 0, 0);
+      const currentDateStart = new Date();
+      currentDateStart.setHours(0, 0, 0, 0);
+      
+      if (toDateCopy > currentDateStart) {
+        return {
+          isValid: false,
+          message: 'To date cannot be in the future'
+        };
+      }
     }
     
     // Check if fromDate is after toDate
-    if (this.fromDate && this.toDate && this.fromDate > this.toDate) {
-      return {
-        isValid: false,
-        message: 'From date cannot be greater than To date'
-      };
+    if (this.fromDate && this.toDate) {
+      const fromDateCopy = new Date(this.fromDate);
+      const toDateCopy = new Date(this.toDate);
+      fromDateCopy.setHours(0, 0, 0, 0);
+      toDateCopy.setHours(0, 0, 0, 0);
+      
+      if (fromDateCopy > toDateCopy) {
+        return {
+          isValid: false,
+          message: 'From date cannot be greater than To date'
+        };
+      }
     }
     
     // Check if date range is too large (optional)
     if (this.fromDate && this.toDate) {
-      const diffTime = Math.abs(this.toDate.getTime() - this.fromDate.getTime());
+      const fromDateCopy = new Date(this.fromDate);
+      const toDateCopy = new Date(this.toDate);
+      fromDateCopy.setHours(0, 0, 0, 0);
+      toDateCopy.setHours(0, 0, 0, 0);
+      
+      const diffTime = Math.abs(toDateCopy.getTime() - fromDateCopy.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       
       if (diffDays > 365) {
@@ -383,6 +475,54 @@ export class Laseraccount implements OnInit {
     }
     
     return { isValid: true, message: '' };
+  }
+
+  /**
+   * Quick date range presets - FIXED DATE SETTING
+   */
+  applyDatePreset(preset: 'today' | 'yesterday' | 'thisWeek' | 'thisMonth' | 'lastMonth'): void {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    switch (preset) {
+      case 'today':
+        this.fromDate = new Date(today);
+        this.toDate = new Date(today);
+        break;
+
+      case 'yesterday':
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        this.fromDate = yesterday;
+        this.toDate = yesterday;
+        break;
+
+      case 'thisWeek':
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(today.getDate() - today.getDay());
+        this.fromDate = startOfWeek;
+        this.toDate = new Date(today);
+        break;
+
+      case 'thisMonth':
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        this.fromDate = startOfMonth;
+        this.toDate = new Date(today);
+        break;
+
+      case 'lastMonth':
+        const firstDayLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        const lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+        this.fromDate = firstDayLastMonth;
+        this.toDate = lastDayLastMonth;
+        break;
+    }
+
+    // Ensure dates are properly set without time component
+    if (this.fromDate) this.fromDate.setHours(0, 0, 0, 0);
+    if (this.toDate) this.toDate.setHours(23, 59, 59, 999);
+
+    this.showNotification(`Applied ${preset.replace(/([A-Z])/g, ' $1').toLowerCase()} preset`, 'success');
   }
 
   /**
@@ -522,50 +662,6 @@ export class Laseraccount implements OnInit {
   }
 
   /**
-   * Quick date range presets
-   */
-  applyDatePreset(preset: 'today' | 'yesterday' | 'thisWeek' | 'thisMonth' | 'lastMonth'): void {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    switch (preset) {
-      case 'today':
-        this.fromDate = new Date(today);
-        this.toDate = new Date(today);
-        break;
-
-      case 'yesterday':
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        this.fromDate = yesterday;
-        this.toDate = yesterday;
-        break;
-
-      case 'thisWeek':
-        const startOfWeek = new Date(today);
-        startOfWeek.setDate(today.getDate() - today.getDay());
-        this.fromDate = startOfWeek;
-        this.toDate = new Date(today);
-        break;
-
-      case 'thisMonth':
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        this.fromDate = startOfMonth;
-        this.toDate = new Date(today);
-        break;
-
-      case 'lastMonth':
-        const firstDayLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        const lastDayLastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
-        this.fromDate = firstDayLastMonth;
-        this.toDate = lastDayLastMonth;
-        break;
-    }
-
-    this.showNotification(`Applied ${preset.replace(/([A-Z])/g, ' $1').toLowerCase()} preset`, 'success');
-  }
-
-  /**
    * Enhanced reset with confirmation
    */
   enhancedResetFilters(): void {
@@ -583,8 +679,11 @@ export class Laseraccount implements OnInit {
    * Copy summary to clipboard
    */
   copySummaryToClipboard(): void {
+    const selectedUser = this.usersList.find(u => u.user_id === this.selectedUserId);
+    const userName = selectedUser ? selectedUser.username : 'Unknown';
+    
     const summaryText = `
-Account Laser Summary - ${this.username}
+Account Laser Summary - ${userName}
 ─────────────────────────────
 Total Get Money: ₹${this.summary.total_get_money.toFixed(2)}
 Total Give Money: ₹${this.summary.total_give_money.toFixed(2)}
@@ -616,11 +715,14 @@ Generated by: ${this.authService.getUsername() || 'Unknown User'}
       return;
     }
 
+    const selectedUser = this.usersList.find(u => u.user_id === this.selectedUserId);
+    const userName = selectedUser ? selectedUser.username : 'Unknown';
+
     const printContent = `
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Account Laser Report - ${this.username}</title>
+        <title>Account Laser Report - ${userName}</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
           .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
@@ -635,7 +737,7 @@ Generated by: ${this.authService.getUsername() || 'Unknown User'}
       <body>
         <div class="header">
           <h1>Account Laser Report</h1>
-          <p><strong>Username:</strong> ${this.username}</p>
+          <p><strong>Username:</strong> ${userName}</p>
           <p><strong>Period:</strong> ${this.fromDate ? this.formatDate(this.fromDate) : 'All Dates'} to ${this.toDate ? this.formatDate(this.toDate) : 'All Dates'}</p>
           <p><strong>Generated:</strong> ${this.currentDate.toLocaleString()}</p>
           <p><strong>Generated by:</strong> ${this.authService.getUsername() || 'Unknown User'}</p>

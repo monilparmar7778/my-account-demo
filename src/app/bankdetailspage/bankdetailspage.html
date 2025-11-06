@@ -1,0 +1,199 @@
+<div class="container">
+  <div class="header">
+    <div class="date-selector">
+      <label>DATE : </label>
+      <kendo-datepicker 
+        [(value)]="selectedDate"
+        [format]="'dd/MM/yyyy'"
+        class="date-picker">
+      </kendo-datepicker>
+      <span class="day-name">{{getDayName(selectedDate)}}</span>
+    </div>
+  </div>
+
+  <div class="action-buttons no-print">
+    <button class="btn btn-primary" (click)="addNewParty()">Add New Party</button>
+    <button class="btn btn-success" (click)="saveChanges()">Save Changes</button>
+    <button class="btn btn-info" (click)="printReport()">Print Report</button>
+  </div>
+
+  <div class="table-container">
+    <!-- Header Row -->
+    <div class="table-header">
+      <div class="col-no">NO.</div>
+      <div class="col-party">PARTY'S NAME</div>
+      <div class="col-bank">BANK</div>
+      <div class="col-account">ACCOUNT NO</div>
+      <div class="col-balance-plus">BALANCE (+)</div>
+      <div class="col-balance-minus">BALANCE (-)</div>
+      <div class="col-status">STATUS</div>
+      <div class="col-actions no-print">ACTIONS</div>
+    </div>
+
+    <!-- Data Rows -->
+    <div class="data-container">
+      <ng-container *ngFor="let party of bankData; let partyIndex = index">
+        <!-- Party Row -->
+        <div class="party-row">
+          <div class="col-no">{{party.no}}</div>
+          <div class="col-party editable" (click)="startEditing(partyIndex, -1, 'partyName', party.partyName)">
+            <span *ngIf="!isPartyNameEditing(partyIndex)">{{party.partyName}}</span>
+            <input *ngIf="isPartyNameEditing(partyIndex)" 
+                   type="text" 
+                   class="edit-input" 
+                   [(ngModel)]="editValue"
+                   (blur)="saveEdit()"
+                   (keyup.enter)="saveEdit()"
+                   (keyup.escape)="cancelEdit()"
+                   autofocus>
+          </div>
+          
+          <!-- First Account -->
+          <div class="col-bank editable" (click)="startEditing(partyIndex, 0, 'bank', party.accounts[0].bank)">
+            <span *ngIf="!isEditing(partyIndex, 0, 'bank')">{{party.accounts[0].bank}}</span>
+            <input *ngIf="isEditing(partyIndex, 0, 'bank')" 
+                   type="text" 
+                   class="edit-input" 
+                   [(ngModel)]="editValue"
+                   (blur)="saveEdit()"
+                   (keyup.enter)="saveEdit()"
+                   (keyup.escape)="cancelEdit()"
+                   autofocus>
+          </div>
+          
+          <div class="col-account editable" (click)="startEditing(partyIndex, 0, 'accountNo', party.accounts[0].accountNo)">
+            <span *ngIf="!isEditing(partyIndex, 0, 'accountNo')">{{party.accounts[0].accountNo}}</span>
+            <input *ngIf="isEditing(partyIndex, 0, 'accountNo')" 
+                   type="text" 
+                   class="edit-input" 
+                   [(ngModel)]="editValue"
+                   (blur)="saveEdit()"
+                   (keyup.enter)="saveEdit()"
+                   (keyup.escape)="cancelEdit()"
+                   autofocus>
+          </div>
+          
+          <div class="col-balance-plus editable" (click)="startEditing(partyIndex, 0, 'balancePlus', party.accounts[0].balancePlus)">
+            <span *ngIf="!isEditing(partyIndex, 0, 'balancePlus')">{{party.accounts[0].balancePlus || '-'}}</span>
+            <input *ngIf="isEditing(partyIndex, 0, 'balancePlus')" 
+                   type="number" 
+                   class="edit-input" 
+                   [(ngModel)]="editValue"
+                   (blur)="saveEdit()"
+                   (keyup.enter)="saveEdit()"
+                   (keyup.escape)="cancelEdit()"
+                   autofocus>
+          </div>
+          
+          <div class="col-balance-minus editable" (click)="startEditing(partyIndex, 0, 'balanceMinus', party.accounts[0].balanceMinus)">
+            <span *ngIf="!isEditing(partyIndex, 0, 'balanceMinus')">{{party.accounts[0].balanceMinus || '-'}}</span>
+            <input *ngIf="isEditing(partyIndex, 0, 'balanceMinus')" 
+                   type="number" 
+                   class="edit-input" 
+                   [(ngModel)]="editValue"
+                   (blur)="saveEdit()"
+                   (keyup.enter)="saveEdit()"
+                   (keyup.escape)="cancelEdit()"
+                   autofocus>
+          </div>
+          
+          <div class="col-status editable" 
+               [class.status-active]="party.accounts[0].status === 'ACTIVE'"
+               (click)="startEditing(partyIndex, 0, 'status', party.accounts[0].status)">
+            <span *ngIf="!isEditing(partyIndex, 0, 'status')">{{party.accounts[0].status}}</span>
+            <select *ngIf="isEditing(partyIndex, 0, 'status')" 
+                    class="edit-select"
+                    [(ngModel)]="editValue"
+                    (blur)="saveEdit()"
+                    (change)="saveEdit()">
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+              <option value="DEBIT FREEZE">DEBIT FREEZE</option>
+            </select>
+          </div>
+          
+          <div class="col-actions no-print">
+            <button class="btn btn-sm btn-warning" (click)="addNewAccount(partyIndex)">+ Acc</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteParty(partyIndex)">Del Party</button>
+          </div>
+        </div>
+
+        <!-- Additional Accounts for the same party -->
+        <div *ngFor="let account of party.accounts.slice(1); let accountIndex = index" class="account-row">
+          <div class="col-no"></div>
+          <div class="col-party"></div>
+          
+          <div class="col-bank editable" (click)="startEditing(partyIndex, accountIndex + 1, 'bank', account.bank)">
+            <span *ngIf="!isEditing(partyIndex, accountIndex + 1, 'bank')">{{account.bank}}</span>
+            <input *ngIf="isEditing(partyIndex, accountIndex + 1, 'bank')" 
+                   type="text" 
+                   class="edit-input" 
+                   [(ngModel)]="editValue"
+                   (blur)="saveEdit()"
+                   (keyup.enter)="saveEdit()"
+                   (keyup.escape)="cancelEdit()"
+                   autofocus>
+          </div>
+          
+          <div class="col-account editable" (click)="startEditing(partyIndex, accountIndex + 1, 'accountNo', account.accountNo)">
+            <span *ngIf="!isEditing(partyIndex, accountIndex + 1, 'accountNo')">{{account.accountNo}}</span>
+            <input *ngIf="isEditing(partyIndex, accountIndex + 1, 'accountNo')" 
+                   type="text" 
+                   class="edit-input" 
+                   [(ngModel)]="editValue"
+                   (blur)="saveEdit()"
+                   (keyup.enter)="saveEdit()"
+                   (keyup.escape)="cancelEdit()"
+                   autofocus>
+          </div>
+          
+          <div class="col-balance-plus editable" (click)="startEditing(partyIndex, accountIndex + 1, 'balancePlus', account.balancePlus)">
+            <span *ngIf="!isEditing(partyIndex, accountIndex + 1, 'balancePlus')">{{account.balancePlus || '-'}}</span>
+            <input *ngIf="isEditing(partyIndex, accountIndex + 1, 'balancePlus')" 
+                   type="number" 
+                   class="edit-input" 
+                   [(ngModel)]="editValue"
+                   (blur)="saveEdit()"
+                   (keyup.enter)="saveEdit()"
+                   (keyup.escape)="cancelEdit()"
+                   autofocus>
+          </div>
+          
+          <div class="col-balance-minus editable" (click)="startEditing(partyIndex, accountIndex + 1, 'balanceMinus', account.balanceMinus)">
+            <span *ngIf="!isEditing(partyIndex, accountIndex + 1, 'balanceMinus')">{{account.balanceMinus || '-'}}</span>
+            <input *ngIf="isEditing(partyIndex, accountIndex + 1, 'balanceMinus')" 
+                   type="number" 
+                   class="edit-input" 
+                   [(ngModel)]="editValue"
+                   (blur)="saveEdit()"
+                   (keyup.enter)="saveEdit()"
+                   (keyup.escape)="cancelEdit()"
+                   autofocus>
+          </div>
+          
+          <div class="col-status editable" 
+               [class.status-active]="account.status === 'ACTIVE'"
+               (click)="startEditing(partyIndex, accountIndex + 1, 'status', account.status)">
+            <span *ngIf="!isEditing(partyIndex, accountIndex + 1, 'status')">{{account.status}}</span>
+            <select *ngIf="isEditing(partyIndex, accountIndex + 1, 'status')" 
+                    class="edit-select"
+                    [(ngModel)]="editValue"
+                    (blur)="saveEdit()"
+                    (change)="saveEdit()">
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="INACTIVE">INACTIVE</option>
+              <option value="DEBIT FREEZE">DEBIT FREEZE</option>
+            </select>
+          </div>
+          
+          <div class="col-actions no-print">
+            <button class="btn btn-sm btn-danger" (click)="deleteAccount(partyIndex, accountIndex + 1)">Del</button>
+          </div>
+        </div>
+
+        <!-- Empty space between parties -->
+        <div class="empty-row" *ngIf="partyIndex < bankData.length - 1"></div>
+      </ng-container>
+    </div>
+  </div>
+</div>

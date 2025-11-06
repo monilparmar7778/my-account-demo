@@ -116,200 +116,235 @@
   </div>
 
   <!-- Accounts Grid -->
-  <kendo-grid
-    #grid
-    [data]="filteredView"
-    id="accountsGrid"
-    [pageable]="true"
-    [pageSize]="state.pageSize"
-    [sortable]="true"
-    [filterable]="true"
-    [skip]="state.skip"
-    (pageChange)="pageChange($event)"
-    [rowClass]="rowCallback.bind(this)"
-    class="custom-grid"
-    [loading]="isLoading"
-    style="font-size: 14px;">
+<!-- Accounts Grid -->
+<kendo-grid
+  #grid
+  [data]="filteredView"
+  id="accountsGrid"
+  [pageable]="true"
+  [pageSize]="state.pageSize"
+  [sortable]="true"
+  [filterable]="true"
+  [skip]="state.skip"
+  (pageChange)="pageChange($event)"
+  [rowClass]="rowCallback.bind(this)"
+  class="custom-grid"
+  [loading]="isLoading"
+  style="font-size: 14px;">
 
-    <!-- Column Definitions -->
-    
-    <!-- Account ID Column -->
-    <kendo-grid-column 
-      field="acid" 
-      title="Account ID" 
-      [width]="120" 
-      [filterable]="false"
-      [headerStyle]="{'text-align': 'center', 'border-right': '1px solid #dee2e6'}"
-      [style]="{'text-align': 'center', 'border-right': '1px solid #dee2e6'}">
-    </kendo-grid-column>
-    
-    <!-- Get Information Section -->
-    <kendo-grid-column 
-      field="name" 
-      title="Customer Name" 
-      [width]="180"
-      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-      [style]="{'border-right': '1px solid #dee2e6'}">
-      <ng-template kendoGridCellTemplate let-dataItem>
-        {{ getCustomerName(dataItem.name) }}
-      </ng-template>
-    </kendo-grid-column>
-    
-   <kendo-grid-column 
-  field="getmoney" 
-  title="Get Amount" 
-  [width]="150"
-  [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-  [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'right'}">
-  <ng-template kendoGridCellTemplate let-dataItem>
-    ₹{{ dataItem.getmoney | number:'1.2-2' }}
-  </ng-template>
-</kendo-grid-column>
-    
-    <kendo-grid-column 
-      field="intrest" 
-      title="Interest %" 
-      [width]="130"
-      format="{0:n2}%"
-      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-      [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'right'}">
-    </kendo-grid-column>
-    
-    <kendo-grid-column 
-  field="givemoney" 
-  title="Give Amount" 
-  [width]="150"
-  [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-  [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'right'}">
-  <ng-template kendoGridCellTemplate let-dataItem>
-    ₹{{ dataItem.givemoney | number:'1.2-2' }}
-  </ng-template>
+  <!-- Column Definitions -->
+  
+  <!-- Account ID Column -->
+  <kendo-grid-column 
+    field="acid" 
+    title="Account ID" 
+    [width]="120" 
+    [filterable]="false"
+    [headerStyle]="{'text-align': 'center', 'border-right': '1px solid #dee2e6'}"
+    [style]="{'text-align': 'center', 'border-right': '1px solid #dee2e6'}">
   </kendo-grid-column>
-    
-    <kendo-grid-column 
-      field="date" 
-      title="Get Date" 
-      [width]="150"
-      format="{0:dd/MM/yyyy}"
-      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-      [style]="{'border-right': '1px solid #dee2e6'}">
-    </kendo-grid-column>
-    
-    <kendo-grid-column 
-      field="agent" 
-      title="Agent" 
-      [width]="150"
-      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-      [style]="{'border-right': '1px solid #dee2e6'}">
-    </kendo-grid-column>
+  
+  <!-- Get Information Section -->
+  <kendo-grid-column 
+    field="name" 
+    title="Customer Name" 
+    [width]="180"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6'}">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      {{ getCustomerName(dataItem.name) }}
+    </ng-template>
+  </kendo-grid-column>
+  
+  <kendo-grid-column 
+    field="getmoney" 
+    title="Get Amount" 
+    [width]="150"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'right'}">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      ₹{{ dataItem.getmoney | number:'1.2-2' }}
+    </ng-template>
+  </kendo-grid-column>
+  
+  <kendo-grid-column 
+    field="intrest" 
+    title="Interest %" 
+    [width]="130"
+    format="{0:n2}%"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'right'}">
+  </kendo-grid-column>
+  
+  <kendo-grid-column 
+    field="givemoney" 
+    title="Give Amount" 
+    [width]="150"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'right'}">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      ₹{{ dataItem.givemoney | number:'1.2-2' }}
+    </ng-template>
+  </kendo-grid-column>
+  
+  <kendo-grid-column 
+    field="date" 
+    title="Get Date" 
+    [width]="150"
+    format="{0:dd/MM/yyyy}"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6'}">
+  </kendo-grid-column>
+  
+  <kendo-grid-column 
+    field="agent" 
+    title="Agent" 
+    [width]="150"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6'}">
+  </kendo-grid-column>
 
-    <kendo-grid-column 
-      field="remark" 
-      title="Remarks" 
-      [width]="200"
-      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-      [style]="{'border-right': '1px solid #dee2e6'}">
-    </kendo-grid-column>
+  <kendo-grid-column 
+    field="remark" 
+    title="Remarks" 
+    [width]="200"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6'}">
+  </kendo-grid-column>
 
-    <kendo-grid-column 
-      field="utino" 
-      title="UTI No" 
-      [width]="120"
-      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-      [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'center'}">
-    </kendo-grid-column>
+  <kendo-grid-column 
+    field="utino" 
+    title="UTI No" 
+    [width]="120"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'center'}">
+  </kendo-grid-column>
 
-    <!-- Give Information Section -->
-    <kendo-grid-column 
-      field="givename" 
-      title="Give To" 
-      [width]="180"
-      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-      [style]="{'border-right': '1px solid #dee2e6'}">
-      <ng-template kendoGridCellTemplate let-dataItem>
-        {{ getCustomerName(dataItem.givename) }}
+  <!-- Charter Description Column -->
+  <kendo-grid-column 
+    field="charterDescription" 
+    title="Charter Desc" 
+    [width]="200"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6'}">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      <span *ngIf="dataItem.charterDescription; else noCharter">
+        {{ dataItem.charterDescription }}
+      </span>
+      <ng-template #noCharter>
+        <span class="text-muted">-</span>
       </ng-template>
-    </kendo-grid-column>
+    </ng-template>
+  </kendo-grid-column>
 
-    <kendo-grid-column 
-      field="givedate" 
-      title="Give Date" 
-      [width]="150"
-      format="{0:dd/MM/yyyy}"
-      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-      [style]="{'border-right': '1px solid #dee2e6'}">
-    </kendo-grid-column>
+  <!-- Give Information Section -->
+  <kendo-grid-column 
+    field="givename" 
+    title="Give To" 
+    [width]="180"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6'}">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      {{ getCustomerName(dataItem.givename) }}
+    </ng-template>
+  </kendo-grid-column>
 
-    <kendo-grid-column 
-      field="giveagent" 
-      title="Give Agent" 
-      [width]="150"
-      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-      [style]="{'border-right': '1px solid #dee2e6'}">
-    </kendo-grid-column>
+  <kendo-grid-column 
+    field="givedate" 
+    title="Give Date" 
+    [width]="150"
+    format="{0:dd/MM/yyyy}"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6'}">
+  </kendo-grid-column>
 
-    <kendo-grid-column 
-      field="giveremark" 
-      title="Give Remarks" 
-      [width]="200"
-      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-      [style]="{'border-right': '1px solid #dee2e6'}">
-    </kendo-grid-column>
+  <kendo-grid-column 
+    field="giveagent" 
+    title="Give Agent" 
+    [width]="150"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6'}">
+  </kendo-grid-column>
 
-    <kendo-grid-column 
-      field="giveutino" 
-      title="Give UTI No" 
-      [width]="120"
-      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-      [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'center'}">
-    </kendo-grid-column>
+  <kendo-grid-column 
+    field="giveremark" 
+    title="Give Remarks" 
+    [width]="200"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6'}">
+  </kendo-grid-column>
 
-    <!-- Status Column -->
-    <kendo-grid-column 
-      field="status" 
-      title="Status" 
-      [width]="120"
-      [headerStyle]="{'border-right': '1px solid #dee2e6'}"
-      [style]="{'border-right': '1px solid #dee2e6'}">
-      <ng-template kendoGridCellTemplate let-dataItem>
-        <span class="status-badge" [class.completed]="dataItem.givemoney > 0">
-          {{ dataItem.givemoney > 0 ? 'Completed' : 'Pending' }}
-        </span>
+  <kendo-grid-column 
+    field="giveutino" 
+    title="Give UTI No" 
+    [width]="120"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6', 'text-align': 'center'}">
+  </kendo-grid-column>
+
+  <!-- Give Charter Description Column -->
+  <kendo-grid-column 
+    field="giveCharterDescription" 
+    title="Give Charter Desc" 
+    [width]="200"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6'}">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      <span *ngIf="dataItem.giveCharterDescription; else noGiveCharter">
+        {{ dataItem.giveCharterDescription }}
+      </span>
+      <ng-template #noGiveCharter>
+        <span class="text-muted">-</span>
       </ng-template>
-    </kendo-grid-column>
+    </ng-template>
+  </kendo-grid-column>
 
-    <!-- Action Column -->
-    <kendo-grid-command-column 
-      title="Actions" 
-      [width]="180"
-      [headerStyle]="{'text-align': 'center'}"
-    >
-      <ng-template kendoGridCellTemplate let-dataItem>
-        <div class="action-buttons">
-          <button 
-            kendoButton 
-            (click)="openEditModal(dataItem)" 
-            class="k-button k-button-solid k-button-solid-primary btn-edit"
-            [disabled]="isLoading"
-            title="Edit Account"
-          >
-            <span class="k-icon k-i-edit"></span>
-            Edit
-          </button>
-          <button 
-            kendoButton 
-            (click)="deleteAccount(dataItem)" 
-            class="k-button k-button-solid k-button-solid-error btn-delete"
-            [disabled]="isLoading"
-            title="Delete Account"
-          >
-            <span class="k-icon k-i-delete"></span>
-            Delete
-          </button>
-        </div>
-      </ng-template>
-    </kendo-grid-command-column>
-  </kendo-grid>
+  <!-- Status Column -->
+  <kendo-grid-column 
+    field="status" 
+    title="Status" 
+    [width]="120"
+    [headerStyle]="{'border-right': '1px solid #dee2e6'}"
+    [style]="{'border-right': '1px solid #dee2e6'}">
+    <ng-template kendoGridCellTemplate let-dataItem>
+      <span class="status-badge" [class.completed]="dataItem.givemoney > 0">
+        {{ dataItem.givemoney > 0 ? 'Completed' : 'Pending' }}
+      </span>
+    </ng-template>
+  </kendo-grid-column>
+
+  <!-- Action Column -->
+  <kendo-grid-command-column 
+    title="Actions" 
+    [width]="180"
+    [headerStyle]="{'text-align': 'center'}"
+  >
+    <ng-template kendoGridCellTemplate let-dataItem>
+      <div class="action-buttons">
+        <button 
+          kendoButton 
+          (click)="openEditModal(dataItem)" 
+          class="k-button k-button-solid k-button-solid-primary btn-edit"
+          [disabled]="isLoading"
+          title="Edit Account"
+        >
+          <span class="k-icon k-i-edit"></span>
+          Edit
+        </button>
+        <button 
+          kendoButton 
+          (click)="deleteAccount(dataItem)" 
+          class="k-button k-button-solid k-button-solid-error btn-delete"
+          [disabled]="isLoading"
+          title="Delete Account"
+        >
+          <span class="k-icon k-i-delete"></span>
+          Delete
+        </button>
+      </div>
+    </ng-template>
+  </kendo-grid-command-column>
+</kendo-grid>
 
   <!-- Empty State -->
   <div *ngIf="filteredView.length === 0 && !isLoading" class="empty-state">
@@ -467,6 +502,18 @@
                 [disabled]="!canEditGetFields"
               />
             </div>
+
+            <!-- Charter Description Field -->
+            <div class="form-field full-width-field">
+              <label class="k-label">Charter Description</label>
+              <input 
+                kendoTextBox 
+                formControlName="charterDescription" 
+                class="full-width" 
+                placeholder="Charter description"
+                [disabled]="!canEditGetFields"
+              />
+            </div>
           </div>
 
           <!-- Give Money Section -->
@@ -557,6 +604,18 @@
                 formControlName="giveremark" 
                 class="full-width" 
                 placeholder="Give remarks"
+                [disabled]="!canEditGiveFields"
+              />
+            </div>
+
+            <!-- Give Charter Description Field -->
+            <div class="form-field full-width-field">
+              <label class="k-label">Give Charter Description</label>
+              <input 
+                kendoTextBox 
+                formControlName="giveCharterDescription" 
+                class="full-width" 
+                placeholder="Give charter description"
                 [disabled]="!canEditGiveFields"
               />
             </div>

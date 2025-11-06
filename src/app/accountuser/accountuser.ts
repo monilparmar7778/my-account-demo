@@ -160,10 +160,13 @@ export class Accountuser implements OnInit, OnDestroy {
         
         if (response.success && response.data && Array.isArray(response.data)) {
           this.view = response.data.map((account: any) => {
+            console.log('Raw account data:', account); // Debug each account
+            
             const getDate = account.date ? this.parseDateWithoutTimezone(account.date) : new Date();
             const giveDate = account.givedate ? this.parseDateWithoutTimezone(account.givedate) : new Date();
             
-            return {
+            // Handle both lowercase and camelCase field names from database
+            const processedAccount = {
               ...account,
               date: getDate,
               givedate: giveDate,
@@ -172,9 +175,22 @@ export class Accountuser implements OnInit, OnDestroy {
               start_date: account.start_date ? new Date(account.start_date) : undefined,
               end_date: account.end_date ? new Date(account.end_date) : undefined,
               status: account.givemoney > 0 ? 'Completed' : 'Pending',
-              ismoney: account.ismoney
+              ismoney: account.ismoney,
+              // Map both possible field names to ensure we get the data
+              charterDescription: account.charterDescription || account.charterdescription || '',
+              giveCharterDescription: account.giveCharterDescription || account.givecharterdescription || ''
             };
+
+            console.log('Processed account charter fields:', {
+              acid: processedAccount.acid,
+              charterDescription: processedAccount.charterDescription,
+              giveCharterDescription: processedAccount.giveCharterDescription
+            });
+
+            return processedAccount;
           });
+          
+          console.log('Final view with charter data:', this.view);
           this.applyFilter();
           this.calculateTotals();
         } else {
@@ -240,6 +256,8 @@ export class Accountuser implements OnInit, OnDestroy {
         account.giveagent?.toLowerCase().includes(term) ||
         account.remark?.toLowerCase().includes(term) ||
         account.giveremark?.toLowerCase().includes(term) ||
+        account.charterDescription?.toLowerCase().includes(term) ||
+        account.giveCharterDescription?.toLowerCase().includes(term) ||
         account.acid.toString().includes(term)
       );
     }
@@ -261,9 +279,6 @@ export class Accountuser implements OnInit, OnDestroy {
     this.state.skip = event.skip;
   }
 
-  // REMOVED: No auto-calculation of give money
-
-  // SIMPLIFIED: Editing permissions logic
   private setEditingPermissions(dataItem: Account): void {
     console.log('Setting permissions for:', {
       acid: dataItem.acid,
@@ -272,21 +287,16 @@ export class Accountuser implements OnInit, OnDestroy {
     });
 
     if (this.isNew) {
-      // New record - can edit everything
       this.canEditGetFields = true;
       this.canEditGiveFields = true;
     } else {
-      // Existing record - strict permissions based on ismoney
       if (dataItem.ismoney === true) {
-        // Get Money transaction - ONLY edit get fields
         this.canEditGetFields = true;
         this.canEditGiveFields = false;
       } else if (dataItem.ismoney === false) {
-        // Give Money transaction - ONLY edit give fields
         this.canEditGetFields = false;
         this.canEditGiveFields = true;
       } else {
-        // Fallback - allow editing both
         this.canEditGetFields = true;
         this.canEditGiveFields = true;
         console.warn('No ismoney flag found, allowing full edit');
@@ -302,18 +312,15 @@ export class Accountuser implements OnInit, OnDestroy {
   private createFormGroup(dataItem: Account): FormGroup {
     this.setEditingPermissions(dataItem);
 
-    // Convert string IDs to numbers for dropdowns
     const nameValue = dataItem.name ? (typeof dataItem.name === 'string' ? parseInt(dataItem.name) : dataItem.name) : null;
     const givenameValue = dataItem.givename ? (typeof dataItem.givename === 'string' ? parseInt(dataItem.givename) : dataItem.givename) : null;
 
-    // Use formatted dates for display
     const displayDate = dataItem.date ? this.formatDateForDisplay(dataItem.date) : new Date();
     const displayGiveDate = dataItem.givedate ? this.formatDateForDisplay(dataItem.givedate) : new Date();
 
     const formGroup = new FormGroup({
       acid: new FormControl(dataItem.acid),
       
-      // Get Money Fields
       name: new FormControl(
         { value: nameValue, disabled: !this.canEditGetFields }, 
         this.canEditGetFields ? [Validators.required] : []
@@ -342,7 +349,6 @@ export class Accountuser implements OnInit, OnDestroy {
         { value: dataItem.charterDescription || '', disabled: !this.canEditGetFields }
       ),
       
-      // Give Money Fields
       givename: new FormControl(
         { value: givenameValue, disabled: !this.canEditGiveFields },
         this.canEditGiveFields ? [Validators.required] : []
@@ -363,21 +369,16 @@ export class Accountuser implements OnInit, OnDestroy {
         { value: dataItem.giveCharterDescription || '', disabled: !this.canEditGiveFields }
       ),
       
-      // Give Money is always manually entered - NO AUTO-CALCULATION
       givemoney: new FormControl(
         { value: dataItem.givemoney || 0, disabled: !this.canEditGiveFields }
       ),
 
-      // Include ismoney in form data
       ismoney: new FormControl(dataItem.ismoney !== undefined ? dataItem.ismoney : true)
     });
 
-    // REMOVED: No value change listeners for auto-calculation
-
-    console.log('Form group created with permissions:', {
-      canEditGetFields: this.canEditGetFields,
-      canEditGiveFields: this.canEditGiveFields,
-      ismoney: formGroup.get('ismoney')?.value
+    console.log('Form group created with charter fields:', {
+      charterDescription: formGroup.get('charterDescription')?.value,
+      giveCharterDescription: formGroup.get('giveCharterDescription')?.value
     });
 
     return formGroup;
@@ -414,13 +415,11 @@ export class Accountuser implements OnInit, OnDestroy {
     this.isNew = false;
     this.selectedAccount = dataItem;
     
-    console.log('Editing account:', {
+    console.log('Editing account with charter data:', {
       acid: dataItem.acid,
       ismoney: dataItem.ismoney,
-      originalDate: dataItem.date,
-      originalGiveDate: dataItem.givedate,
-      getmoney: dataItem.getmoney,
-      givemoney: dataItem.givemoney
+      charterDescription: dataItem.charterDescription,
+      giveCharterDescription: dataItem.giveCharterDescription
     });
     
     this.formGroup = this.createFormGroup(dataItem);
@@ -436,30 +435,23 @@ export class Accountuser implements OnInit, OnDestroy {
     this.canEditGiveFields = false;
   }
 
-  // SIMPLIFIED: No calculation logic in save
   public saveAccount(): void {
     if (this.formGroup && this.formGroup.valid && !this.isSaving) {
       const formData = this.formGroup.getRawValue();
       
-      // Prepare data for API - NO CALCULATION, use entered values directly
       const accountData: any = {
         ...formData,
-        // Ensure string values for name fields
         name: formData.name ? formData.name.toString() : '',
         givename: formData.givename ? formData.givename.toString() : '',
-        // Use proper date formatting for API
         date: this.formatDateForAPI(formData.date),
         givedate: this.formatDateForAPI(formData.givedate),
         charterDescription: formData.charterDescription || '',
         giveCharterDescription: formData.giveCharterDescription || '',
-        // Use the manually entered give money value - NO CALCULATION
         givemoney: formData.givemoney || 0,
-        // Always include ismoney field
         ismoney: formData.ismoney !== undefined ? formData.ismoney : true
       };
 
-      console.log('Saving account data:', accountData);
-      console.log('Using manually entered give money:', accountData.givemoney);
+      console.log('Saving account data with charter fields:', accountData);
 
       if (this.isNew) {
         this.createAccount(accountData);

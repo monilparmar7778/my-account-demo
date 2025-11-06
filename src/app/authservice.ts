@@ -27,7 +27,7 @@ export class Authservice {
 
   // ✅ EMPLOYEE API URL (NEW)
   private employeesUrl = 'http://localhost:5221/api/Employee';
-
+ private accountRecordUrl = 'http://localhost:5221/api/AccountRecord';
   // JWT Authentication Properties
   private tokenKey = 'authToken';
   private userKey = 'userData';
@@ -75,18 +75,18 @@ export class Authservice {
       })
     };
 
-    const loginRequest = {
-      username: loginData.username,
-      password: loginData.password,
-      token: "",
-      Issuer: "MyAccountAPI",
-      Secret: "YourSuperSecretKey",
-      message: "",
-      Audience: "MyAccountApp",
-      success: false,
-      user_id: 0,
-      expires_at: null
-    };
+    // const loginRequest = {
+    //   username: loginData.username,
+    //   password: loginData.password,
+    //   token: "",
+    //   Issuer: "MyAccountAPI",
+    //   Secret: "YourSuperSecretKey",
+    //   message: "",
+    //   Audience: "MyAccountApp",
+    //   success: false,
+    //   user_id: 0,
+    //   expires_at: null
+    // };
     // Updated request payload with all required fields
     const loginRequest = {
       username: loginData.username,

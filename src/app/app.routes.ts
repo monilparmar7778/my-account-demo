@@ -10,6 +10,7 @@ import { Givemoney } from './givemoney/givemoney';
 import { authGuard } from './auth-guard'; // ✅ Correct import path
 import { Insertemployee } from './insertemployee/insertemployee';
 import { Getemployee } from './getemployee/getemployee';
+import { Bankdetailspage } from './bankdetailspage/bankdetailspage';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -28,7 +29,8 @@ export const routes: Routes = [
       { path: 'accountlasert', component: Accountlaser, canActivate: [authGuard] },
       { path: 'givemoney', component: Givemoney, canActivate: [authGuard] },
       { path: 'insertemployee',component:Insertemployee,canActivate:[authGuard]},
-      { path:'getemployee',component:Getemployee,canActivate:[authGuard]}
+      { path:'getemployee',component:Getemployee,canActivate:[authGuard]},
+      {path:'bankdetailspage',component:Bankdetailspage,canActivate:[authGuard]}
     ]
   },
   

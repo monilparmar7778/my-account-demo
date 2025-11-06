@@ -1,0 +1,575 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 15px;
+  position: relative;
+}
+
+.date-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.date-picker {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.day-name {
+  font-weight: bold;
+  color: #333;
+  min-width: 100px;
+}
+
+/* Print Header - Hidden by default */
+.print-header {
+  display: none;
+}
+
+/* Print Summary - Hidden by default */
+.print-summary {
+  display: none;
+  margin: 10px 0;
+  padding: 10px;
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.print-summary h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 13px;
+}
+
+.summary-label {
+  font-weight: bold;
+  color: #555;
+}
+
+.summary-value {
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+  color: #333;
+}
+
+/* Single Column Layout Styles */
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+.table-header {
+  display: flex;
+  background-color: #cce5ff;
+  font-weight: bold;
+  border-bottom: 2px solid #999;
+  text-transform: uppercase;
+}
+
+.data-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.party-row, .account-row {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  align-items: stretch;
+  min-height: 45px;
+}
+
+.party-row {
+  background-color: #f0f8ff !important;
+  border-top: 2px solid #333;
+  font-weight: bold;
+}
+
+.account-row {
+  background-color: #f8f8f8;
+}
+
+.account-row:hover {
+  background-color: #e9f7fe;
+}
+
+.empty-row {
+  height: 10px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Column widths matching your requirement */
+.col-no { 
+  width: 5%; 
+  padding: 10px 8px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #ddd;
+}
+
+.col-party { 
+  width: 20%; 
+  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #ddd;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.col-bank { 
+  width: 20%; 
+  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #ddd;
+}
+
+.col-account { 
+  width: 20%; 
+  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #ddd;
+  font-family: 'Courier New', monospace;
+}
+
+.col-balance-plus { 
+  width: 10%; 
+  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-right: 1px solid #ddd;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+}
+
+.col-balance-minus { 
+  width: 10%; 
+  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-right: 1px solid #ddd;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+}
+
+.col-status { 
+  width: 10%; 
+  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid #ddd;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.col-actions { 
+  width: 5%; 
+  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Header column styles */
+.table-header > div {
+  padding: 12px 8px;
+  border-right: 1px solid #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.table-header > div:last-child {
+  border-right: none;
+}
+
+/* Editable Cells */
+.editable {
+  cursor: pointer;
+  position: relative;
+  min-height: 25px;
+  display: flex;
+  align-items: center;
+}
+
+.editable:hover {
+  background-color: #e9f7fe !important;
+}
+
+.edit-input, .edit-select {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+}
+
+.edit-select {
+  background-color: white;
+  cursor: pointer;
+}
+
+/* Status Styles */
+.status-active {
+  color: #28a745;
+}
+
+.status-inactive {
+  color: #dc3545;
+}
+
+/* Action Buttons */
+.action-buttons {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.action-buttons .btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.col-actions .btn {
+  font-size: 11px;
+  padding: 4px 8px;
+  margin: 1px;
+  width: 100%;
+}
+
+/* Button Styles */
+.btn {
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #1e7e34;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-info:hover {
+  background-color: #117a8b;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #545b62;
+}
+
+/* Total Row Styles */
+.total-row {
+  display: flex;
+  background-color: #ffff99 !important;
+  font-weight: bold;
+  border-top: 2px solid #333;
+}
+
+.total-label {
+  font-weight: bold;
+  justify-content: flex-start !important;
+  padding-left: 15px !important;
+}
+
+.total-value {
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+}
+
+/* Kendo DatePicker Styles */
+.k-datepicker {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.k-input {
+  padding: 5px 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* PRINT STYLES - All records on one page */
+@media print {
+  @page {
+    margin: 0.5cm;
+    size: A4 landscape;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+    font-size: 8pt;
+    line-height: 1;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .container {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    background: white;
+    transform: none;
+  }
+
+  /* Hide unnecessary elements in print */
+  .no-print,
+  .action-buttons,
+  .date-selector,
+  .col-actions,
+  .editable:hover {
+    display: none !important;
+  }
+
+  /* Show print elements */
+  .print-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .print-header h2 {
+    margin: 0 0 5px 0;
+    font-size: 16pt;
+    color: #000;
+  }
+
+  .print-date {
+    font-size: 10pt;
+    color: #666;
+  }
+
+  .print-summary {
+    display: block !important;
+    margin: 5px 0 8px 0;
+    padding: 6px;
+    background: #f0f0f0 !important;
+    border: 1px solid #ccc;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+  }
+
+  .summary-item {
+    font-size: 7pt;
+    padding: 1px 0;
+  }
+
+  /* Compact table styling for one-page fit */
+  .table-container {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 1px solid #000;
+  }
+
+  .table-header {
+    font-size: 7pt;
+    background-color: #cce5ff !important;
+  }
+
+  .table-header > div {
+    padding: 4px 3px;
+    border-right: 1px solid #000;
+  }
+
+  .data-container {
+    max-height: none !important;
+  }
+
+  .party-row, .account-row {
+    font-size: 7pt;
+    min-height: 16px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .col-no, .col-party, .col-bank, .col-account, 
+  .col-balance-plus, .col-balance-minus, .col-status {
+    padding: 3px 2px;
+    border-right: 1px solid #000;
+    font-size: 7pt;
+  }
+
+  .col-party {
+    font-size: 6.5pt;
+  }
+
+  .col-account {
+    font-family: 'Courier New', monospace;
+    font-size: 6.5pt;
+  }
+
+  .col-balance-plus, .col-balance-minus {
+    font-family: 'Courier New', monospace;
+    font-size: 7pt;
+  }
+
+  /* Remove empty rows in print */
+  .empty-row {
+    display: none !important;
+  }
+
+  /* Total row styling */
+  .total-row {
+    background: #ffffcc !important;
+    font-weight: bold;
+    border-top: 2px solid #000;
+    font-size: 8pt;
+  }
+
+  /* Remove hover effects */
+  .editable {
+    cursor: default;
+  }
+
+  /* Ensure colors print correctly */
+  .status-active {
+    color: #000 !important;
+  }
+
+  /* Force single page */
+  .table-container, .data-container, .party-row, .account-row {
+    page-break-inside: avoid;
+    page-break-after: avoid;
+    page-break-before: avoid;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .action-buttons .btn {
+    width: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .table-header,
+  .party-row,
+  .account-row {
+    font-size: 10px;
+  }
+  
+  .col-no, .col-party, .col-bank, .col-account, 
+  .col-balance-plus, .col-balance-minus, .col-status, .col-actions {
+    padding: 6px 4px;
+  }
+  
+  .date-selector {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .col-actions .btn {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+  
+  /* Make horizontal scrollable on mobile */
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  .data-container {
+    min-width: 800px;
+  }
+}

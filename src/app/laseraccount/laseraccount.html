@@ -12,7 +12,7 @@
           </h2>
         </div>
 
-        <!-- Quick Date Presets - NEW -->
+        <!-- Quick Date Presets -->
         <div class="preset-buttons">
           <button type="button" class="preset-btn" (click)="applyDatePreset('today')">Today</button>
           <button type="button" class="preset-btn" (click)="applyDatePreset('yesterday')">Yesterday</button>
@@ -22,18 +22,26 @@
         </div>
 
         <div class="filter-grid">
-          <!-- User Input -->
+          <!-- User Dropdown - CHANGED FROM INPUT TO DROPDOWN -->
           <div class="filter-group">
             <label class="filter-label">
               <span class="k-icon k-i-user"></span>
-              Enter Username
+              Select User
             </label>
-            <input 
-              kendoTextBox
-              [(ngModel)]="username"
-              placeholder="Type username..."
-              style="width: 100%"
-            />
+            <kendo-dropdownlist
+              [data]="usersList"
+              textField="username"
+              valueField="user_id"
+              [valuePrimitive]="true"
+              [filterable]="true"
+              [(ngModel)]="selectedUserId"
+              placeholder="Select user..."
+              class="form-control kendo-dropdown"
+              [disabled]="isUsersLoading">
+            </kendo-dropdownlist>
+            <div class="loading-indicator" *ngIf="isUsersLoading">
+              Loading users...
+            </div>
           </div>
 
           <!-- From Date -->
@@ -70,7 +78,7 @@
           <button kendoButton 
                   themeColor="primary"
                   (click)="enhancedSearchAccounts()"
-                  [disabled]="loading"
+                  [disabled]="loading || !selectedUserId"
                   class="search-btn">
             <span class="k-icon k-i-search"></span>
             {{ loading ? 'Searching...' : 'Generate Report' }}
@@ -90,9 +98,9 @@
       <div *ngIf="gridData.data.length > 0" class="summary-section">
         <div class="section-title">
           <span class="k-icon k-i-chart-line-markers"></span>
-          Financial Summary
+          Financial Summary - {{ getSelectedUsername() }}
           
-          <!-- Additional Actions - NEW -->
+          <!-- Additional Actions -->
           <div class="additional-actions">
             <button kendoButton 
                     themeColor="info"
@@ -144,7 +152,7 @@
       </div>
 
       <!-- Export Toolbar -->
-      <!-- <div *ngIf="gridData.data.length > 0" class="export-toolbar">
+      <div *ngIf="gridData.data.length > 0" class="export-toolbar">
         <div class="export-header">
           <h3 class="export-title">
             <span class="k-icon k-i-download"></span>
@@ -172,8 +180,8 @@
           </button>
         </div>
       </div>
- -->
-      <!-- PDF Export Component - CUSTOM DESIGN EXACT FORMAT -->
+
+      <!-- PDF Export Component -->
       <kendo-pdf-export #pdfExport paperSize="A4" [margin]="'2cm'">
         <div class="pdf-custom-report">
           
@@ -184,7 +192,7 @@
             <table class="pdf-info-table">
               <tr>
                 <td class="info-label">Username:</td>
-                <td class="info-value">{{ username || 'All Users' }}</td>
+                <td class="info-value">{{ getSelectedUsername() || 'All Users' }}</td>
               </tr>
               <tr>
                 <td class="info-label">Period:</td>
@@ -270,12 +278,12 @@
         </div>
       </kendo-pdf-export>
 
-      <!-- Data Display Section - SIMPLIFIED WITHOUT KENDO GRID -->
+      <!-- Data Display Section -->
       <div *ngIf="gridData.data.length > 0" class="data-display-section">
         <div class="grid-header">
           <h3 class="grid-title">
             <span class="k-icon k-i-grid"></span>
-            Transaction Details
+            Transaction Details - {{ getSelectedUsername() }}
             <span class="record-count">({{ gridData.total }} records)</span>
           </h3>
         </div>
@@ -312,11 +320,11 @@
       </div>
 
       <!-- Empty States -->
-      <div *ngIf="!loading && gridData.data.length === 0 && username" class="empty-state">
+      <div *ngIf="!loading && gridData.data.length === 0 && selectedUserId" class="empty-state">
         <div class="empty-icon">📊</div>
         <h3 class="empty-title">No Transactions Found</h3>
         <p class="empty-description">
-          No account records were found for "{{ username }}" in the selected date range.
+          No account records were found for "{{ getSelectedUsername() }}" in the selected date range.
         </p>
         <button kendoButton 
                 themeColor="primary"
@@ -325,11 +333,11 @@
         </button>
       </div>
 
-      <div *ngIf="!loading && gridData.data.length === 0 && !username" class="empty-state">
+      <div *ngIf="!loading && gridData.data.length === 0 && !selectedUserId" class="empty-state">
         <div class="empty-icon">🔍</div>
         <h3 class="empty-title">Ready to Explore</h3>
         <p class="empty-description">
-          Enter a username to view detailed account transactions and generate comprehensive reports.
+          Select a user to view detailed account transactions and generate comprehensive reports.
         </p>
       </div>
 

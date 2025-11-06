@@ -89,7 +89,7 @@
   box-sizing: border-box !important;
 }
 
-/* Summary Cards */
+/* Summary Cards - WHITE TEXT CHANGES */
 .summary-section {
   margin-bottom: 30px;
 }
@@ -116,7 +116,7 @@
   padding: 25px 20px;
   border-radius: 15px;
   text-align: center;
-  color: white;
+  color: white !important; /* FORCE WHITE TEXT */
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
   box-sizing: border-box;
@@ -148,6 +148,7 @@
 
 .summary-icon {
   font-size: 2rem;
+  color: white !important; /* FORCE WHITE ICONS */
 }
 
 .summary-content {
@@ -158,12 +159,14 @@
   font-size: 1.8rem;
   font-weight: 800;
   margin-bottom: 5px;
+  color: white !important; /* FORCE WHITE TEXT */
 }
 
 .summary-label {
   font-size: 0.9rem;
   font-weight: 600;
   opacity: 0.9;
+  color: white !important; /* FORCE WHITE TEXT */
 }
 
 /* Export Toolbar */
@@ -474,34 +477,41 @@ kendo-pdf-export {
   border: 1px solid #ddd;
   border-radius: 4px;
   background: #f9f9f9;
+  color: white !important; /* FORCE WHITE TEXT IN PDF */
 }
 
 .pdf-summary-item-label {
   font-size: 12px;
   font-weight: bold;
-  color: #333;
+  color: white !important; /* FORCE WHITE TEXT IN PDF */
   margin-bottom: 5px;
 }
 
 .pdf-summary-item-value {
   font-size: 14px;
   font-weight: bold;
+  color: white !important; /* FORCE WHITE TEXT IN PDF */
 }
 
-.get-money {
-  color: #2e7d32;
+/* PDF Summary Item Backgrounds with White Text */
+.pdf-summary-item.get-money {
+  background: linear-gradient(135deg, #48bb78, #38a169) !important;
+  color: white !important;
 }
 
-.give-money {
-  color: #c62828;
+.pdf-summary-item.give-money {
+  background: linear-gradient(135deg, #f56565, #e53e3e) !important;
+  color: white !important;
 }
 
-.interest-amount {
-  color: #1565c0;
+.pdf-summary-item.interest-amount {
+  background: linear-gradient(135deg, #4299e1, #3182ce) !important;
+  color: white !important;
 }
 
-.net-balance {
-  color: #6a1b9a;
+.pdf-summary-item.net-balance {
+  background: linear-gradient(135deg, #9f7aea, #805ad5) !important;
+  color: white !important;
 }
 
 .pdf-transaction-details {
@@ -762,4 +772,24 @@ kendo-pdf-export {
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+/* ========== WHITE TEXT ENHANCEMENTS ========== */
+
+/* Force white text in all summary card elements */
+.summary-card * {
+  color: white !important;
+}
+
+/* Ensure PDF summary items have white text */
+.pdf-summary-item * {
+  color: white !important;
+}
+
+/* Remove any conflicting color styles for summary values */
+.get-money,
+.give-money,
+.interest-amount,
+.net-balance {
+  color: white !important;
 }
