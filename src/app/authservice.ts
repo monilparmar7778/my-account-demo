@@ -17,17 +17,17 @@ export class Authservice {
   private baseUrl = environment.loginUrl;
   
   // ✅ ACCOUNT API URL
-  private accountsUrl = 'http://localhost:5221/api/Account';
+  private accountsUrl = 'http://176.223.135.126/api/Account';
   
   // ✅ USER API URL
-  private usersUrl = 'http://localhost:5221/api/User';
+  private usersUrl = 'http://176.223.135.126/api/User';
 
   // ✅ AUTH API URL (NEW)
-  private authUrl = 'http://localhost:5221/api/Auth';
+  private authUrl = 'http://176.223.135.126/api/Auth';
 
   // ✅ EMPLOYEE API URL (NEW)
-  private employeesUrl = 'http://localhost:5221/api/Employee';
- private accountRecordUrl = 'http://localhost:5221/api/AccountRecord';
+  private employeesUrl = 'http://176.223.135.126/api/Employee';
+ private accountRecordUrl = 'http://176.223.135.126/sapi/AccountRecord';
   // JWT Authentication Properties
   private tokenKey = 'authToken';
   private userKey = 'userData';
