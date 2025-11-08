@@ -1,5 +1,35 @@
 <div class="container">
-  <div class="header">
+  <!-- Print Header -->
+  <div class="print-header">
+    <h2>BANK DETAILS REPORT</h2>
+    <div class="print-date">Date: {{getFormattedDate()}} ({{getDayName(selectedDate)}})</div>
+    <div class="print-date">Generated on: {{getCurrentDateTime()}}</div>
+  </div>
+
+  <!-- Print Summary -->
+  <div class="print-summary">
+    <div class="summary-grid">
+      <div class="summary-item">
+        <span class="summary-label">Total Parties:</span>
+        <span class="summary-value">{{bankData.length}}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Total Accounts:</span>
+        <span class="summary-value">{{getTotalAccounts()}}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Total Balance (+):</span>
+        <span class="summary-value">{{getFormattedCurrency(getTotalPlus())}}</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Total Balance (-):</span>
+        <span class="summary-value">{{getFormattedCurrency(getTotalMinus())}}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen Header -->
+  <div class="header no-print">
     <div class="date-selector">
       <label>DATE : </label>
       <kendo-datepicker 
@@ -11,12 +41,14 @@
     </div>
   </div>
 
+  <!-- Action Buttons -->
   <div class="action-buttons no-print">
     <button class="btn btn-primary" (click)="addNewParty()">Add New Party</button>
     <button class="btn btn-success" (click)="saveChanges()">Save Changes</button>
     <button class="btn btn-info" (click)="printReport()">Print Report</button>
   </div>
 
+  <!-- Table Container -->
   <div class="table-container">
     <!-- Header Row -->
     <div class="table-header">
@@ -36,6 +68,8 @@
         <!-- Party Row -->
         <div class="party-row">
           <div class="col-no">{{party.no}}</div>
+          
+          <!-- Party Name -->
           <div class="col-party editable" (click)="startEditing(partyIndex, -1, 'partyName', party.partyName)">
             <span *ngIf="!isPartyNameEditing(partyIndex)">{{party.partyName}}</span>
             <input *ngIf="isPartyNameEditing(partyIndex)" 
@@ -48,7 +82,7 @@
                    autofocus>
           </div>
           
-          <!-- First Account -->
+          <!-- Bank -->
           <div class="col-bank editable" (click)="startEditing(partyIndex, 0, 'bank', party.accounts[0].bank)">
             <span *ngIf="!isEditing(partyIndex, 0, 'bank')">{{party.accounts[0].bank}}</span>
             <input *ngIf="isEditing(partyIndex, 0, 'bank')" 
@@ -61,6 +95,7 @@
                    autofocus>
           </div>
           
+          <!-- Account No -->
           <div class="col-account editable" (click)="startEditing(partyIndex, 0, 'accountNo', party.accounts[0].accountNo)">
             <span *ngIf="!isEditing(partyIndex, 0, 'accountNo')">{{party.accounts[0].accountNo}}</span>
             <input *ngIf="isEditing(partyIndex, 0, 'accountNo')" 
@@ -73,45 +108,50 @@
                    autofocus>
           </div>
           
-          <div class="col-balance-plus editable" (click)="startEditing(partyIndex, 0, 'balancePlus', party.accounts[0].balancePlus)">
-            <span *ngIf="!isEditing(partyIndex, 0, 'balancePlus')">{{party.accounts[0].balancePlus || '-'}}</span>
-            <input *ngIf="isEditing(partyIndex, 0, 'balancePlus')" 
-                   type="number" 
-                   class="edit-input" 
-                   [(ngModel)]="editValue"
-                   (blur)="saveEdit()"
-                   (keyup.enter)="saveEdit()"
-                   (keyup.escape)="cancelEdit()"
-                   autofocus>
+          <!-- Balance Plus - FIXED -->
+          <div class="col-balance-plus">
+            <input 
+              type="number" 
+              class="balance-input"
+              [value]="party.accounts[0].balancePlus"
+              (input)="onBalancePlusChange(partyIndex, 0, $any($event).target.value)"
+              (blur)="onBalancePlusChange(partyIndex, 0, $any($event).target.value)"
+              placeholder="0.00"
+              step="0.01">
+            <span class="balance-display">
+              {{formatBalance(party.accounts[0].balancePlus)}}
+            </span>
           </div>
           
-          <div class="col-balance-minus editable" (click)="startEditing(partyIndex, 0, 'balanceMinus', party.accounts[0].balanceMinus)">
-            <span *ngIf="!isEditing(partyIndex, 0, 'balanceMinus')">{{party.accounts[0].balanceMinus || '-'}}</span>
-            <input *ngIf="isEditing(partyIndex, 0, 'balanceMinus')" 
-                   type="number" 
-                   class="edit-input" 
-                   [(ngModel)]="editValue"
-                   (blur)="saveEdit()"
-                   (keyup.enter)="saveEdit()"
-                   (keyup.escape)="cancelEdit()"
-                   autofocus>
+          <!-- Balance Minus - FIXED -->
+          <div class="col-balance-minus">
+            <input 
+              type="number" 
+              class="balance-input"
+              [value]="party.accounts[0].balanceMinus"
+              (input)="onBalanceMinusChange(partyIndex, 0, $any($event).target.value)"
+              (blur)="onBalanceMinusChange(partyIndex, 0, $any($event).target.value)"
+              placeholder="0.00"
+              step="0.01">
+            <span class="balance-display">
+              {{formatBalance(party.accounts[0].balanceMinus)}}
+            </span>
           </div>
           
-          <div class="col-status editable" 
-               [class.status-active]="party.accounts[0].status === 'ACTIVE'"
-               (click)="startEditing(partyIndex, 0, 'status', party.accounts[0].status)">
-            <span *ngIf="!isEditing(partyIndex, 0, 'status')">{{party.accounts[0].status}}</span>
-            <select *ngIf="isEditing(partyIndex, 0, 'status')" 
-                    class="edit-select"
-                    [(ngModel)]="editValue"
-                    (blur)="saveEdit()"
-                    (change)="saveEdit()">
+          <!-- Status - FIXED -->
+          <div class="col-status" [class]="getStatusClass(party.accounts[0].status)">
+            <select 
+              class="status-select"
+              [value]="party.accounts[0].status"
+              (change)="onStatusChange(partyIndex, 0, $any($event).target.value)">
               <option value="ACTIVE">ACTIVE</option>
               <option value="INACTIVE">INACTIVE</option>
               <option value="DEBIT FREEZE">DEBIT FREEZE</option>
             </select>
+            <span class="status-display">{{party.accounts[0].status}}</span>
           </div>
           
+          <!-- Actions -->
           <div class="col-actions no-print">
             <button class="btn btn-sm btn-warning" (click)="addNewAccount(partyIndex)">+ Acc</button>
             <button class="btn btn-sm btn-danger" (click)="deleteParty(partyIndex)">Del Party</button>
@@ -123,6 +163,7 @@
           <div class="col-no"></div>
           <div class="col-party"></div>
           
+          <!-- Bank -->
           <div class="col-bank editable" (click)="startEditing(partyIndex, accountIndex + 1, 'bank', account.bank)">
             <span *ngIf="!isEditing(partyIndex, accountIndex + 1, 'bank')">{{account.bank}}</span>
             <input *ngIf="isEditing(partyIndex, accountIndex + 1, 'bank')" 
@@ -135,6 +176,7 @@
                    autofocus>
           </div>
           
+          <!-- Account No -->
           <div class="col-account editable" (click)="startEditing(partyIndex, accountIndex + 1, 'accountNo', account.accountNo)">
             <span *ngIf="!isEditing(partyIndex, accountIndex + 1, 'accountNo')">{{account.accountNo}}</span>
             <input *ngIf="isEditing(partyIndex, accountIndex + 1, 'accountNo')" 
@@ -147,53 +189,67 @@
                    autofocus>
           </div>
           
-          <div class="col-balance-plus editable" (click)="startEditing(partyIndex, accountIndex + 1, 'balancePlus', account.balancePlus)">
-            <span *ngIf="!isEditing(partyIndex, accountIndex + 1, 'balancePlus')">{{account.balancePlus || '-'}}</span>
-            <input *ngIf="isEditing(partyIndex, accountIndex + 1, 'balancePlus')" 
-                   type="number" 
-                   class="edit-input" 
-                   [(ngModel)]="editValue"
-                   (blur)="saveEdit()"
-                   (keyup.enter)="saveEdit()"
-                   (keyup.escape)="cancelEdit()"
-                   autofocus>
+          <!-- Balance Plus - FIXED -->
+          <div class="col-balance-plus">
+            <input 
+              type="number" 
+              class="balance-input"
+              [value]="account.balancePlus"
+              (input)="onBalancePlusChange(partyIndex, accountIndex + 1, $any($event).target.value)"
+              (blur)="onBalancePlusChange(partyIndex, accountIndex + 1, $any($event).target.value)"
+              placeholder="0.00"
+              step="0.01">
+            <span class="balance-display">
+              {{formatBalance(account.balancePlus)}}
+            </span>
           </div>
           
-          <div class="col-balance-minus editable" (click)="startEditing(partyIndex, accountIndex + 1, 'balanceMinus', account.balanceMinus)">
-            <span *ngIf="!isEditing(partyIndex, accountIndex + 1, 'balanceMinus')">{{account.balanceMinus || '-'}}</span>
-            <input *ngIf="isEditing(partyIndex, accountIndex + 1, 'balanceMinus')" 
-                   type="number" 
-                   class="edit-input" 
-                   [(ngModel)]="editValue"
-                   (blur)="saveEdit()"
-                   (keyup.enter)="saveEdit()"
-                   (keyup.escape)="cancelEdit()"
-                   autofocus>
+          <!-- Balance Minus - FIXED -->
+          <div class="col-balance-minus">
+            <input 
+              type="number" 
+              class="balance-input"
+              [value]="account.balanceMinus"
+              (input)="onBalanceMinusChange(partyIndex, accountIndex + 1, $any($event).target.value)"
+              (blur)="onBalanceMinusChange(partyIndex, accountIndex + 1, $any($event).target.value)"
+              placeholder="0.00"
+              step="0.01">
+            <span class="balance-display">
+              {{formatBalance(account.balanceMinus)}}
+            </span>
           </div>
           
-          <div class="col-status editable" 
-               [class.status-active]="account.status === 'ACTIVE'"
-               (click)="startEditing(partyIndex, accountIndex + 1, 'status', account.status)">
-            <span *ngIf="!isEditing(partyIndex, accountIndex + 1, 'status')">{{account.status}}</span>
-            <select *ngIf="isEditing(partyIndex, accountIndex + 1, 'status')" 
-                    class="edit-select"
-                    [(ngModel)]="editValue"
-                    (blur)="saveEdit()"
-                    (change)="saveEdit()">
+          <!-- Status - FIXED -->
+          <div class="col-status" [class]="getStatusClass(account.status)">
+            <select 
+              class="status-select"
+              [value]="account.status"
+              (change)="onStatusChange(partyIndex, accountIndex + 1, $any($event).target.value)">
               <option value="ACTIVE">ACTIVE</option>
               <option value="INACTIVE">INACTIVE</option>
               <option value="DEBIT FREEZE">DEBIT FREEZE</option>
             </select>
+            <span class="status-display">{{account.status}}</span>
           </div>
           
+          <!-- Actions -->
           <div class="col-actions no-print">
             <button class="btn btn-sm btn-danger" (click)="deleteAccount(partyIndex, accountIndex + 1)">Del</button>
           </div>
         </div>
-
-        <!-- Empty space between parties -->
-        <div class="empty-row" *ngIf="partyIndex < bankData.length - 1"></div>
       </ng-container>
+    </div>
+
+    <!-- Totals Row -->
+    <div class="totals-row">
+      <div class="col-no"></div>
+      <div class="col-party"></div>
+      <div class="col-bank">TOTAL AMOUNT</div>
+      <div class="col-account"></div>
+      <div class="col-balance-plus">{{getFormattedCurrency(getTotalPlus())}}</div>
+      <div class="col-balance-minus">{{getFormattedCurrency(getTotalMinus())}}</div>
+      <div class="col-status"></div>
+      <div class="col-actions no-print"></div>
     </div>
   </div>
 </div>

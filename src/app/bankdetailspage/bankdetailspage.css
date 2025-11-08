@@ -1,3 +1,4 @@
+/* Base Styles */
 .container {
   max-width: 1400px;
   margin: 0 auto;
@@ -41,35 +42,44 @@
 /* Print Header - Hidden by default */
 .print-header {
   display: none;
+  text-align: center;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #000;
+}
+
+.print-header h2 {
+  margin: 0 0 5px 0;
+  font-size: 16pt;
+  color: #000;
+}
+
+.print-date {
+  font-size: 10pt;
+  color: #666;
 }
 
 /* Print Summary - Hidden by default */
 .print-summary {
   display: none;
-  margin: 10px 0;
-  padding: 10px;
-  background: #f8f8f8;
-  border: 1px solid #ddd;
+  margin: 5px 0 8px 0;
+  padding: 6px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
   border-radius: 4px;
-}
-
-.print-summary h4 {
-  margin: 0 0 8px 0;
-  font-size: 14px;
-  color: #333;
 }
 
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 5px;
 }
 
 .summary-item {
   display: flex;
   justify-content: space-between;
-  padding: 4px 0;
-  font-size: 13px;
+  padding: 2px 0;
+  font-size: 9pt;
 }
 
 .summary-label {
@@ -83,7 +93,7 @@
   color: #333;
 }
 
-/* Single Column Layout Styles */
+/* Table Styles */
 .table-container {
   overflow-x: auto;
   margin-bottom: 20px;
@@ -107,7 +117,7 @@
   display: flex;
   border-bottom: 1px solid #ddd;
   align-items: stretch;
-  min-height: 45px;
+  min-height: 35px;
 }
 
 .party-row {
@@ -124,16 +134,10 @@
   background-color: #e9f7fe;
 }
 
-.empty-row {
-  height: 10px;
-  background-color: #f0f0f0;
-  border-bottom: 1px solid #ddd;
-}
-
-/* Column widths matching your requirement */
+/* Column widths */
 .col-no { 
-  width: 5%; 
-  padding: 10px 8px; 
+  width: 4%; 
+  padding: 8px 4px; 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -141,8 +145,8 @@
 }
 
 .col-party { 
-  width: 20%; 
-  padding: 10px 8px;
+  width: 18%; 
+  padding: 8px 4px;
   display: flex;
   align-items: center;
   border-right: 1px solid #ddd;
@@ -152,7 +156,7 @@
 
 .col-bank { 
   width: 20%; 
-  padding: 10px 8px;
+  padding: 8px 4px;
   display: flex;
   align-items: center;
   border-right: 1px solid #ddd;
@@ -160,7 +164,7 @@
 
 .col-account { 
   width: 20%; 
-  padding: 10px 8px;
+  padding: 8px 4px;
   display: flex;
   align-items: center;
   border-right: 1px solid #ddd;
@@ -168,41 +172,47 @@
 }
 
 .col-balance-plus { 
-  width: 10%; 
-  padding: 10px 8px;
+  width: 9%; 
+  padding: 8px 4px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   border-right: 1px solid #ddd;
   font-family: 'Courier New', monospace;
   font-weight: bold;
+  position: relative;
+  overflow: visible;
 }
 
 .col-balance-minus { 
-  width: 10%; 
-  padding: 10px 8px;
+  width: 9%; 
+  padding: 8px 4px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   border-right: 1px solid #ddd;
   font-family: 'Courier New', monospace;
   font-weight: bold;
+  position: relative;
+  overflow: visible;
 }
 
 .col-status { 
   width: 10%; 
-  padding: 10px 8px;
+  padding: 8px 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-right: 1px solid #ddd;
   font-weight: bold;
   text-transform: uppercase;
+  position: relative;
+  overflow: visible;
 }
 
 .col-actions { 
   width: 5%; 
-  padding: 10px 8px;
+  padding: 8px 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -212,7 +222,7 @@
 
 /* Header column styles */
 .table-header > div {
-  padding: 12px 8px;
+  padding: 10px 4px;
   border-right: 1px solid #999;
   display: flex;
   align-items: center;
@@ -238,10 +248,10 @@
 
 .edit-input, .edit-select {
   width: 100%;
-  padding: 4px 8px;
+  padding: 4px 6px;
   border: 1px solid #007bff;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 11px;
   font-family: Arial, sans-serif;
 }
 
@@ -250,7 +260,89 @@
   cursor: pointer;
 }
 
-/* Status Styles */
+/* Balance Input Styles - FIXED HOVER ISSUE */
+.balance-input {
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 4px 6px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  text-align: right;
+  background: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  opacity: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.balance-input:focus {
+  outline: none;
+  border-color: #007bff;
+  background-color: #fff;
+  z-index: 3;
+  opacity: 1;
+}
+
+.balance-display {
+  width: 100%;
+  text-align: right;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  transition: opacity 0.2s ease;
+  position: relative;
+  z-index: 2;
+}
+
+/* Status Styles - FIXED HOVER ISSUE */
+.status-select {
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  border: 1px solid transparent;
+  border-radius: 3px;
+  padding: 4px 6px;
+  font-size: 11px;
+  font-weight: bold;
+  background: white;
+  cursor: pointer;
+  text-transform: uppercase;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  opacity: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: #007bff;
+  background-color: #fff;
+  z-index: 3;
+  opacity: 1;
+}
+
+.status-display {
+  width: 100%;
+  text-align: center;
+  padding: 4px 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease;
+  position: relative;
+  z-index: 2;
+}
+
 .status-active {
   color: #28a745;
 }
@@ -259,9 +351,56 @@
   color: #dc3545;
 }
 
+.status-freeze {
+  color: #ffc107;
+}
+
+/* SCREEN STYLES - Perfect hover behavior */
+@media screen {
+  .col-balance-plus:hover .balance-input,
+  .col-balance-minus:hover .balance-input,
+  .col-status:hover .status-select {
+    border-color: #007bff;
+    background-color: #fff;
+    opacity: 1;
+    z-index: 3;
+  }
+  
+  .col-balance-plus:hover .balance-display,
+  .col-balance-minus:hover .balance-display,
+  .col-status:hover .status-display {
+    opacity: 0;
+    z-index: 1;
+  }
+  
+  .balance-input:focus,
+  .status-select:focus {
+    opacity: 1;
+    z-index: 3;
+  }
+  
+  .balance-input:focus + .balance-display,
+  .status-select:focus + .status-display {
+    opacity: 0;
+  }
+  
+  /* Ensure display is always visible by default */
+  .balance-display,
+  .status-display {
+    opacity: 1;
+  }
+  
+  /* Prevent layout shift */
+  .col-balance-plus,
+  .col-balance-minus,
+  .col-status {
+    min-height: 35px;
+  }
+}
+
 /* Action Buttons */
 .action-buttons {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
@@ -274,8 +413,8 @@
 }
 
 .col-actions .btn {
-  font-size: 11px;
-  padding: 4px 8px;
+  font-size: 10px;
+  padding: 3px 6px;
   margin: 1px;
   width: 100%;
 }
@@ -336,32 +475,19 @@
   background-color: #c82333;
 }
 
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background-color: #545b62;
-}
-
 /* Total Row Styles */
-.total-row {
+.totals-row {
   display: flex;
   background-color: #ffff99 !important;
   font-weight: bold;
   border-top: 2px solid #333;
 }
 
-.total-label {
-  font-weight: bold;
-  justify-content: flex-start !important;
-  padding-left: 15px !important;
-}
-
-.total-value {
-  font-weight: bold;
-  font-family: 'Courier New', monospace;
+.totals-row > div {
+  padding: 8px 4px;
+  border-right: 1px solid #ddd;
+  display: flex;
+  align-items: center;
 }
 
 /* Kendo DatePicker Styles */
@@ -376,30 +502,34 @@
   font-weight: bold;
 }
 
-/* PRINT STYLES - All records on one page */
+/* ENHANCED PRINT STYLES - SINGLE PAGE OPTIMIZATION */
 @media print {
   @page {
-    margin: 0.5cm;
+    margin: 0.3cm;
     size: A4 landscape;
   }
 
   body {
-    margin: 0;
-    padding: 0;
-    background: white;
-    font-size: 8pt;
-    line-height: 1;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    font-size: 6pt !important;
+    line-height: 1 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 
   .container {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    box-shadow: none;
-    background: white;
-    transform: none;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    background: white !important;
+    transform: none !important;
   }
 
   /* Hide unnecessary elements in print */
@@ -407,7 +537,10 @@
   .action-buttons,
   .date-selector,
   .col-actions,
-  .editable:hover {
+  .editable:hover,
+  .header,
+  .balance-input,
+  .status-select {
     display: none !important;
   }
 
@@ -415,115 +548,127 @@
   .print-header {
     display: block !important;
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 5px !important;
+    padding-bottom: 2px !important;
   }
 
   .print-header h2 {
-    margin: 0 0 5px 0;
-    font-size: 16pt;
-    color: #000;
+    font-size: 12pt !important;
+    margin: 0 0 2px 0 !important;
   }
 
   .print-date {
-    font-size: 10pt;
-    color: #666;
+    font-size: 7pt !important;
   }
 
   .print-summary {
     display: block !important;
-    margin: 5px 0 8px 0;
-    padding: 6px;
-    background: #f0f0f0 !important;
-    border: 1px solid #ccc;
+    margin: 2px 0 4px 0 !important;
+    padding: 3px !important;
   }
 
   .summary-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
+    gap: 3px !important;
   }
 
   .summary-item {
-    font-size: 7pt;
-    padding: 1px 0;
+    font-size: 6pt !important;
+    padding: 0 !important;
   }
 
-  /* Compact table styling for one-page fit */
+  /* Show display elements in print */
+  .balance-display,
+  .status-display {
+    display: flex !important;
+    position: static !important;
+    opacity: 1 !important;
+    transform: none !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Ultra-compact table styling */
   .table-container {
-    page-break-inside: avoid;
-    break-inside: avoid;
-    border: 1px solid #000;
+    border: 1px solid #000 !important;
+    margin: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .table-header {
-    font-size: 7pt;
+    font-size: 6pt !important;
+    min-height: 12px !important;
     background-color: #cce5ff !important;
   }
 
   .table-header > div {
-    padding: 4px 3px;
-    border-right: 1px solid #000;
+    padding: 2px 1px !important;
+    border-right: 1px solid #000 !important;
+    font-size: 6pt !important;
   }
 
   .data-container {
     max-height: none !important;
+    overflow: visible !important;
   }
 
   .party-row, .account-row {
-    font-size: 7pt;
-    min-height: 16px;
-    page-break-inside: avoid;
-    break-inside: avoid;
+    min-height: 10px !important;
+    font-size: 6pt !important;
+    line-height: 1 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   .col-no, .col-party, .col-bank, .col-account, 
   .col-balance-plus, .col-balance-minus, .col-status {
-    padding: 3px 2px;
-    border-right: 1px solid #000;
-    font-size: 7pt;
+    padding: 1px 1px !important;
+    border-right: 1px solid #000 !important;
+    font-size: 6pt !important;
+    line-height: 1 !important;
   }
 
   .col-party {
-    font-size: 6.5pt;
+    font-size: 5.5pt !important;
   }
 
-  .col-account {
+  .col-account, .col-balance-plus, .col-balance-minus {
     font-family: 'Courier New', monospace;
-    font-size: 6.5pt;
-  }
-
-  .col-balance-plus, .col-balance-minus {
-    font-family: 'Courier New', monospace;
-    font-size: 7pt;
-  }
-
-  /* Remove empty rows in print */
-  .empty-row {
-    display: none !important;
+    font-size: 5.5pt !important;
   }
 
   /* Total row styling */
-  .total-row {
+  .totals-row {
     background: #ffffcc !important;
     font-weight: bold;
-    border-top: 2px solid #000;
-    font-size: 8pt;
+    border-top: 2px solid #000 !important;
+    font-size: 7pt !important;
+  }
+
+  .totals-row > div {
+    padding: 2px 1px !important;
+    border-right: 1px solid #000 !important;
   }
 
   /* Remove hover effects */
   .editable {
-    cursor: default;
+    cursor: default !important;
   }
 
   /* Ensure colors print correctly */
-  .status-active {
+  .status-active,
+  .status-inactive,
+  .status-freeze {
     color: #000 !important;
   }
 
-  /* Force single page */
-  .table-container, .data-container, .party-row, .account-row {
-    page-break-inside: avoid;
-    page-break-after: avoid;
-    page-break-before: avoid;
+  /* Force single page - prevent any breaks */
+  .table-container, .data-container, 
+  .party-row, .account-row, .totals-row {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+    page-break-before: avoid !important;
   }
 }
 
@@ -564,12 +709,16 @@
     padding: 3px 6px;
   }
   
-  /* Make horizontal scrollable on mobile */
   .table-container {
     overflow-x: auto;
   }
   
   .data-container {
     min-width: 800px;
+  }
+  
+  .balance-input,
+  .status-select {
+    font-size: 9px;
   }
 }

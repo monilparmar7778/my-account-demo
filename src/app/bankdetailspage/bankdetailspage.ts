@@ -41,14 +41,14 @@ export class Bankdetailspage {
         },
         {
           bank: "UTRARSH BANK",
-          accountNo: "168402000000007",
+          accountNo: "*168402000000007",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
         },
         {
           bank: "UNITYBANK",
-          accountNo: "051611991000029",
+          accountNo: "*051611991000029",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
@@ -57,18 +57,18 @@ export class Bankdetailspage {
     },
     {
       no: 2,
-      partyName: "AMSHE ENTERPRISE",
+      partyName: "MAYA ENTERPRISE",
       accounts: [
         {
-          bank: "IDE: BANK SAVING",
-          accountNo: "15024778942",
+          bank: "IDFC BANK SAVING",
+          accountNo: "*10246789942",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
         },
         {
           bank: "UTRARSH BANK",
-          accountNo: "18840200000000404",
+          accountNo: "*16840200000000404",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
@@ -88,21 +88,21 @@ export class Bankdetailspage {
       accounts: [
         {
           bank: "A-U SMALL BANK",
-          accountNo: "2502214679387617",
+          accountNo: "*2502214679387617",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
         },
         {
           bank: "UNITY BANK",
-          accountNo: "051611991000169",
+          accountNo: "*051611991000169",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
         },
         {
           bank: "UTRARSH BANK",
-          accountNo: "16840200000000400",
+          accountNo: "*1684020000000400",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
@@ -114,22 +114,22 @@ export class Bankdetailspage {
       partyName: "BHAVANI TRADERS",
       accounts: [
         {
-          bank: "IDE: BANK SAVING",
-          accountNo: "110244781699",
+          bank: "IDFC BANK SAVING",
+          accountNo: "*10246783699",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
         },
         {
           bank: "UTRARSH BANK",
-          accountNo: "16840200000000399",
+          accountNo: "*16840200000000399",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
         },
         {
-          bank: "UNITY BANK",
-          accountNo: "44535085992",
+          bank: "SBI BANK",
+          accountNo: "44533085992",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
@@ -138,25 +138,25 @@ export class Bankdetailspage {
     },
     {
       no: 5,
-      partyName: "MENTA TRADEUME ANMEDABA",
+      partyName: "MEHTA TRADELINK AHMEDABAD",
       accounts: [
         {
           bank: "UNITY BANK",
-          accountNo: "051611991000235",
+          accountNo: "*051611991000235",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
         },
         {
           bank: "PNB BANK",
-          accountNo: "4452002100009461",
+          accountNo: "*4452002100009461",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
         },
         {
           bank: "TEXTILE BANK",
-          accountNo: "061110079000002",
+          accountNo: "*004110079000002",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
@@ -168,8 +168,8 @@ export class Bankdetailspage {
       partyName: "SHUBH ENTERPRISE",
       accounts: [
         {
-          bank: "UTRARSH SAVING",
-          accountNo: "1724013818882283",
+          bank: "UTKARSH SAVING",
+          accountNo: "*1724019619682285",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
@@ -178,17 +178,24 @@ export class Bankdetailspage {
     },
     {
       no: 7,
-      partyName: "MENTA TRADEUNK MUMSAI",
+      partyName: "MEHTA TRADELINK MUMBAI",
       accounts: [
         {
-          bank: "IDE: SAVING",
-          accountNo: "052110100051542",
+          bank: "IDFC SAVING",
+          accountNo: "10218264952",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
         },
         {
-          bank: "MFHSANA BANK",
+          bank: "MEHSANA BANK",
+          accountNo: "*055110100051542",
+          balancePlus: "",
+          balanceMinus: "",
+          status: "ACTIVE"
+        },
+        {
+          bank: "UTKARSH BANK",
           accountNo: "172402000000097",
           balancePlus: "",
           balanceMinus: "",
@@ -198,10 +205,10 @@ export class Bankdetailspage {
     },
     {
       no: 8,
-      partyName: "DECENT MULTITRADE MUMSAI",
+      partyName: "DECENT MULTITRADE MUMBAI",
       accounts: [
         {
-          bank: "UTRARSH BANK",
+          bank: "UTKARSH BANK",
           accountNo: "172402000000098",
           balancePlus: "",
           balanceMinus: "",
@@ -211,24 +218,11 @@ export class Bankdetailspage {
     },
     {
       no: 9,
-      partyName: "UTRARSH BANK",
+      partyName: "MEHTA CORPORATION MUMBAI",
       accounts: [
         {
-          bank: "UTRARSH BANK",
+          bank: "UTKARSH BANK",
           accountNo: "172402000000095",
-          balancePlus: "",
-          balanceMinus: "",
-          status: "ACTIVE"
-        }
-      ]
-    },
-    {
-      no: 10,
-      partyName: "MENTA COMPOSATION MUMSAI",
-      accounts: [
-        {
-          bank: "UTRARSH BANK",
-          accountNo: "172402000000096",
           balancePlus: "",
           balanceMinus: "",
           status: "ACTIVE"
@@ -240,6 +234,7 @@ export class Bankdetailspage {
   editingCell: { partyIndex: number, accountIndex: number, field: string } | null = null;
   editValue: string = '';
 
+  // EXISTING METHODS
   getDayName(date: Date): string {
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     return days[date.getDay()];
@@ -263,6 +258,8 @@ export class Bankdetailspage {
       }
       
       this.cancelEdit();
+      // Force change detection
+      this.bankData = [...this.bankData];
     }
   }
 
@@ -369,5 +366,111 @@ export class Bankdetailspage {
     const month = (this.selectedDate.getMonth() + 1).toString().padStart(2, '0');
     const year = this.selectedDate.getFullYear();
     return `${day}/${month}/${year}`;
+  }
+
+  // NEW METHODS FOR BALANCE AND STATUS FUNCTIONALITY
+
+  /**
+   * Handle balance plus changes
+   */
+  onBalancePlusChange(partyIndex: number, accountIndex: number, value: string) {
+    this.bankData[partyIndex].accounts[accountIndex].balancePlus = value;
+    // Force change detection
+    this.bankData = [...this.bankData];
+  }
+
+  /**
+   * Handle balance minus changes
+   */
+  onBalanceMinusChange(partyIndex: number, accountIndex: number, value: string) {
+    this.bankData[partyIndex].accounts[accountIndex].balanceMinus = value;
+    // Force change detection
+    this.bankData = [...this.bankData];
+  }
+
+  /**
+   * Handle status changes
+   */
+  onStatusChange(partyIndex: number, accountIndex: number, value: string) {
+    this.bankData[partyIndex].accounts[accountIndex].status = value;
+    // Force change detection
+    this.bankData = [...this.bankData];
+  }
+
+  /**
+   * Formats balance values with proper number formatting
+   */
+  formatBalance(value: string): string {
+    // Allow zero values
+    if (value === '0' || value === '0.00') {
+      return '0.00';
+    }
+    
+    if (!value || value.trim() === '' || value === '-') {
+      return '-';
+    }
+    
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) {
+      return '-';
+    }
+    
+    return numValue.toLocaleString('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  /**
+   * Calculates total number of accounts across all parties
+   */
+  getTotalAccounts(): number {
+    return this.bankData.reduce((total, party) => total + party.accounts.length, 0);
+  }
+
+  /**
+   * Calculates net balance (Total Plus - Total Minus)
+   */
+  getNetBalance(): number {
+    return this.getTotalPlus() - this.getTotalMinus();
+  }
+
+  /**
+   * Returns current date and time in formatted string
+   */
+  getCurrentDateTime(): string {
+    const now = new Date();
+    return now.toLocaleString('en-IN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  }
+
+  /**
+   * Get formatted currency value for display
+   */
+  getFormattedCurrency(value: number): string {
+    return value.toLocaleString('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
+  /**
+   * Get status class for styling
+   */
+  getStatusClass(status: string): string {
+    switch (status) {
+      case 'ACTIVE': return 'status-active';
+      case 'INACTIVE': return 'status-inactive';
+      case 'DEBIT FREEZE': return 'status-freeze';
+      default: return 'status-active';
+    }
   }
 }
