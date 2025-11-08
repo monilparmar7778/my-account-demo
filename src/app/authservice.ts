@@ -27,7 +27,7 @@ export class Authservice {
 
   // ✅ EMPLOYEE API URL (NEW)
   private employeesUrl = 'http://176.223.135.126/api/Employee';
- private accountRecordUrl = 'http://176.223.135.126/sapi/AccountRecord';
+ private accountRecordUrl = 'http://176.223.135.126/api/AccountRecord';
   // JWT Authentication Properties
   private tokenKey = 'authToken';
   private userKey = 'userData';
