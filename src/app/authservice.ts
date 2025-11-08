@@ -16,7 +16,7 @@ export class Authservice {
   private checkUserUrl = `${environment.loginUrl}/check-user`;
   private baseUrl = environment.loginUrl;
   
-  // ✅ ACCOUNT API URL
+
   private accountsUrl = 'http://176.223.135.126/api/Account';
   
   // ✅ USER API URL hADH
