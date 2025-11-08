@@ -171,13 +171,15 @@
     </kendo-grid-column>
     
     <!-- Employee Amount -->
-    <kendo-grid-column 
+      <kendo-grid-column 
       field="employee_amount" 
       title="Salary" 
       [width]="150"
-      format="{0:c}"
       [headerStyle]="{'text-align': 'right'}"
       [style]="{'text-align': 'right', 'font-weight': '600'}">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        ₹{{ dataItem.employee_amount | number }}
+      </ng-template>
     </kendo-grid-column>
     
     <!-- Employee Description -->

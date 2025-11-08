@@ -234,7 +234,8 @@ export class Bankdetailspage {
   editingCell: { partyIndex: number, accountIndex: number, field: string } | null = null;
   editValue: string = '';
 
-  // EXISTING METHODS
+  // ALL YOUR EXISTING METHODS REMAIN EXACTLY THE SAME
+
   getDayName(date: Date): string {
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     return days[date.getDay()];
@@ -328,8 +329,41 @@ export class Bankdetailspage {
     console.log('Updated data:', this.bankData);
   }
 
+  // UPDATED: printReport method to temporarily hide sidebar only during printing
   printReport() {
+    // Store original sidebar state
+    const sidebar = document.querySelector('app-side-nav');
+    const homeSection = document.querySelector('.home-section');
+    
+    let originalSidebarDisplay = '';
+    let originalHomeMargin = '';
+    let originalHomeWidth = '';
+    
+    if (sidebar) {
+      originalSidebarDisplay = (sidebar as HTMLElement).style.display;
+      (sidebar as HTMLElement).style.display = 'none';
+    }
+    
+    if (homeSection) {
+      originalHomeMargin = (homeSection as HTMLElement).style.marginLeft;
+      originalHomeWidth = (homeSection as HTMLElement).style.width;
+      (homeSection as HTMLElement).style.marginLeft = '0';
+      (homeSection as HTMLElement).style.width = '100%';
+    }
+
+    // Trigger print
     window.print();
+
+    // Restore sidebar after print dialog closes
+    setTimeout(() => {
+      if (sidebar) {
+        (sidebar as HTMLElement).style.display = originalSidebarDisplay;
+      }
+      if (homeSection) {
+        (homeSection as HTMLElement).style.marginLeft = originalHomeMargin;
+        (homeSection as HTMLElement).style.width = originalHomeWidth;
+      }
+    }, 100);
   }
 
   isEditing(partyIndex: number, accountIndex: number, field: string): boolean {
@@ -368,40 +402,22 @@ export class Bankdetailspage {
     return `${day}/${month}/${year}`;
   }
 
-  // NEW METHODS FOR BALANCE AND STATUS FUNCTIONALITY
-
-  /**
-   * Handle balance plus changes
-   */
   onBalancePlusChange(partyIndex: number, accountIndex: number, value: string) {
     this.bankData[partyIndex].accounts[accountIndex].balancePlus = value;
-    // Force change detection
     this.bankData = [...this.bankData];
   }
 
-  /**
-   * Handle balance minus changes
-   */
   onBalanceMinusChange(partyIndex: number, accountIndex: number, value: string) {
     this.bankData[partyIndex].accounts[accountIndex].balanceMinus = value;
-    // Force change detection
     this.bankData = [...this.bankData];
   }
 
-  /**
-   * Handle status changes
-   */
   onStatusChange(partyIndex: number, accountIndex: number, value: string) {
     this.bankData[partyIndex].accounts[accountIndex].status = value;
-    // Force change detection
     this.bankData = [...this.bankData];
   }
 
-  /**
-   * Formats balance values with proper number formatting
-   */
   formatBalance(value: string): string {
-    // Allow zero values
     if (value === '0' || value === '0.00') {
       return '0.00';
     }
@@ -421,23 +437,14 @@ export class Bankdetailspage {
     });
   }
 
-  /**
-   * Calculates total number of accounts across all parties
-   */
   getTotalAccounts(): number {
     return this.bankData.reduce((total, party) => total + party.accounts.length, 0);
   }
 
-  /**
-   * Calculates net balance (Total Plus - Total Minus)
-   */
   getNetBalance(): number {
     return this.getTotalPlus() - this.getTotalMinus();
   }
 
-  /**
-   * Returns current date and time in formatted string
-   */
   getCurrentDateTime(): string {
     const now = new Date();
     return now.toLocaleString('en-IN', {
@@ -450,9 +457,6 @@ export class Bankdetailspage {
     });
   }
 
-  /**
-   * Get formatted currency value for display
-   */
   getFormattedCurrency(value: number): string {
     return value.toLocaleString('en-IN', {
       style: 'currency',
@@ -462,9 +466,6 @@ export class Bankdetailspage {
     });
   }
 
-  /**
-   * Get status class for styling
-   */
   getStatusClass(status: string): string {
     switch (status) {
       case 'ACTIVE': return 'status-active';
