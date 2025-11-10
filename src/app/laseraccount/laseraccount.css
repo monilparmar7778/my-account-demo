@@ -104,14 +104,20 @@
   gap: 10px;
 }
 
-.summary-grid {
+/* .summary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
   margin-bottom: 30px;
   width: 100%;
+} */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+  width: 100%;
 }
-
 /* .summary-card {
   padding: 25px 20px;
   border-radius: 15px;
@@ -124,16 +130,16 @@
   align-items: center;
   gap: 15px;
 } */
- .summary-card {
-  padding: 18px 12px;
+.summary-card {
+  padding: 15px 12px;
   border-radius: 15px;
   color: white !important;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
   gap: 10px;
   min-height: 95px;
-  height: auto;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .summary-card:hover {
@@ -158,14 +164,20 @@
 }
 
 .summary-icon {
-  font-size: 2rem;
-  color: white !important; /* FORCE WHITE ICONS */
+  font-size: 1.6rem;
+  color: white !important;
+  flex-shrink: 0;
 }
+
+/* .summary-content {
+  flex: 1;
+} */
 
 .summary-content {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
-
 /* .summary-value {
   font-size: 2rem;
   font-weight: 800;
@@ -173,20 +185,37 @@
   color: white !important; 
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 } */
- .summary-value {
-  font-size: clamp(1.4rem, 4vw, 1.8rem); /* Responsive font size */
+ /* .summary-value {
+  font-size: clamp(1.4rem, 4vw, 1.8rem); 
   font-weight: 800;
   margin-bottom: 4px;
   color: white !important;
   line-height: 1.1;
+} */
+ .summary-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 3px;
+  color: white !important;
+  line-height: 1.1;
+  font-family: Arial, sans-serif;
+  letter-spacing: -0.3px;
+  word-break: break-word;
 }
-.summary-label {
+
+/* .summary-label {
   font-size: 0.9rem;
   font-weight: 600;
   opacity: 0.9;
-  color: white !important; /* FORCE WHITE TEXT */
+  color: white !important; 
+} */
+.summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.9;
+  color: white !important;
+  line-height: 1.1;
 }
-
 /* Export Toolbar */
 .export-toolbar {
   background: white;
