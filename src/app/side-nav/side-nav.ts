@@ -84,7 +84,10 @@ export class SideNav {
     console.log('Navigating to Bank Details');
     this.router.navigate(['/mainchild/bankdetailspage']);
   }
-
+    navigateToCreateEmployee() {
+    console.log('Navigating to Create Employee');
+    this.router.navigate(['/mainchild/createemployee']);
+  }
   onLogout() {
     if (confirm('Are you sure you want to logout?')) {
       console.log('Logging out');

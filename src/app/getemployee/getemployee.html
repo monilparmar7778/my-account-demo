@@ -13,9 +13,9 @@
   <div class="page-header">
     <h1 class="page-title">
       <span class="k-icon k-i-group"></span>
-      Employee Management
+      Employee Salary Records
     </h1>
-    <p class="page-subtitle">Manage all employee records and information</p>
+    <p class="page-subtitle">Manage employee salary records and information</p>
   </div>
 
   <!-- Summary Cards -->
@@ -26,7 +26,7 @@
       </div>
       <div class="card-content">
         <div class="card-value">{{ totalEmployees }}</div>
-        <div class="card-label">Total Employees</div>
+        <div class="card-label">Total Records</div>
       </div>
     </div>
     
@@ -66,13 +66,13 @@
     <div class="toolbar-left">
       <button 
         kendoButton 
-        [routerLink]="['/insertemployee']" 
+        (click)="addNewEmployee()" 
         [disabled]="isLoading"
         class="k-button k-button-solid k-button-solid-primary"
-        title="Add New Employee"
+        title="Add New Salary Record"
       >
         <span class="k-icon k-i-plus"></span>
-        Add New Employee
+        Add Salary Record
       </button>
       
       <button 
@@ -91,7 +91,7 @@
         <input 
           type="text" 
           class="search-input" 
-          placeholder="Search by name, description, ID..." 
+          placeholder="Search by employee ID, amount, description..." 
           [value]="searchTerm"
           (input)="onSearchInput($event)"
         />
@@ -110,7 +110,7 @@
     <div class="toolbar-right">
       <div class="table-info">
         <span class="k-icon k-i-grid"></span>
-        Showing <strong>{{ filteredView.length }}</strong> of <strong>{{ view.length }}</strong> employees
+        Showing <strong>{{ filteredView.length }}</strong> of <strong>{{ view.length }}</strong> records
       </div>
     </div>
   </div>
@@ -137,48 +137,66 @@
         <div class="toolbar-left">
           <button 
             kendoButton 
-            [routerLink]="['/insertemployee']" 
+            (click)="addNewEmployee()" 
             [disabled]="isLoading"
             class="k-button k-button-solid k-button-solid-primary"
-            title="Add New Employee"
+            title="Add New Salary Record"
           >
             <span class="k-icon k-i-plus"></span>
-            Add New Employee
+            Add Salary Record
           </button>
-          <span class="grid-title">Employee Records</span>
+          <span class="grid-title">Salary Records</span>
         </div>
       </div>
     </ng-template>
 
     <!-- Column Definitions -->
     
-    <!-- Employee ID Column -->
-    <kendo-grid-column 
+    <!-- Record ID Column -->
+    <!-- <kendo-grid-column 
       field="emp_details_id" 
-      title="Employee ID" 
+      title="Record ID" 
       [width]="120" 
       [filterable]="false"
       [headerStyle]="{'text-align': 'center'}"
       [style]="{'text-align': 'center'}">
-    </kendo-grid-column>
+    </kendo-grid-column> -->
     
-    <!-- Employee Name -->
+    <!-- Employee ID -->
+    <!-- <kendo-grid-column 
+      field="employee_id" 
+      title="Employee ID" 
+      [width]="150"
+      [filterable]="true"
+      [headerStyle]="{'text-align': 'center'}"
+      [style]="{'text-align': 'center', 'font-weight': '600'}">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span class="employee-id-badge">#{{ dataItem.employee_id }}</span>
+      </ng-template>
+    </kendo-grid-column>
+     -->
+    <!-- Employee Name (from joined data) -->
     <kendo-grid-column 
       field="employee_name" 
       title="Employee Name" 
       [width]="200"
       [filterable]="true">
+      <ng-template kendoGridCellTemplate let-dataItem>
+        <span class="employee-name">
+          {{ getEmployeeName(dataItem.employee_id) || 'Unknown' }}
+        </span>
+      </ng-template>
     </kendo-grid-column>
     
     <!-- Employee Amount -->
-      <kendo-grid-column 
+    <kendo-grid-column 
       field="employee_amount" 
-      title="Salary" 
-      [width]="150"
+      title="Salary Amount" 
+      [width]="160"
       [headerStyle]="{'text-align': 'right'}"
       [style]="{'text-align': 'right', 'font-weight': '600'}">
       <ng-template kendoGridCellTemplate let-dataItem>
-        ₹{{ dataItem.employee_amount | number }}
+        <span class="salary-amount">₹{{ dataItem.employee_amount | number:'1.0-0' }}</span>
       </ng-template>
     </kendo-grid-column>
     
@@ -198,34 +216,17 @@
     <!-- Insert Date -->
     <kendo-grid-column 
       field="insert_date" 
-      title="Insert Date" 
+      title="Record Date" 
       [width]="150"
       format="{0:dd/MM/yyyy}"
       [headerStyle]="{'text-align': 'center'}"
       [style]="{'text-align': 'center'}">
     </kendo-grid-column>
 
-    <!-- Salary Category -->
-    <!-- <kendo-grid-column 
-      title="Salary Category" 
-      [width]="140"
-      [headerStyle]="{'text-align': 'center'}"
-      [style]="{'text-align': 'center'}">
-      <ng-template kendoGridCellTemplate let-dataItem>
-        <span class="salary-category" 
-              [class.high-salary]="dataItem.employee_amount > 50000"
-              [class.medium-salary]="dataItem.employee_amount >= 25000 && dataItem.employee_amount <= 50000"
-              [class.low-salary]="dataItem.employee_amount < 25000">
-          {{ dataItem.employee_amount > 50000 ? 'High' : 
-             dataItem.employee_amount >= 25000 ? 'Medium' : 'Low' }}
-        </span>
-      </ng-template>
-    </kendo-grid-column> -->
-
     <!-- Action Column -->
     <kendo-grid-command-column 
       title="Actions" 
-      [width]="200"
+      [width]="180"
       [headerStyle]="{'text-align': 'center'}"
     >
       <ng-template kendoGridCellTemplate let-dataItem>
@@ -235,7 +236,7 @@
             (click)="editEmployee(dataItem)" 
             class="k-button k-button-solid k-button-solid-primary btn-edit"
             [disabled]="isLoading"
-            title="Edit Employee"
+            title="Edit Record"
           >
             <span class="k-icon k-i-edit"></span>
             Edit
@@ -245,7 +246,7 @@
             (click)="deleteEmployee(dataItem)" 
             class="k-button k-button-solid k-button-solid-error btn-delete"
             [disabled]="isLoading"
-            title="Delete Employee"
+            title="Delete Record"
           >
             <span class="k-icon k-i-delete"></span>
             Delete
@@ -260,38 +261,46 @@
     <div class="empty-icon">
       <span class="k-icon k-i-group"></span>
     </div>
-    <h3>No Employees Found</h3>
-    <p *ngIf="searchTerm">No employees match your search criteria. Try adjusting your search terms.</p>
-    <p *ngIf="!searchTerm">No employees available. Click "Add New Employee" to get started.</p>
+    <h3>No Salary Records Found</h3>
+    <p *ngIf="searchTerm">No records match your search criteria. Try adjusting your search terms.</p>
+    <p *ngIf="!searchTerm">No salary records available. Click "Add Salary Record" to get started.</p>
     <button 
       kendoButton 
-      [routerLink]="['/insertemployee']" 
+      (click)="addNewEmployee()" 
       class="k-button k-button-solid k-button-solid-primary"
     >
       <span class="k-icon k-i-plus"></span>
-      Add Your First Employee
+      Add Your First Record
     </button>
   </div>
 </div>
 
 <!-- Edit Employee Modal Template -->
+<!-- Edit Employee Modal Template -->
 <ng-template #editModalTemplate>
   <div class="modal-content" *ngIf="editForm">
     <form [formGroup]="editForm" class="employee-form">
       
-      <!-- Employee Name -->
+      <!-- Employee Dropdown -->
       <div class="form-group">
-        <kendo-label [for]="'employee_name'" text="Employee Name *" class="form-label"></kendo-label>
-        <input 
-          kendoTextBox 
-          id="employee_name"
-          formControlName="employee_name" 
-          class="full-width" 
-          placeholder="Enter employee name"
-        />
-        <div *ngIf="editForm.get('employee_name')?.invalid && editForm.get('employee_name')?.touched" class="field-error">
-          <span *ngIf="editForm.get('employee_name')?.errors?.['required']">Employee name is required</span>
-          <span *ngIf="editForm.get('employee_name')?.errors?.['minlength']">Name must be at least 2 characters</span>
+        <kendo-label [for]="'employee_id'" text="Select Employee *" class="form-label"></kendo-label>
+        <kendo-dropdownlist
+          id="employee_id"
+          formControlName="employee_id"
+          [data]="employeesList"
+          [valuePrimitive]="true"
+          [valueField]="'employee_id'"
+          [textField]="'employee_name'"
+          [filterable]="true"
+          class="full-width"
+          placeholder="Select an employee..."
+        >
+        </kendo-dropdownlist>
+        <div *ngIf="editForm.get('employee_id')?.invalid && editForm.get('employee_id')?.touched" class="field-error">
+          <span *ngIf="editForm.get('employee_id')?.errors?.['required']">Please select an employee</span>
+        </div>
+        <div class="form-text">
+          Selected Employee ID: <strong>{{ editForm.get('employee_id')?.value ? '#' + editForm.get('employee_id')?.value : 'None' }}</strong>
         </div>
       </div>
 
@@ -322,26 +331,54 @@
           formControlName="employee_descripation" 
           class="full-width" 
           rows="3"
-          placeholder="Enter employee description or notes..."
+          placeholder="Enter salary record description or notes..."
         ></textarea>
       </div>
 
-      <!-- Insert Date -->
+      <!-- Insert Date - FIXED TIMEZONE ISSUE -->
       <div class="form-group">
-        <kendo-label [for]="'insert_date'" text="Insert Date" class="form-label"></kendo-label>
+        <kendo-label [for]="'insert_date'" text="Record Date *" class="form-label"></kendo-label>
         <kendo-datepicker 
           id="insert_date"
-          formControlName="insert_date" 
+          [value]="editForm.get('insert_date')?.value"
+          (valueChange)="onDateChange($event)"
           [format]="'dd/MM/yyyy'"
           class="full-width">
         </kendo-datepicker>
+        <!-- <div class="form-text">
+          Selected Date: <strong>{{ editForm.get('insert_date')?.value | date:'dd/MM/yyyy' }}</strong>
+          <br>
+          Debug: {{ editForm.get('insert_date')?.value | date:'dd/MM/yyyy HH:mm:ss Z' }}
+        </div> -->
+        <div *ngIf="editForm.get('insert_date')?.invalid && editForm.get('insert_date')?.touched" class="field-error">
+          <span *ngIf="editForm.get('insert_date')?.errors?.['required']">Record date is required</span>
+        </div>
       </div>
+
+      <!-- Selected Employee Info -->
+      <!-- <div class="selected-employee-info" *ngIf="getSelectedEmployeeInfo()">
+        <div class="info-card">
+          <h4>Selected Employee Information</h4>
+          <div class="info-row">
+            <span class="info-label">Name:</span>
+            <span class="info-value">{{ getSelectedEmployeeInfo()?.employee_name }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Email:</span>
+            <span class="info-value">{{ getSelectedEmployeeInfo()?.email || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Phone:</span>
+            <span class="info-value">{{ getSelectedEmployeeInfo()?.phoneno || 'N/A' }}</span>
+          </div>
+        </div>
+      </div> -->
 
       <!-- Form Status -->
       <div class="form-status" *ngIf="isSaving">
         <div class="saving-indicator">
           <span class="k-icon k-i-loading"></span>
-          {{ isEditMode ? 'Updating employee...' : 'Creating employee...' }}
+          {{ isEditMode ? 'Updating salary record...' : 'Creating salary record...' }}
         </div>
       </div>
 

@@ -24,6 +24,7 @@ export class Authservice {
 
   // ✅ AUTH API URL (NEW)
   private authUrl = 'http://176.223.135.126/api/Auth';
+  private employeesdetailsUrl = 'http://176.223.135.126/api/EmployeeDetails';
 
   // ✅ EMPLOYEE API URL (NEW)
   private employeesUrl = 'http://176.223.135.126/api/Employee';
@@ -43,10 +44,6 @@ export class Authservice {
   }
 
   // ============ LASER REPORT METHOD ADDED ============
-
-  /**
-   * Generate laser report with one-time API call
-   */
   generateLaserReport(request: any): Observable<any> {
     const httpOptions = {
       headers: this.getAuthHeaders()
@@ -231,7 +228,7 @@ export class Authservice {
     };
     
     const employee = {
-      employee_name: employeeData.employee_name,
+       employee_id: employeeData.employee_id,
       employee_amount: employeeData.employee_amount,
       employee_descripation: employeeData.employee_descripation,
       insert_date: employeeData.insert_date // This will come from Kendo DatePicker
@@ -268,7 +265,7 @@ export class Authservice {
     };
     
     const employeeData = {
-      employee_name: employee.employee_name,
+      employee_id: employee.employee_id,
       employee_amount: employee.employee_amount,
       employee_descripation: employee.employee_descripation,
       insert_date: employee.insert_date // Include insert_date in update
@@ -638,7 +635,7 @@ export class Authservice {
     return this.http.post<any>(this.validateOtpUrl, otpData, httpOptions)
       .pipe(catchError(this.handleError));
   }
-
+  
   /**
    * Refresh token (if implemented in backend)
    */
@@ -661,4 +658,30 @@ export class Authservice {
         catchError(this.handleError)
       );
   }
+    // Enhanced createEmployee method in AuthService
+createDetailsEmployee(employeeData: any): Observable<any> {
+  const httpOptions = {
+    headers: this.getAuthHeaders()
+  };
+  
+  // Properly handle optional fields - send null for empty values
+  const employee = {
+    employee_name: employeeData.employee_name,
+    email: employeeData.email || null, // Send null if empty
+    phoneno: employeeData.phoneno || null // Send null if empty
+  };
+
+  console.log('Creating employee:', employee);
+  
+  return this.http.post<any>(`${this.employeesdetailsUrl}`, employee, httpOptions)
+    .pipe(catchError(this.handleError));
+}
+// Add this method to your AuthService
+getEmployeesDetails(): Observable<any> {
+  const httpOptions = {
+    headers: this.getAuthHeaders()
+  };
+  return this.http.get<any>(`${this.employeesdetailsUrl}/all-details`, httpOptions)
+    .pipe(catchError(this.handleError));
+}
 }

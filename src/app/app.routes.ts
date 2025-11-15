@@ -11,7 +11,7 @@ import { authGuard } from './auth-guard'; // ✅ Correct import path
 import { Insertemployee } from './insertemployee/insertemployee';
 import { Getemployee } from './getemployee/getemployee';
 import { Bankdetailspage } from './bankdetailspage/bankdetailspage';
-
+import { Createemployee } from './createemployee/createemployee';
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: Login },
@@ -30,7 +30,8 @@ export const routes: Routes = [
       { path: 'givemoney', component: Givemoney, canActivate: [authGuard] },
       { path: 'insertemployee',component:Insertemployee,canActivate:[authGuard]},
       { path:'getemployee',component:Getemployee,canActivate:[authGuard]},
-      {path:'bankdetailspage',component:Bankdetailspage,canActivate:[authGuard]}
+      {path:'bankdetailspage',component:Bankdetailspage,canActivate:[authGuard]},
+      {path:'createemployee',component:Createemployee,canActivate:[authGuard]}
     ]
   },
   

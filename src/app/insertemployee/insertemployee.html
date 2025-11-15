@@ -3,8 +3,8 @@
     <div class="col-12 col-xl-8">
       <div class="card create-employee-card">
         <div class="card-header card-header-custom">
-          <h3><i class="fas fa-user-plus me-2"></i>Create New Employee</h3>
-          <p>Add a new employee to the system</p>
+          <h3><i class="fas fa-user-plus me-2"></i>Create New Employee Record</h3>
+          <p>Add salary record for existing employee</p>
         </div>
         
         <div class="card-body card-body-custom">
@@ -19,20 +19,29 @@
           </div>
 
           <form (ngSubmit)="onCreateEmployee()" #employeeForm="ngForm">
-            <!-- Employee Name -->
+            <!-- Employee Name Dropdown -->
             <div class="form-group-custom">
-              <label for="employee_name" class="form-label-custom required-field">
-                Employee Name
+              <label for="employee_id" class="form-label-custom required-field">
+                Select Employee
               </label>
-              <input type="text" 
-                     class="form-control form-control-custom" 
-                     id="employee_name"
-                     name="employee_name"
-                     [(ngModel)]="employeeData.employee_name"
-                     required
-                     placeholder="Enter employee name">
+              <kendo-dropdownlist
+                class="form-control-custom kendo-dropdown-custom"
+                id="employee_id"
+                name="employee_id"
+                [data]="employeesList"
+                [valuePrimitive]="true"
+                [valueField]="'employee_id'"
+                [textField]="'employee_name'"
+                [(ngModel)]="employeeData.employee_id"
+                [filterable]="true"
+                placeholder="Select employee..."
+                required>
+              </kendo-dropdownlist>
               <div class="form-text-custom">
-                Full name of the employee
+                Choose an employee from the list
+              </div>
+              <div *ngIf="isLoadingEmployees" class="form-text-custom text-warning">
+                <i class="fas fa-spinner fa-spin me-2"></i>Loading employees...
               </div>
             </div>
 
@@ -86,7 +95,7 @@
                      rows="3"
                      placeholder="Enter employee description, role, or notes..."></textarea>
               <div class="form-text-custom">
-                Optional description about the employee
+                Optional description about the employee record
               </div>
             </div>
 
@@ -94,9 +103,9 @@
             <div class="form-group-custom">
               <button type="submit" 
                       class="btn btn-create-employee"
-                      [disabled]="isLoading">
+                      [disabled]="isLoading || isLoadingEmployees">
                 <span *ngIf="isLoading" class="loading-spinner"></span>
-                {{ isLoading ? 'Creating Employee...' : 'Create Employee' }}
+                {{ isLoading ? 'Creating Employee Record...' : 'Create Employee Record' }}
               </button>
             </div>
           </form>

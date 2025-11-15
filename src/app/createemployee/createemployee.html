@@ -1,0 +1,88 @@
+<p>createemployee works!</p>
+<div class="create-user-container">
+  <div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+      <div class="card create-user-card">
+        <div class="card-header card-header-custom">
+          <h3><i class="fas fa-user-plus me-2"></i>Create New Employee</h3>
+          <p>Add a new employee to the system</p>
+        </div>
+        
+        <div class="card-body card-body-custom">
+          <!-- Success/Error Message -->
+          <div *ngIf="message" 
+               [class]="'alert alert-custom ' + (messageType === 'success' ? 'alert-success-custom' : 'alert-error-custom')"
+               role="alert">
+            <div class="d-flex align-items-center">
+              <i [class]="messageType === 'success' ? 'fas fa-check-circle me-2' : 'fas fa-exclamation-triangle me-2'"></i>
+              <span>{{ message }}</span>
+            </div>
+          </div>
+
+          <form (ngSubmit)="onCreateEmployee()" #employeeForm="ngForm">
+            <!-- Employee Name -->
+            <div class="form-group-custom">
+              <label for="employee_name" class="form-label-custom required-field">
+                Employee Name
+              </label>
+              <input type="text" 
+                     class="form-control form-control-custom" 
+                     id="employee_name"
+                     name="employee_name"
+                     [(ngModel)]="employeeData.employee_name"
+                     required
+                     placeholder="Enter employee name">
+              <div class="form-text-custom">
+                Full name of the employee (required)
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group-custom">
+              <label for="email" class="form-label-custom">
+                Email Address
+              </label>
+              <input type="email" 
+                     class="form-control form-control-custom" 
+                     id="email"
+                     name="email"
+                     [(ngModel)]="employeeData.email"
+                     placeholder="employee@example.com (optional)">
+              <div class="form-text-custom">
+                <i class="fas fa-info-circle"></i>
+                Optional - can be added later
+              </div>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group-custom">
+              <label for="phoneno" class="form-label-custom">
+                Phone Number
+              </label>
+              <input type="tel" 
+                     class="form-control form-control-custom" 
+                     id="phoneno"
+                     name="phoneno"
+                     [(ngModel)]="employeeData.phoneno"
+                     placeholder="+1 234 567 8900 (optional)">
+              <div class="form-text-custom">
+                <i class="fas fa-info-circle"></i>
+                Optional - can be added later
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-group-custom">
+              <button type="submit" 
+                      class="btn btn-create-user"
+                      [disabled]="isLoading">
+                <span *ngIf="isLoading" class="loading-spinner"></span>
+                {{ isLoading ? 'Creating Employee...' : 'Create Employee' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

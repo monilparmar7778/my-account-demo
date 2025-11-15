@@ -1,5 +1,5 @@
-/* Create Employee Container with Side Nav Spacing */
-.create-employee-container {
+/* Create User Container with Side Nav Spacing */
+.create-user-container {
     margin-left: 30px; /* Match sidebar closed width */
     padding: 2rem;
     min-height: 100vh;
@@ -8,12 +8,12 @@
 }
 
 /* When sidebar is open */
-.sidebar-open .create-employee-container {
+.sidebar-open .create-user-container {
     margin-left: 260px; /* Match sidebar open width */
 }
 
 /* Main Card Styling */
-.create-employee-card {
+.create-user-card {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border: none;
@@ -26,7 +26,7 @@
     border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
-.create-employee-card:hover {
+.create-user-card:hover {
     transform: translateY(-8px);
     box-shadow: 
         0 20px 50px rgba(0, 0, 0, 0.12),
@@ -35,7 +35,7 @@
 
 /* Card Header */
 .card-header-custom {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #27AE60 0%, #219653 100%);
     border: none;
     padding: 2.5rem 2rem;
     text-align: center;
@@ -103,7 +103,7 @@
 }
 
 .form-label-custom:hover {
-    color: #667eea;
+    color: #27AE60;
 }
 
 .required-field::after {
@@ -128,9 +128,9 @@
 }
 
 .form-control-custom:focus {
-    border-color: #667eea;
+    border-color: #27AE60;
     box-shadow: 
-        0 0 0 4px rgba(102, 126, 234, 0.1),
+        0 0 0 4px rgba(39, 174, 96, 0.1),
         0 4px 12px rgba(0, 0, 0, 0.05);
     background: #ffffff;
     transform: translateY(-2px);
@@ -148,10 +148,12 @@
     opacity: 0.8;
 }
 
-/* Textarea specific styles */
-textarea.form-control-custom {
-    resize: vertical;
-    min-height: 100px;
+/* Form Row for Side-by-side Layout */
+.form-row-custom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
 }
 
 /* Form Text */
@@ -166,13 +168,13 @@ textarea.form-control-custom {
 }
 
 .form-text-custom i {
-    color: #667eea;
+    color: #27AE60;
     font-size: 0.9rem;
 }
 
 /* Button Styling */
-.btn-create-employee {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.btn-create-user {
+    background: linear-gradient(135deg, #27AE60 0%, #219653 100%);
     border: none;
     border-radius: 14px;
     padding: 1.25rem 2.5rem;
@@ -181,15 +183,15 @@ textarea.form-control-custom {
     color: white;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 
-        0 8px 25px rgba(102, 126, 234, 0.3),
-        0 2px 6px rgba(102, 126, 234, 0.1);
+        0 8px 25px rgba(39, 174, 96, 0.3),
+        0 2px 6px rgba(39, 174, 96, 0.1);
     width: 100%;
     margin-top: 1rem;
     position: relative;
     overflow: hidden;
 }
 
-.btn-create-employee::before {
+.btn-create-user::before {
     content: '';
     position: absolute;
     top: 0;
@@ -200,25 +202,25 @@ textarea.form-control-custom {
     transition: left 0.6s;
 }
 
-.btn-create-employee:hover:not(:disabled) {
+.btn-create-user:hover:not(:disabled) {
     transform: translateY(-4px);
     box-shadow: 
-        0 15px 35px rgba(102, 126, 234, 0.4),
-        0 5px 15px rgba(102, 126, 234, 0.2);
+        0 15px 35px rgba(39, 174, 96, 0.4),
+        0 5px 15px rgba(39, 174, 96, 0.2);
 }
 
-.btn-create-employee:hover::before {
+.btn-create-user:hover::before {
     left: 100%;
 }
 
-.btn-create-employee:active:not(:disabled) {
+.btn-create-user:active:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: 
-        0 5px 20px rgba(102, 126, 234, 0.3),
-        0 2px 8px rgba(102, 126, 234, 0.2);
+        0 5px 20px rgba(39, 174, 96, 0.3),
+        0 2px 8px rgba(39, 174, 96, 0.2);
 }
 
-.btn-create-employee:disabled {
+.btn-create-user:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
@@ -287,7 +289,7 @@ textarea.form-control-custom {
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-    .create-employee-container {
+    .create-user-container {
         padding: 1.5rem;
     }
     
@@ -296,13 +298,20 @@ textarea.form-control-custom {
     }
 }
 
+@media (max-width: 992px) {
+    .form-row-custom {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
 @media (max-width: 768px) {
-    .create-employee-container {
+    .create-user-container {
         margin-left: 0;
         padding: 1rem;
     }
     
-    .sidebar-open .create-employee-container {
+    .sidebar-open .create-user-container {
         margin-left: 0;
     }
     
@@ -322,14 +331,14 @@ textarea.form-control-custom {
         padding: 0.875rem 1rem;
     }
     
-    .btn-create-employee {
+    .btn-create-user {
         padding: 1.125rem 2rem;
         font-size: 1.05rem;
     }
 }
 
 @media (max-width: 480px) {
-    .create-employee-container {
+    .create-user-container {
         padding: 0.75rem;
     }
     
@@ -350,39 +359,39 @@ textarea.form-control-custom {
         font-size: 0.95rem;
     }
     
-    .btn-create-employee {
+    .btn-create-user {
         padding: 1rem 1.5rem;
         font-size: 1rem;
     }
 }
 
 /* Custom Scrollbar */
-.create-employee-container::-webkit-scrollbar {
+.create-user-container::-webkit-scrollbar {
     width: 6px;
 }
 
-.create-employee-container::-webkit-scrollbar-track {
+.create-user-container::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 10px;
 }
 
-.create-employee-container::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.create-user-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #27AE60 0%, #219653 100%);
     border-radius: 10px;
 }
 
-.create-employee-container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+.create-user-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #219653 0%, #1e8749 100%);
 }
 
 /* Focus states for accessibility */
 .form-control-custom:focus-visible {
-    outline: 2px solid #667eea;
+    outline: 2px solid #27AE60;
     outline-offset: 2px;
 }
 
-.btn-create-employee:focus-visible {
-    outline: 3px solid rgba(102, 126, 234, 0.4);
+.btn-create-user:focus-visible {
+    outline: 3px solid rgba(39, 174, 96, 0.4);
     outline-offset: 2px;
 }
 
@@ -395,61 +404,4 @@ textarea.form-control-custom {
 
 .success-pulse {
     animation: successPulse 0.6s ease;
-}
-/* Add these styles to your existing insertemployee.css */
-
-/* Kendo Dropdown Custom Styles */
-.kendo-dropdown-custom {
-    width: 100%;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background: #ffffff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-}
-
-.kendo-dropdown-custom:focus {
-    border-color: #27AE60;
-    box-shadow: 
-        0 0 0 4px rgba(39, 174, 96, 0.1),
-        0 4px 12px rgba(0, 0, 0, 0.05);
-    background: #ffffff;
-    transform: translateY(-2px);
-    outline: none;
-}
-
-.kendo-dropdown-custom:hover:not(:focus) {
-    border-color: #cbd5e0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-/* Kendo DatePicker Custom Styles */
-.kendo-datepicker-custom {
-    width: 100%;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 1rem 1.25rem;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background: #ffffff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-}
-
-.kendo-datepicker-custom:focus {
-    border-color: #27AE60;
-    box-shadow: 
-        0 0 0 4px rgba(39, 174, 96, 0.1),
-        0 4px 12px rgba(0, 0, 0, 0.05);
-    background: #ffffff;
-    transform: translateY(-2px);
-    outline: none;
-}
-
-/* Text warning for loading */
-.text-warning {
-    color: #ed8936;
 }
