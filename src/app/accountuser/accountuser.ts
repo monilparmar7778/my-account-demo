@@ -309,6 +309,213 @@ export class Accountuser implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Convert number to words in Indian numbering system
+   */
+  private convertNumberToWords(amount: number): string {
+    if (amount === 0) return 'Zero';
+    if (amount < 0) return 'Minus ' + this.convertNumberToWords(Math.abs(amount));
+    
+    const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+    const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    
+    const crore = 10000000;
+    const lakh = 100000;
+    const thousand = 1000;
+    const hundred = 100;
+    
+    let words = '';
+    
+    // Crores
+    if (amount >= crore) {
+      const crores = Math.floor(amount / crore);
+      words += this.convertNumberToWords(crores) + ' Crore ';
+      amount %= crore;
+    }
+    
+    // Lakhs
+    if (amount >= lakh) {
+      const lakhs = Math.floor(amount / lakh);
+      words += this.convertNumberToWords(lakhs) + ' Lakh ';
+      amount %= lakh;
+    }
+    
+    // Thousands
+    if (amount >= thousand) {
+      const thousands = Math.floor(amount / thousand);
+      words += this.convertNumberToWords(thousands) + ' Thousand ';
+      amount %= thousand;
+    }
+    
+    // Hundreds
+    if (amount >= hundred) {
+      const hundreds = Math.floor(amount / hundred);
+      words += this.convertNumberToWords(hundreds) + ' Hundred ';
+      amount %= hundred;
+    }
+    
+    // Tens and Ones
+    if (amount > 0) {
+      if (amount < 10) {
+        words += ones[amount];
+      } else if (amount < 20) {
+        words += teens[amount - 10];
+      } else {
+        words += tens[Math.floor(amount / 10)];
+        if (amount % 10 > 0) {
+          words += ' ' + ones[amount % 10];
+        }
+      }
+    }
+    
+    return words.trim();
+  }
+
+  /**
+   * Get customer name from user ID
+   */
+  private getCustomerNameFromId(userId: number): string {
+    if (!userId) return '';
+    const user = this.usersList.find(u => u.user_id === userId);
+    return user ? user.username : '';
+  }
+
+  /**
+   * Format amount to charter description with customer name
+   */
+  private formatAmountToCharter(amount: number, customerId: number, type: 'get' | 'give'): string {
+    if (!amount || amount <= 0) return '';
+    
+    const amountInWords = this.convertNumberToWords(amount);
+    const formattedAmount = new Intl.NumberFormat('en-IN', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+    
+    const customerName = this.getCustomerNameFromId(customerId);
+    
+    if (type === 'get') {
+      if (customerName) {
+        return `Received an amount of ₹${formattedAmount} (Rupees ${amountInWords} Only) from ${customerName}.`;
+      } else {
+        return `Received an amount of ₹${formattedAmount} (Rupees ${amountInWords} Only) .`;
+      }
+    } else {
+      if (customerName) {
+        return `Paid an amount of ₹${formattedAmount} (Rupees ${amountInWords} Only) to ${customerName} .`;
+      } else {
+        return `Paid an amount of ₹${formattedAmount} (Rupees ${amountInWords} Only) .`;
+      }
+    }
+  }
+
+  /**
+   * Auto-generate charter description when getmoney changes
+   */
+  private setupGetMoneyCharterAutoFill(): void {
+    if (this.formGroup && this.canEditGetFields) {
+      const getMoneyControl = this.formGroup.get('getmoney');
+      const nameControl = this.formGroup.get('name');
+      const charterControl = this.formGroup.get('charterDescription');
+      
+      if (getMoneyControl && nameControl && charterControl) {
+        // Combine value changes from both amount and customer name
+        getMoneyControl.valueChanges.subscribe(() => {
+          this.updateGetCharterDescription();
+        });
+        
+        nameControl.valueChanges.subscribe(() => {
+          this.updateGetCharterDescription();
+        });
+      }
+    }
+  }
+
+  /**
+   * Update get charter description based on current values
+   */
+  private updateGetCharterDescription(): void {
+    if (this.formGroup && this.canEditGetFields) {
+      const getMoneyControl = this.formGroup.get('getmoney');
+      const nameControl = this.formGroup.get('name');
+      const charterControl = this.formGroup.get('charterDescription');
+      
+      if (getMoneyControl && nameControl && charterControl) {
+        const amount = getMoneyControl.value;
+        const customerId = nameControl.value;
+        
+        if (amount && amount > 0 && customerId) {
+          const charterText = this.formatAmountToCharter(amount, customerId, 'get');
+          charterControl.setValue(charterText, { emitEvent: false });
+        } else if (amount && amount > 0) {
+          const charterText = this.formatAmountToCharter(amount, 0, 'get');
+          charterControl.setValue(charterText, { emitEvent: false });
+        }
+      }
+    }
+  }
+
+  /**
+   * Auto-generate give charter description when givemoney changes
+   */
+  private setupGiveMoneyCharterAutoFill(): void {
+    if (this.formGroup && this.canEditGiveFields) {
+      const giveMoneyControl = this.formGroup.get('givemoney');
+      const givenameControl = this.formGroup.get('givename');
+      const giveCharterControl = this.formGroup.get('giveCharterDescription');
+      
+      if (giveMoneyControl && givenameControl && giveCharterControl) {
+        // Combine value changes from both amount and recipient name
+        giveMoneyControl.valueChanges.subscribe(() => {
+          this.updateGiveCharterDescription();
+        });
+        
+        givenameControl.valueChanges.subscribe(() => {
+          this.updateGiveCharterDescription();
+        });
+      }
+    }
+  }
+
+  /**
+   * Update give charter description based on current values
+   */
+  private updateGiveCharterDescription(): void {
+    if (this.formGroup && this.canEditGiveFields) {
+      const giveMoneyControl = this.formGroup.get('givemoney');
+      const givenameControl = this.formGroup.get('givename');
+      const giveCharterControl = this.formGroup.get('giveCharterDescription');
+      
+      if (giveMoneyControl && givenameControl && giveCharterControl) {
+        const amount = giveMoneyControl.value;
+        const recipientId = givenameControl.value;
+        
+        if (amount && amount > 0 && recipientId) {
+          const charterText = this.formatAmountToCharter(amount, recipientId, 'give');
+          giveCharterControl.setValue(charterText, { emitEvent: false });
+        } else if (amount && amount > 0) {
+          const charterText = this.formatAmountToCharter(amount, 0, 'give');
+          giveCharterControl.setValue(charterText, { emitEvent: false });
+        }
+      }
+    }
+  }
+
+  /**
+   * Setup all auto-fill functionality
+   */
+  private setupAutoCharterFill(): void {
+    this.setupGetMoneyCharterAutoFill();
+    this.setupGiveMoneyCharterAutoFill();
+    
+    // Trigger initial update for existing values
+    setTimeout(() => {
+      this.updateGetCharterDescription();
+      this.updateGiveCharterDescription();
+    }, 100);
+  }
+
   private createFormGroup(dataItem: Account): FormGroup {
     this.setEditingPermissions(dataItem);
 
@@ -375,6 +582,11 @@ export class Accountuser implements OnInit, OnDestroy {
 
       ismoney: new FormControl(dataItem.ismoney !== undefined ? dataItem.ismoney : true)
     });
+
+    // Setup auto-fill after form group creation
+    setTimeout(() => {
+      this.setupAutoCharterFill();
+    }, 0);
 
     console.log('Form group created with charter fields:', {
       charterDescription: formGroup.get('charterDescription')?.value,
