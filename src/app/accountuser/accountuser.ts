@@ -136,7 +136,7 @@ export class Accountuser implements OnInit, OnDestroy {
           this.showNotification('Failed to load customer list', 'error');
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.isUsersLoading = false;
         console.error('Error loading users:', error);
         this.showNotification('Error loading customer list', 'error');
@@ -160,12 +160,11 @@ export class Accountuser implements OnInit, OnDestroy {
         
         if (response.success && response.data && Array.isArray(response.data)) {
           this.view = response.data.map((account: any) => {
-            console.log('Raw account data:', account); // Debug each account
-            
+            console.log('Raw account data:', account);
+
             const getDate = account.date ? this.parseDateWithoutTimezone(account.date) : new Date();
             const giveDate = account.givedate ? this.parseDateWithoutTimezone(account.givedate) : new Date();
             
-            // Handle both lowercase and camelCase field names from database
             const processedAccount = {
               ...account,
               date: getDate,
@@ -176,21 +175,13 @@ export class Accountuser implements OnInit, OnDestroy {
               end_date: account.end_date ? new Date(account.end_date) : undefined,
               status: account.givemoney > 0 ? 'Completed' : 'Pending',
               ismoney: account.ismoney,
-              // Map both possible field names to ensure we get the data
               charterDescription: account.charterDescription || account.charterdescription || '',
               giveCharterDescription: account.giveCharterDescription || account.givecharterdescription || ''
             };
 
-            console.log('Processed account charter fields:', {
-              acid: processedAccount.acid,
-              charterDescription: processedAccount.charterDescription,
-              giveCharterDescription: processedAccount.giveCharterDescription
-            });
-
             return processedAccount;
           });
           
-          console.log('Final view with charter data:', this.view);
           this.applyFilter();
           this.calculateTotals();
         } else {
@@ -200,7 +191,7 @@ export class Accountuser implements OnInit, OnDestroy {
           this.showNotification('No accounts found or invalid response format', 'info');
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.isLoading = false;
         console.error('Error loading accounts:', error);
         this.showNotification('Error loading accounts: ' + error.message, 'error');
@@ -309,9 +300,6 @@ export class Accountuser implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Convert number to words in Indian numbering system
-   */
   private convertNumberToWords(amount: number): string {
     if (amount === 0) return 'Zero';
     if (amount < 0) return 'Minus ' + this.convertNumberToWords(Math.abs(amount));
@@ -327,35 +315,30 @@ export class Accountuser implements OnInit, OnDestroy {
     
     let words = '';
     
-    // Crores
     if (amount >= crore) {
       const crores = Math.floor(amount / crore);
       words += this.convertNumberToWords(crores) + ' Crore ';
       amount %= crore;
     }
     
-    // Lakhs
     if (amount >= lakh) {
       const lakhs = Math.floor(amount / lakh);
       words += this.convertNumberToWords(lakhs) + ' Lakh ';
       amount %= lakh;
     }
     
-    // Thousands
     if (amount >= thousand) {
       const thousands = Math.floor(amount / thousand);
       words += this.convertNumberToWords(thousands) + ' Thousand ';
       amount %= thousand;
     }
     
-    // Hundreds
     if (amount >= hundred) {
       const hundreds = Math.floor(amount / hundred);
       words += this.convertNumberToWords(hundreds) + ' Hundred ';
       amount %= hundred;
     }
     
-    // Tens and Ones
     if (amount > 0) {
       if (amount < 10) {
         words += ones[amount];
@@ -372,18 +355,12 @@ export class Accountuser implements OnInit, OnDestroy {
     return words.trim();
   }
 
-  /**
-   * Get customer name from user ID
-   */
   private getCustomerNameFromId(userId: number): string {
     if (!userId) return '';
     const user = this.usersList.find(u => u.user_id === userId);
     return user ? user.username : '';
   }
 
-  /**
-   * Format amount to charter description with customer name
-   */
   private formatAmountToCharter(amount: number, customerId: number, type: 'get' | 'give'): string {
     if (!amount || amount <= 0) return '';
     
@@ -410,9 +387,6 @@ export class Accountuser implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Auto-generate charter description when getmoney changes
-   */
   private setupGetMoneyCharterAutoFill(): void {
     if (this.formGroup && this.canEditGetFields) {
       const getMoneyControl = this.formGroup.get('getmoney');
@@ -420,7 +394,6 @@ export class Accountuser implements OnInit, OnDestroy {
       const charterControl = this.formGroup.get('charterDescription');
       
       if (getMoneyControl && nameControl && charterControl) {
-        // Combine value changes from both amount and customer name
         getMoneyControl.valueChanges.subscribe(() => {
           this.updateGetCharterDescription();
         });
@@ -432,9 +405,6 @@ export class Accountuser implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Update get charter description based on current values
-   */
   private updateGetCharterDescription(): void {
     if (this.formGroup && this.canEditGetFields) {
       const getMoneyControl = this.formGroup.get('getmoney');
@@ -456,9 +426,6 @@ export class Accountuser implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Auto-generate give charter description when givemoney changes
-   */
   private setupGiveMoneyCharterAutoFill(): void {
     if (this.formGroup && this.canEditGiveFields) {
       const giveMoneyControl = this.formGroup.get('givemoney');
@@ -466,7 +433,6 @@ export class Accountuser implements OnInit, OnDestroy {
       const giveCharterControl = this.formGroup.get('giveCharterDescription');
       
       if (giveMoneyControl && givenameControl && giveCharterControl) {
-        // Combine value changes from both amount and recipient name
         giveMoneyControl.valueChanges.subscribe(() => {
           this.updateGiveCharterDescription();
         });
@@ -478,9 +444,6 @@ export class Accountuser implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Update give charter description based on current values
-   */
   private updateGiveCharterDescription(): void {
     if (this.formGroup && this.canEditGiveFields) {
       const giveMoneyControl = this.formGroup.get('givemoney');
@@ -502,14 +465,10 @@ export class Accountuser implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Setup all auto-fill functionality
-   */
   private setupAutoCharterFill(): void {
     this.setupGetMoneyCharterAutoFill();
     this.setupGiveMoneyCharterAutoFill();
     
-    // Trigger initial update for existing values
     setTimeout(() => {
       this.updateGetCharterDescription();
       this.updateGiveCharterDescription();
@@ -583,15 +542,9 @@ export class Accountuser implements OnInit, OnDestroy {
       ismoney: new FormControl(dataItem.ismoney !== undefined ? dataItem.ismoney : true)
     });
 
-    // Setup auto-fill after form group creation
     setTimeout(() => {
       this.setupAutoCharterFill();
     }, 0);
-
-    console.log('Form group created with charter fields:', {
-      charterDescription: formGroup.get('charterDescription')?.value,
-      giveCharterDescription: formGroup.get('giveCharterDescription')?.value
-    });
 
     return formGroup;
   }
@@ -691,7 +644,7 @@ export class Accountuser implements OnInit, OnDestroy {
           this.showNotification(response.message || 'Error creating account', 'error');
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.isSaving = false;
         console.error('Error creating account:', error);
         this.showNotification('Error creating account: ' + error.message, 'error');
@@ -712,7 +665,7 @@ export class Accountuser implements OnInit, OnDestroy {
           this.showNotification(response.message || 'Error updating account', 'error');
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.isSaving = false;
         console.error('Error updating account:', error);
         this.showNotification('Error updating account: ' + error.message, 'error');
@@ -739,7 +692,7 @@ export class Accountuser implements OnInit, OnDestroy {
             this.showNotification(response.message || 'Error deleting account', 'error');
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           this.isLoading = false;
           console.error('Error deleting account:', error);
           this.showNotification('Error deleting account: ' + error.message, 'error');
@@ -748,6 +701,17 @@ export class Accountuser implements OnInit, OnDestroy {
     }
   }
 
+  // Add the missing rowCallback method
+  public rowCallback(context: RowClassArgs): any {
+    return {
+      'edited-row': context.dataItem === this.selectedAccount,
+      'completed-row': context.dataItem.givemoney > 0,
+      'get-money-row': context.dataItem.ismoney === true,
+      'give-money-row': context.dataItem.ismoney === false
+    };
+  }
+
+  // Add the missing showNotification method
   private showNotification(message: string, type: 'success' | 'error' | 'info' | 'warning'): void {
     this.notificationService.show({
       content: message,
@@ -757,14 +721,5 @@ export class Accountuser implements OnInit, OnDestroy {
       type: { style: type, icon: true },
       hideAfter: 3000
     });
-  }
-
-  public rowCallback(context: RowClassArgs): any {
-    return {
-      'edited-row': context.dataItem === this.selectedAccount,
-      'completed-row': context.dataItem.givemoney > 0,
-      'get-money-row': context.dataItem.ismoney === true,
-      'give-money-row': context.dataItem.ismoney === false
-    };
   }
 }

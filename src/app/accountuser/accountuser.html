@@ -359,7 +359,7 @@
     
     <div class="modal-content">
       <!-- Editing Mode Indicator -->
-      <div *ngIf="formGroup" class="edit-mode-indicator">
+      <div *ngIf="formGroup && !isNew" class="edit-mode-indicator">
         <div class="indicator-content">
           <span class="k-icon k-i-edit"></span>
           <span class="indicator-text">
@@ -379,8 +379,9 @@
 
       <form [formGroup]="formGroup" class="account-form">
         <div class="form-sections">
-          <!-- Get Money Section -->
-          <div class="form-section" [class.disabled-section]="!canEditGetFields">
+          
+          <!-- Get Money Section - Show only when canEditGetFields is true -->
+          <div *ngIf="canEditGetFields || isNew" class="form-section">
             <h3 class="section-title">
               <span class="k-icon k-i-money"></span>
               Get Money Details
@@ -398,7 +399,7 @@
                   [filterable]="true"
                   placeholder="Select customer"
                   class="full-width customer-dropdown"
-                  [disabled]="!canEditGetFields">
+                  [disabled]="!canEditGetFields && !isNew">
                 </kendo-dropdownlist>
                 <div *ngIf="formGroup.get('name')?.invalid && formGroup.get('name')?.touched" class="field-error">
                   Please select a customer
@@ -414,7 +415,7 @@
                   [format]="'n2'"
                   [spinners]="false"
                   class="full-width money-input"
-                  [disabled]="!canEditGetFields">
+                  [disabled]="!canEditGetFields && !isNew">
                 </kendo-numerictextbox>
                 <div *ngIf="formGroup.get('getmoney')?.invalid && formGroup.get('getmoney')?.touched" class="field-error">
                   Valid amount required
@@ -433,7 +434,7 @@
                   [format]="'n2'"
                   [spinners]="false"
                   class="full-width"
-                  [disabled]="!canEditGetFields">
+                  [disabled]="!canEditGetFields && !isNew">
                 </kendo-numerictextbox>
                 <div *ngIf="formGroup.get('intrest')?.invalid && formGroup.get('intrest')?.touched" class="field-error">
                   Interest must be 0-100%
@@ -446,7 +447,7 @@
                   formControlName="date" 
                   [format]="'dd/MM/yyyy'"
                   class="full-width"
-                  [disabled]="!canEditGetFields">
+                  [disabled]="!canEditGetFields && !isNew">
                 </kendo-datepicker>
               </div>
             </div>
@@ -459,7 +460,7 @@
                   formControlName="agent" 
                   class="full-width" 
                   placeholder="Agent name"
-                  [disabled]="!canEditGetFields"
+                  [disabled]="!canEditGetFields && !isNew"
                 />
               </div>
               
@@ -472,7 +473,7 @@
                   [format]="'n0'"
                   [spinners]="false"
                   class="full-width"
-                  [disabled]="!canEditGetFields">
+                  [disabled]="!canEditGetFields && !isNew">
                 </kendo-numerictextbox>
               </div>
             </div>
@@ -484,7 +485,7 @@
                 formControlName="remark" 
                 class="full-width" 
                 placeholder="Additional remarks"
-                [disabled]="!canEditGetFields"
+                [disabled]="!canEditGetFields && !isNew"
               />
             </div>
 
@@ -492,21 +493,21 @@
             <div class="form-field full-width-field">
               <label class="k-label">
                 Charter Description 
-                <span class="auto-fill-indicator" *ngIf="canEditGetFields">(Auto-filled when amount and customer are selected)</span>
+                <span class="auto-fill-indicator" *ngIf="canEditGetFields || isNew">(Auto-filled when amount and customer are selected)</span>
               </label>
               <textarea 
                 kendoTextArea 
                 formControlName="charterDescription" 
                 class="full-width" 
                 placeholder="Charter description - auto-filled when amount and customer are selected"
-                [disabled]="!canEditGetFields"
+                [disabled]="!canEditGetFields && !isNew"
                 rows="3">
               </textarea>
             </div>
           </div>
 
-          <!-- Give Money Section -->
-          <div class="form-section" [class.disabled-section]="!canEditGiveFields">
+          <!-- Give Money Section - Show only when canEditGiveFields is true -->
+          <div *ngIf="canEditGiveFields || isNew" class="form-section">
             <h3 class="section-title">
               <span class="k-icon k-i-dollar"></span>
               Give Money Details
@@ -524,7 +525,7 @@
                   [filterable]="true"
                   placeholder="Select recipient"
                   class="full-width customer-dropdown"
-                  [disabled]="!canEditGiveFields">
+                  [disabled]="!canEditGiveFields && !isNew">
                 </kendo-dropdownlist>
                 <div *ngIf="formGroup.get('givename')?.invalid && formGroup.get('givename')?.touched" class="field-error">
                   Please select a recipient
@@ -540,7 +541,7 @@
                   [format]="'n2'"
                   [spinners]="false"
                   class="full-width money-input"
-                  [disabled]="!canEditGiveFields">
+                  [disabled]="!canEditGiveFields && !isNew">
                 </kendo-numerictextbox>
                 <div *ngIf="formGroup.get('givemoney')?.invalid && formGroup.get('givemoney')?.touched" class="field-error">
                   Valid amount required
@@ -555,7 +556,7 @@
                   formControlName="givedate" 
                   [format]="'dd/MM/yyyy'"
                   class="full-width"
-                  [disabled]="!canEditGiveFields">
+                  [disabled]="!canEditGiveFields && !isNew">
                 </kendo-datepicker>
               </div>
               
@@ -566,7 +567,7 @@
                   formControlName="giveagent" 
                   class="full-width" 
                   placeholder="Give agent name"
-                  [disabled]="!canEditGiveFields"
+                  [disabled]="!canEditGiveFields && !isNew"
                 />
               </div>
             </div>
@@ -581,7 +582,7 @@
                   [format]="'n0'"
                   [spinners]="false"
                   class="full-width"
-                  [disabled]="!canEditGiveFields">
+                  [disabled]="!canEditGiveFields && !isNew">
                 </kendo-numerictextbox>
               </div>
             </div>
@@ -593,7 +594,7 @@
                 formControlName="giveremark" 
                 class="full-width" 
                 placeholder="Give remarks"
-                [disabled]="!canEditGiveFields"
+                [disabled]="!canEditGiveFields && !isNew"
               />
             </div>
 
@@ -601,18 +602,19 @@
             <div class="form-field full-width-field">
               <label class="k-label">
                 Give Charter Description 
-                <span class="auto-fill-indicator" *ngIf="canEditGiveFields">(Auto-filled when amount and recipient are selected)</span>
+                <span class="auto-fill-indicator" *ngIf="canEditGiveFields || isNew">(Auto-filled when amount and recipient are selected)</span>
               </label>
               <textarea 
                 kendoTextArea 
                 formControlName="giveCharterDescription" 
                 class="full-width" 
                 placeholder="Give charter description - auto-filled when amount and recipient are selected"
-                [disabled]="!canEditGiveFields"
+                [disabled]="!canEditGiveFields && !isNew"
                 rows="3">
               </textarea>
             </div>
           </div>
+
         </div>
       </form>
     </div>
