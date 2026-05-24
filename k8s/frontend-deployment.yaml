@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: frontend-container
-          image: 934711778731.dkr.ecr.ap-south-1.amazonaws.com/my-angular-app:IMAGE_TAG
+          image: 934711778731.dkr.ecr.ap-south-1.amazonaws.com/my-account-frontend:23
           imagePullPolicy: Always 
           ports:
             - containerPort: 80
